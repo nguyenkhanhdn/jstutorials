@@ -9,8 +9,10 @@ import {
   MapPin, 
   CheckCircle2, 
   Search,
-  Code2
+  Code2,
+  Trophy
 } from 'lucide-react';
+import { StudentProfile } from '../types';
 
 export type AppViewMode = 'student' | 'teacher' | 'docs';
 export type StudentSubView = 'dashboard' | 'curriculum' | 'lesson' | 'practice' | 'bookmarks' | 'review';
@@ -22,6 +24,8 @@ interface HeaderProps {
   setStudentSubView: (subView: StudentSubView) => void;
   onOpenKnowledgeMap: () => void;
   bookmarkCount: number;
+  studentProfile?: StudentProfile;
+  onOpenGamification?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -30,7 +34,9 @@ export const Header: React.FC<HeaderProps> = ({
   studentSubView,
   setStudentSubView,
   onOpenKnowledgeMap,
-  bookmarkCount
+  bookmarkCount,
+  studentProfile,
+  onOpenGamification
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
@@ -116,14 +122,29 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-slate-200 text-xs">
-                <span className="flex items-center gap-1 font-bold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-1 rounded-md">
+                <button
+                  onClick={onOpenGamification}
+                  className="flex items-center gap-1 font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 px-2 py-1 rounded-md transition-colors cursor-pointer"
+                  title="Xem chi tiết chuỗi chuyên cần"
+                >
                   <Flame className="w-3.5 h-3.5 text-amber-700 fill-amber-500" />
-                  7 ngày
-                </span>
-                <span className="flex items-center gap-1 font-bold text-indigo-800 bg-indigo-50 border border-indigo-200/80 px-2 py-1 rounded-md">
+                  <span>{studentProfile?.streakDays || 7} ngày</span>
+                </button>
+                <button
+                  onClick={onOpenGamification}
+                  className="flex items-center gap-1 font-bold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 px-2 py-1 rounded-md transition-colors cursor-pointer"
+                  title="Xem Cấp độ & Huy hiệu năng lực"
+                >
                   <Zap className="w-3.5 h-3.5 text-indigo-700 fill-indigo-500" />
-                  1,450 XP
-                </span>
+                  <span>{(studentProfile?.xp || 1450).toLocaleString()} XP</span>
+                </button>
+                <button
+                  onClick={onOpenGamification}
+                  className="p-1 rounded-md bg-amber-500 hover:bg-amber-600 text-slate-950 transition-colors shadow-xs"
+                  title="Mở Hub Thành Tích & Nhiệm Vụ (Gamification V2)"
+                >
+                  <Trophy className="w-3.5 h-3.5 fill-slate-950" />
+                </button>
               </div>
 
               {/* Student Avatar */}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Flame, 
   Zap, 
@@ -10,10 +10,16 @@ import {
   BookOpen, 
   Award,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Trophy,
+  Sparkles,
+  Target,
+  GitBranch
 } from 'lucide-react';
 import { CURRICULUM_MODULES } from '../../data/curriculumData';
 import { Bookmark, StudentProfile } from '../../types';
+import { gamificationService } from '../../services/gamificationService';
+import { AdaptiveLearningModal } from './AdaptiveLearningModal';
 
 interface StudentDashboardProps {
   student: StudentProfile;
@@ -21,6 +27,7 @@ interface StudentDashboardProps {
   onStartLesson: (lessonId: string) => void;
   onNavigateTab: (tab: any) => void;
   onOpenKnowledgeMap: () => void;
+  onOpenGamification?: () => void;
 }
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({
@@ -28,9 +35,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   bookmarks,
   onStartLesson,
   onNavigateTab,
-  onOpenKnowledgeMap
+  onOpenKnowledgeMap,
+  onOpenGamification
 }) => {
+  const [showAdaptiveModal, setShowAdaptiveModal] = useState(false);
   const unresolvedBookmarks = bookmarks.filter(b => !b.isResolved);
+  const rankInfo = gamificationService.getRankInfo(student.xp);
+  const dailyQuests = gamificationService.getDailyQuests();
+  const incompleteQuests = dailyQuests.filter(q => !q.completed);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -68,6 +80,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             >
               Bản đồ tri thức
             </button>
+            <button
+              onClick={() => setShowAdaptiveModal(true)}
+              className="px-4 py-3 rounded-2xl bg-indigo-600/80 hover:bg-indigo-600 border border-indigo-400/40 text-white font-semibold text-sm transition-all flex items-center gap-2 cursor-pointer shadow-md"
+            >
+              <GitBranch className="w-4 h-4 text-indigo-300" />
+              <span>Lộ trình thích ứng DDA</span>
+            </button>
           </div>
         </div>
 
@@ -77,23 +96,35 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+        <div 
+          onClick={onOpenGamification}
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 hover:border-amber-300 hover:shadow-sm transition-all cursor-pointer group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Flame className="w-6 h-6 fill-amber-500" />
           </div>
           <div>
-            <div className="text-2xl font-black text-slate-900">{student.streakDays} ngày</div>
-            <div className="text-xs font-medium text-slate-500">Chuỗi học tập liên tục</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl font-black text-slate-900">{student.streakDays} ngày</span>
+              <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded font-bold">🔥 Hot</span>
+            </div>
+            <div className="text-xs font-medium text-slate-500">Chuỗi học tập • Xem lịch</div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+        <div 
+          onClick={onOpenGamification}
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Zap className="w-6 h-6 fill-indigo-500" />
           </div>
           <div>
-            <div className="text-2xl font-black text-slate-900">{student.xp} XP</div>
-            <div className="text-xs font-medium text-slate-500">Điểm kinh nghiệm</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl font-black text-slate-900">{student.xp.toLocaleString()} XP</span>
+              <span className="text-[10px] text-indigo-700 bg-indigo-100 px-1.5 py-0.2 rounded font-bold">L{rankInfo.level}</span>
+            </div>
+            <div className="text-xs font-medium text-slate-500">{rankInfo.title}</div>
           </div>
         </div>
 
@@ -116,6 +147,35 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <div className="text-xs font-medium text-slate-500">Điểm Quiz trung bình</div>
           </div>
         </div>
+      </div>
+
+      {/* Gamification V2 Banner: Level & Daily Quests */}
+      <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-indigo-700 rounded-2xl p-5 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0">
+            <Trophy className="w-6 h-6 text-amber-200 fill-amber-300" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="font-black text-base">Hệ Thống Thành Tích & Nhiệm Vụ (Gamification V2)</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white border border-white/30">
+                Level {rankInfo.level}: {rankInfo.title}
+              </span>
+            </div>
+            <p className="text-xs text-amber-100">
+              Hôm nay còn <strong>{incompleteQuests.length} nhiệm vụ</strong> chưa hoàn thành để nhận tới +120 XP và nâng hạng!
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={onOpenGamification}
+          className="px-4 py-2.5 rounded-xl bg-white text-slate-950 hover:bg-amber-100 font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-sm shrink-0 self-start md:self-auto"
+        >
+          <Sparkles className="w-4 h-4 text-amber-600" />
+          <span>Mở Trạm Thành Tích & Quests</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       {/* Main Grid: Needs Review & Recent Bookmarks */}
@@ -278,6 +338,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         </div>
 
       </div>
+
+      {/* Adaptive Learning Modal */}
+      <AdaptiveLearningModal
+        isOpen={showAdaptiveModal}
+        onClose={() => setShowAdaptiveModal(false)}
+        student={student}
+        onStartLesson={onStartLesson}
+      />
 
     </div>
   );

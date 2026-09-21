@@ -128,7 +128,7 @@ export interface Lesson {
   quiz: Quiz;
   summary: string[];
   suggestedBookmarks: string[];
-  relatedLessons: { id: string; title: string }[];
+  relatedLessons?: { id: string; title: string }[];
 }
 
 export interface Module {
@@ -144,6 +144,8 @@ export interface Module {
   masteryPercentage: number;
 }
 
+export type SpacedReviewStatus = 'due' | 'upcoming' | 'mastered';
+
 export interface Bookmark {
   id: string;
   studentId: string;
@@ -157,6 +159,12 @@ export interface Bookmark {
   customNote?: string;
   createdAt: string;
   isResolved: boolean;
+  // Version 2: Spaced Repetition Tracking
+  nextReviewDate?: string;
+  reviewIntervalDays?: number; // 1, 3, 7, 14, 30 days
+  repetitionsCount?: number;
+  lastReviewedAt?: string;
+  reviewStatus?: SpacedReviewStatus;
 }
 
 export interface StudentProgress {
@@ -174,6 +182,29 @@ export interface StudentProgress {
   exercisesCompleted: string[]; // exercise IDs
   confidenceLevel?: SelfAssessmentLevel;
   needsReviewObjectives: string[];
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+  category: 'progress' | 'mastery' | 'persistence' | 'ai_collaboration';
+  unlockedAt?: string;
+  currentProgress: number;
+  maxProgress: number;
+  xpReward: number;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+}
+
+export interface DailyQuest {
+  id: string;
+  title: string;
+  description: string;
+  xp: number;
+  completed: boolean;
+  iconName: string;
+  actionType: 'predict' | 'exercise' | 'spaced_review';
 }
 
 export interface StudentProfile {
@@ -194,10 +225,153 @@ export interface StudentProfile {
   lastActive: string;
   weakObjectives: string[];
   bookmarkCount: number;
+  // Version 2: Gamification stats
+  rankTitle?: string;
+  unlockedBadgeIds?: string[];
+  dailyQuestsCompleted?: string[];
 }
 
 export interface AITutorResponse {
   scaffoldingLevel: number;
   response: string;
   source: 'gemini' | 'pedagogical_engine';
+}
+
+// ==========================================
+// ADVANCED LEARNING ANALYTICS TYPES
+// ==========================================
+
+export interface ObjectiveMastery {
+  code: string;
+  title: string;
+  moduleName: string;
+  bloomLevel: 'Remember' | 'Understand' | 'Apply' | 'Analyze' | 'Evaluate' | 'Create';
+  avgMastery: number; // 0 - 100%
+  passingRate: number; // 0 - 100%
+  atRiskCount: number;
+  recommendation: string;
+}
+
+export interface CohortBenchmark {
+  classId: string;
+  className: string;
+  teacherName: string;
+  schedule: string;
+  studentCount: number;
+  avgProgress: number;
+  avgQuizScore: number;
+  atRiskCount: number;
+  activeRate: number;
+  topWeakObjective: string;
+}
+
+export interface StudentIntervention {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentCode: string;
+  avatar: string;
+  riskScore: number; // 0 - 100
+  riskFactors: string[];
+  status: 'pending' | 'in_progress' | 'resolved';
+  actionType: 'remediation_quiz' | 'one_on_one' | 'study_buddy' | 'counseling';
+  assignedDate: string;
+  deadline: string;
+  notes: string;
+}
+
+export interface MisconceptionDiagnostic {
+  id: string;
+  title: string;
+  moduleName: string;
+  errorCategory: 'syntax' | 'type_coercion' | 'scope_closure' | 'async_flow' | 'dom_event';
+  errorRate: number;
+  sampleBuggyCode: string;
+  studentMentalModel: string;
+  correctMentalModel: string;
+  remedyActivity: string;
+  suggestedLiveDemo: string;
+}
+
+// ==========================================
+// ADAPTIVE LEARNING & DDA ENGINE TYPES (Part G)
+// ==========================================
+
+export type AdaptiveTrack = 'accelerated' | 'standard' | 'scaffolding';
+
+export interface PrerequisiteNode {
+  id: string;
+  code: string;
+  title: string;
+  module: string;
+  depthLevel: number; // 1 = Fundamental, 2 = Intermediate, 3 = Target
+  classMasteryRate: number; // 0 - 100%
+  status: 'mastered' | 'learning' | 'critical_gap';
+  diagnosticQuestion: string;
+  remedyExerciseId: string;
+  remedySummary: string;
+  dependencies: string[]; // IDs of prerequisites that feed into this node
+}
+
+export interface PrerequisiteChain {
+  id: string;
+  targetSkillTitle: string;
+  targetSkillCode: string;
+  module: string;
+  description: string;
+  nodes: PrerequisiteNode[];
+  rootCauseAnalysis: string;
+  pedagogicalPrescription: string;
+}
+
+export interface StudentAdaptiveProfile {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentCode: string;
+  avatar: string;
+  currentTrack: AdaptiveTrack;
+  cognitiveLoad: 'low' | 'optimal' | 'overloaded';
+  autonomyIndex: number; // 0 - 100% (High = low reliance on Level 4-5 hints)
+  scaffoldingLevelFrequency: {
+    level1: number; // Gợi ý nhỏ (Hint)
+    level2: number; // Socratic
+    level3: number; // Kiến thức
+    level4: number; // Ví dụ tương tự
+    level5: number; // Lời giải mẫu
+  };
+  recentAttemptsCount: number;
+  recentSuccessRate: number; // %
+  identifiedGaps: string[];
+  nextBestAction: {
+    type: 'fast_track_challenge' | 'standard_practice' | 'prerequisite_patch' | 'micro_step_scaffold';
+    title: string;
+    targetLessonId: string;
+    description: string;
+    reason: string;
+    estimatedMinutes: number;
+    recommendedScaffoldingLevel: number;
+  };
+  lastUpdated: string;
+}
+
+export interface AdaptiveSimulationInput {
+  score: number; // 0 - 100
+  timeSpentMinutes: number;
+  attemptsCount: number;
+  aiTutorLevelUsed: number; // 1 - 5
+  consecutiveSuccesses: number;
+  targetTopic: string;
+}
+
+export interface AdaptiveSimulationResult {
+  newTrack: AdaptiveTrack;
+  previousTrack: AdaptiveTrack;
+  trackChanged: boolean;
+  cognitiveLoad: 'low' | 'optimal' | 'overloaded';
+  autonomyIndex: number;
+  recommendedScaffoldingLevel: number;
+  backwardTraceTriggered: boolean;
+  remedyActionTitle: string;
+  pedagogicalRationale: string;
 }

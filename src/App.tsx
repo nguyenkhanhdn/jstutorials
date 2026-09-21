@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Header, AppViewMode, StudentSubView } from './components/Header';
 import { StudentDashboard } from './components/student/StudentDashboard';
 import { CurriculumView } from './components/student/CurriculumView';
@@ -10,70 +10,40 @@ import { ArchitectureViewer } from './components/ArchitectureViewer';
 import { AITutorDrawer } from './components/student/AITutorDrawer';
 import { BookmarkModal } from './components/student/BookmarkModal';
 import { KnowledgeMapModal } from './components/student/KnowledgeMapModal';
+import { GamificationHubModal } from './components/student/GamificationHubModal';
 import { MOCK_STUDENTS } from './data/mockStudentAnalytics';
-import { SAMPLE_LESSON } from './data/sampleLessonData';
-import { Bookmark, StudentProfile } from './types';
+import { CURRICULUM_MODULES } from './data/curriculumData';
+import { getLessonById } from './data/lessonRepository';
+import { storageService } from './services/storageService';
+import { Bookmark, StudentProfile, SelfAssessmentLevel } from './types';
+
+const ALL_LESSONS = CURRICULUM_MODULES.flatMap(m => m.lessons);
 
 export function App() {
   const [viewMode, setViewMode] = useState<AppViewMode>('student');
   const [studentSubView, setStudentSubView] = useState<StudentSubView>('dashboard');
 
-  // Student State
-  const [currentStudent, setCurrentStudent] = useState<StudentProfile>(MOCK_STUDENTS[0]);
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([
-    {
-      id: 'bm-1',
-      studentId: 'sv-01',
-      lessonId: 'les-2-1',
-      lessonTitle: 'Bài 2.1: Khai báo biến với let, const và Kiểu dữ liệu nguyên thủy',
-      targetTitle: 'Lỗi thiết kế lịch sử: typeof null === "object"',
-      targetType: 'concept',
-      contentSnippet: 'console.log(typeof null); // in ra "object"',
-      reason: 'kho_nho',
-      customNote: 'Lưu ý kiểm tra null phải dùng: val === null chứ không dùng typeof!',
-      createdAt: '2026-09-20T08:30:00Z',
-      isResolved: false
-    },
-    {
-      id: 'bm-2',
-      studentId: 'sv-01',
-      lessonId: 'les-2-1',
-      lessonTitle: 'Bài 2.1: Khai báo biến với let, const và Kiểu dữ liệu nguyên thủy',
-      targetTitle: 'Quy tắc vàng: 95% dùng const, 5% dùng let, không dùng var',
-      targetType: 'concept',
-      contentSnippet: 'const user = { name: "An" }; user.name = "Bình"; // Hợp lệ!',
-      reason: 'vi_du_quan_trong',
-      customNote: 'const chỉ bảo vệ tham chiếu, không đóng băng thuộc tính bên trong object.',
-      createdAt: '2026-09-20T09:15:00Z',
-      isResolved: false
-    },
-    {
-      id: 'bm-3',
-      studentId: 'sv-01',
-      lessonId: 'les-2-1',
-      lessonTitle: 'Bài 2.1: Khai báo biến với let, const và Kiểu dữ liệu nguyên thủy',
-      targetTitle: 'Template Literals nhúng biểu thức logic và định dạng chuỗi nhiều dòng',
-      targetType: 'code',
-      contentSnippet: 'const card = `Xin chào ${name}, điểm: ${score > 5 ? "Đậu" : "Trượt"}`;',
-      reason: 'can_hoc_lai',
-      customNote: 'Áp dụng cho bài tập render danh sách sản phẩm trong giỏ hàng.',
-      createdAt: '2026-09-20T10:00:00Z',
-      isResolved: true
-    },
-    {
-      id: 'bm-4',
-      studentId: 'sv-01',
-      lessonId: 'les-2-1',
-      lessonTitle: 'Bài 2.1: Khai báo biến với let, const và Kiểu dữ liệu nguyên thủy',
-      targetTitle: 'Temporal Dead Zone (TDZ) khi truy cập biến let/const trước dòng khai báo',
-      targetType: 'concept',
-      contentSnippet: 'console.log(age); // ReferenceError: Cannot access age before initialization',
-      reason: 'chua_hieu',
-      customNote: 'Cần hỏi lại thầy Khang cơ chế Hoisting và TDZ khác nhau ra sao.',
-      createdAt: '2026-09-21T07:10:00Z',
-      isResolved: false
-    }
-  ]);
+  // Student State with persistent storage
+  const [currentStudent, setCurrentStudent] = useState<StudentProfile>(() => {
+    return storageService.getStudentProfile(MOCK_STUDENTS[0]);
+  });
+
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
+    return storageService.getBookmarks();
+  });
+
+  // Active Lesson State
+  const [currentLessonId, setCurrentLessonId] = useState<string>(() => {
+    return storageService.getActiveLessonId() || 'les-2-1';
+  });
+
+  const currentLesson = useMemo(() => {
+    return getLessonById(currentLessonId);
+  }, [currentLessonId]);
+
+  const currentLessonIndex = useMemo(() => {
+    return ALL_LESSONS.findIndex(l => l.id === currentLessonId);
+  }, [currentLessonId]);
 
   // AI Tutor Modal state
   const [aiTutorOpen, setAiTutorOpen] = useState(false);
@@ -97,6 +67,9 @@ export function App() {
   // Knowledge Map state
   const [knowledgeMapOpen, setKnowledgeMapOpen] = useState(false);
 
+  // Gamification Modal state (Version 2)
+  const [gamificationModalOpen, setGamificationModalOpen] = useState(false);
+
   // Handlers for AI Tutor
   const handleOpenAITutor = (topic: string, code: string, error?: string, prompt?: string) => {
     setAiContextTopic(topic);
@@ -119,30 +92,80 @@ export function App() {
       createdAt: new Date().toISOString(),
       isResolved: false
     };
+    storageService.addBookmark(item);
     setBookmarks(prev => [item, ...prev]);
   };
 
   const handleToggleResolve = (id: string) => {
-    setBookmarks(prev => prev.map(b => b.id === id ? { ...b, isResolved: !b.isResolved } : b));
+    setBookmarks(prev => {
+      const updated = prev.map(b => b.id === id ? { ...b, isResolved: !b.isResolved } : b);
+      storageService.saveBookmarks(updated);
+      return updated;
+    });
   };
 
   const handleRemoveBookmark = (id: string) => {
-    setBookmarks(prev => prev.filter(b => b.id !== id));
+    setBookmarks(prev => {
+      const updated = prev.filter(b => b.id !== id);
+      storageService.saveBookmarks(updated);
+      return updated;
+    });
   };
 
   // Navigation handlers
-  const handleStartLesson = (_lessonId: string) => {
+  const handleStartLesson = (lessonId: string) => {
+    setCurrentLessonId(lessonId);
+    storageService.saveActiveLessonId(lessonId);
     setStudentSubView('lesson');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLessonCompleted = () => {
-    setCurrentStudent(prev => ({
-      ...prev,
-      completedLessons: Math.min(prev.totalLessons, prev.completedLessons + 1),
-      overallProgress: Math.min(100, Math.round(((prev.completedLessons + 1) / prev.totalLessons) * 100)),
-      xp: prev.xp + 100
-    }));
+  const handleNextLesson = () => {
+    if (currentLessonIndex >= 0 && currentLessonIndex < ALL_LESSONS.length - 1) {
+      const nextLessonId = ALL_LESSONS[currentLessonIndex + 1].id;
+      handleStartLesson(nextLessonId);
+    } else {
+      setStudentSubView('curriculum');
+    }
+  };
+
+  const handlePrevLesson = () => {
+    if (currentLessonIndex > 0) {
+      const prevLessonId = ALL_LESSONS[currentLessonIndex - 1].id;
+      handleStartLesson(prevLessonId);
+    }
+  };
+
+  const handleLessonCompleted = (level?: SelfAssessmentLevel) => {
+    if (level) {
+      storageService.saveSelfAssessment(currentLessonId, level);
+    }
+    storageService.markLessonCompleted(currentLessonId);
+
+    const completedList = storageService.getCompletedLessonIds();
+    const count = completedList.length;
+
+    setCurrentStudent(prev => {
+      const updated: StudentProfile = {
+        ...prev,
+        completedLessons: Math.min(prev.totalLessons, Math.max(prev.completedLessons, count)),
+        overallProgress: Math.min(100, Math.round((Math.max(prev.completedLessons, count) / prev.totalLessons) * 100)),
+        xp: prev.xp + 100
+      };
+      storageService.saveStudentProfile(updated);
+      return updated;
+    });
+  };
+
+  const handleClaimQuestReward = (xpEarned: number) => {
+    setCurrentStudent(prev => {
+      const updated = {
+        ...prev,
+        xp: prev.xp + xpEarned
+      };
+      storageService.saveStudentProfile(updated);
+      return updated;
+    });
   };
 
   return (
@@ -156,6 +179,8 @@ export function App() {
         setStudentSubView={setStudentSubView}
         onOpenKnowledgeMap={() => setKnowledgeMapOpen(true)}
         bookmarkCount={bookmarks.filter(b => !b.isResolved).length}
+        studentProfile={currentStudent}
+        onOpenGamification={() => setGamificationModalOpen(true)}
       />
 
       {/* Main Container */}
@@ -173,6 +198,7 @@ export function App() {
                 onStartLesson={handleStartLesson}
                 onNavigateTab={(tab) => setStudentSubView(tab)}
                 onOpenKnowledgeMap={() => setKnowledgeMapOpen(true)}
+                onOpenGamification={() => setGamificationModalOpen(true)}
               />
             )}
 
@@ -184,14 +210,14 @@ export function App() {
 
             {studentSubView === 'lesson' && (
               <LessonRunner
-                lesson={SAMPLE_LESSON}
+                lesson={currentLesson}
                 onOpenAITutor={handleOpenAITutor}
                 onOpenBookmark={handleOpenBookmarkModal}
                 onCompleteLesson={handleLessonCompleted}
-                onNextLesson={() => {
-                  setStudentSubView('dashboard');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onNextLesson={handleNextLesson}
+                onPrevLesson={currentLessonIndex > 0 ? handlePrevLesson : undefined}
+                onBackToCurriculum={() => setStudentSubView('curriculum')}
+                onSelectLesson={handleStartLesson}
               />
             )}
 
@@ -228,8 +254,8 @@ export function App() {
         isOpen={bookmarkModalOpen}
         onClose={() => setBookmarkModalOpen(false)}
         onSave={handleSaveBookmark}
-        lessonId="les-2-1"
-        lessonTitle={SAMPLE_LESSON.title}
+        lessonId={currentLesson.id}
+        lessonTitle={currentLesson.title}
         targetTitle={bookmarkTarget.targetTitle}
         targetType={bookmarkTarget.targetType}
         contentSnippet={bookmarkTarget.snippet}
@@ -238,9 +264,20 @@ export function App() {
       <KnowledgeMapModal
         isOpen={knowledgeMapOpen}
         onClose={() => setKnowledgeMapOpen(false)}
-        onSelectModule={(_modId) => {
+        onSelectModule={(modId) => {
           setStudentSubView('curriculum');
+          const mod = CURRICULUM_MODULES.find(m => m.id === modId);
+          if (mod && mod.lessons.length > 0) {
+            handleStartLesson(mod.lessons[0].id);
+          }
         }}
+      />
+
+      <GamificationHubModal
+        isOpen={gamificationModalOpen}
+        onClose={() => setGamificationModalOpen(false)}
+        student={currentStudent}
+        onClaimQuestReward={handleClaimQuestReward}
       />
 
     </div>
