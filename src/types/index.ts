@@ -225,6 +225,7 @@ export interface StudentProfile {
   lastActive: string;
   weakObjectives: string[];
   bookmarkCount: number;
+  role?: 'student' | 'teacher' | 'admin';
   // Version 2: Gamification stats
   rankTitle?: string;
   unlockedBadgeIds?: string[];

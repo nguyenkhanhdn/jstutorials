@@ -14,7 +14,8 @@ import {
   Trophy,
   Sparkles,
   Target,
-  GitBranch
+  GitBranch,
+  User
 } from 'lucide-react';
 import { CURRICULUM_MODULES } from '../../data/curriculumData';
 import { Bookmark, StudentProfile } from '../../types';
@@ -28,6 +29,8 @@ interface StudentDashboardProps {
   onNavigateTab: (tab: any) => void;
   onOpenKnowledgeMap: () => void;
   onOpenGamification?: () => void;
+  onOpenProfile?: () => void;
+  onOpenAuth?: () => void;
 }
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({
@@ -36,7 +39,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   onStartLesson,
   onNavigateTab,
   onOpenKnowledgeMap,
-  onOpenGamification
+  onOpenGamification,
+  onOpenProfile,
+  onOpenAuth
 }) => {
   const [showAdaptiveModal, setShowAdaptiveModal] = useState(false);
   const unresolvedBookmarks = bookmarks.filter(b => !b.isResolved);
@@ -87,6 +92,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               <GitBranch className="w-4 h-4 text-indigo-300" />
               <span>Lộ trình thích ứng DDA</span>
             </button>
+            {onOpenProfile && (
+              <button
+                onClick={onOpenProfile}
+                className="px-4 py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-white/20 text-white font-semibold text-sm transition-all flex items-center gap-2 cursor-pointer"
+                title="Quản lý thông tin hồ sơ và tiến độ học tập cá nhân"
+              >
+                <User className="w-4 h-4 text-amber-400" />
+                <span>Hồ sơ & Tiến độ</span>
+              </button>
+            )}
           </div>
         </div>
 

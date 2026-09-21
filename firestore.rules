@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Security Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'khanhn@fpt.edu.vn' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isTeacher() {
+      return isSignedIn() && (
+        isAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher')
+      );
+    }
+
+    // Validation helper for UserProfile
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'email', 'fullName', 'role']) &&
+             data.uid is string && data.uid.size() <= 128 &&
+             data.email is string && data.email.size() <= 256 &&
+             data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 100 &&
+             data.role is string && (data.role == 'student' || data.role == 'teacher' || (data.role == 'admin' && isAdmin()));
+    }
+
+    // Validation helper for LessonProgress
+    function isValidLessonProgress(data) {
+      return data.keys().hasAll(['lessonId', 'completed']) &&
+             data.lessonId is string && data.lessonId.size() <= 64 &&
+             data.completed is bool;
+    }
+
+    // Connection test document
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isSignedIn() && (isOwner(userId) || isTeacher() || isAdmin());
+      allow list: if isSignedIn() && (isTeacher() || isAdmin());
+      allow create: if isValidId(userId) && isSignedIn() && isOwner(userId) && isValidUserProfile(request.resource.data);
+      allow update: if isValidId(userId) && isSignedIn() && (isOwner(userId) || isAdmin()) && isValidUserProfile(request.resource.data);
+      allow delete: if isValidId(userId) && isAdmin();
+
+      // Student Lesson Progress subcollection
+      match /progress/{lessonId} {
+        allow get: if isValidId(userId) && isValidId(lessonId) && isSignedIn() && (isOwner(userId) || isTeacher() || isAdmin());
+        allow list: if isValidId(userId) && isSignedIn() && (isOwner(userId) || isTeacher() || isAdmin());
+        allow create, update: if isValidId(userId) && isValidId(lessonId) && isSignedIn() && isOwner(userId) && isValidLessonProgress(request.resource.data);
+        allow delete: if isValidId(userId) && isValidId(lessonId) && isSignedIn() && (isOwner(userId) || isAdmin());
+      }
+    }
+  }
+}

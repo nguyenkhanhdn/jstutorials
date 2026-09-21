@@ -11,6 +11,9 @@ import { AITutorDrawer } from './components/student/AITutorDrawer';
 import { BookmarkModal } from './components/student/BookmarkModal';
 import { KnowledgeMapModal } from './components/student/KnowledgeMapModal';
 import { GamificationHubModal } from './components/student/GamificationHubModal';
+import { AuthModal } from './components/auth/AuthModal';
+import { UserProfileModal } from './components/auth/UserProfileModal';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { MOCK_STUDENTS } from './data/mockStudentAnalytics';
 import { CURRICULUM_MODULES } from './data/curriculumData';
 import { getLessonById } from './data/lessonRepository';
@@ -19,14 +22,17 @@ import { Bookmark, StudentProfile, SelfAssessmentLevel } from './types';
 
 const ALL_LESSONS = CURRICULUM_MODULES.flatMap(m => m.lessons);
 
-export function App() {
+function AppInner() {
+  const { userProfile, saveLessonProgress, updateUserProfile } = useAuth();
   const [viewMode, setViewMode] = useState<AppViewMode>('student');
   const [studentSubView, setStudentSubView] = useState<StudentSubView>('dashboard');
 
-  // Student State with persistent storage
-  const [currentStudent, setCurrentStudent] = useState<StudentProfile>(() => {
+  // Fallback local student if context is loading
+  const [fallbackStudent, setFallbackStudent] = useState<StudentProfile>(() => {
     return storageService.getStudentProfile(MOCK_STUDENTS[0]);
   });
+
+  const currentStudent = userProfile || fallbackStudent;
 
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
     return storageService.getBookmarks();
@@ -45,14 +51,13 @@ export function App() {
     return ALL_LESSONS.findIndex(l => l.id === currentLessonId);
   }, [currentLessonId]);
 
-  // AI Tutor Modal state
+  // Modals state
   const [aiTutorOpen, setAiTutorOpen] = useState(false);
   const [aiContextTopic, setAiContextTopic] = useState('Khai báo biến với let và const');
   const [aiStudentCode, setAiStudentCode] = useState('const x = 10;');
   const [aiErrorMessage, setAiErrorMessage] = useState<string | undefined>();
   const [aiExercisePrompt, setAiExercisePrompt] = useState<string | undefined>();
 
-  // Bookmark Modal state
   const [bookmarkModalOpen, setBookmarkModalOpen] = useState(false);
   const [bookmarkTarget, setBookmarkTarget] = useState<{
     targetTitle: string;
@@ -64,11 +69,10 @@ export function App() {
     snippet: ''
   });
 
-  // Knowledge Map state
   const [knowledgeMapOpen, setKnowledgeMapOpen] = useState(false);
-
-  // Gamification Modal state (Version 2)
   const [gamificationModalOpen, setGamificationModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   // Handlers for AI Tutor
   const handleOpenAITutor = (topic: string, code: string, error?: string, prompt?: string) => {
@@ -145,33 +149,39 @@ export function App() {
     const completedList = storageService.getCompletedLessonIds();
     const count = completedList.length;
 
-    setCurrentStudent(prev => {
-      const updated: StudentProfile = {
-        ...prev,
-        completedLessons: Math.min(prev.totalLessons, Math.max(prev.completedLessons, count)),
-        overallProgress: Math.min(100, Math.round((Math.max(prev.completedLessons, count) / prev.totalLessons) * 100)),
-        xp: prev.xp + 100
-      };
-      storageService.saveStudentProfile(updated);
-      return updated;
+    // Sync to Cloud Firestore if signed in
+    saveLessonProgress(currentLessonId, {
+      status: 'completed',
+      completionPercentage: 100,
+      confidenceLevel: level
     });
+
+    const updatedProfile: StudentProfile = {
+      ...currentStudent,
+      completedLessons: Math.min(currentStudent.totalLessons || 16, Math.max(currentStudent.completedLessons || 0, count)),
+      overallProgress: Math.min(100, Math.round((Math.max(currentStudent.completedLessons || 0, count) / (currentStudent.totalLessons || 16)) * 100)),
+      xp: (currentStudent.xp || 0) + 100
+    };
+
+    updateUserProfile(updatedProfile);
+    setFallbackStudent(updatedProfile);
+    storageService.saveStudentProfile(updatedProfile);
   };
 
   const handleClaimQuestReward = (xpEarned: number) => {
-    setCurrentStudent(prev => {
-      const updated = {
-        ...prev,
-        xp: prev.xp + xpEarned
-      };
-      storageService.saveStudentProfile(updated);
-      return updated;
-    });
+    const updated = {
+      ...currentStudent,
+      xp: (currentStudent.xp || 0) + xpEarned
+    };
+    updateUserProfile(updated);
+    setFallbackStudent(updated);
+    storageService.saveStudentProfile(updated);
   };
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-950">
       
-      {/* Universal Header */}
+      {/* Universal Header with Auth & Profile */}
       <Header
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -181,6 +191,8 @@ export function App() {
         bookmarkCount={bookmarks.filter(b => !b.isResolved).length}
         studentProfile={currentStudent}
         onOpenGamification={() => setGamificationModalOpen(true)}
+        onOpenAuth={() => setAuthModalOpen(true)}
+        onOpenProfile={() => setProfileModalOpen(true)}
       />
 
       {/* Main Container */}
@@ -199,6 +211,8 @@ export function App() {
                 onNavigateTab={(tab) => setStudentSubView(tab)}
                 onOpenKnowledgeMap={() => setKnowledgeMapOpen(true)}
                 onOpenGamification={() => setGamificationModalOpen(true)}
+                onOpenProfile={() => setProfileModalOpen(true)}
+                onOpenAuth={() => setAuthModalOpen(true)}
               />
             )}
 
@@ -280,7 +294,26 @@ export function App() {
         onClaimQuestReward={handleClaimQuestReward}
       />
 
+      {/* Authentication & Profile Modals */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
+
+      <UserProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+      />
+
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 }
 

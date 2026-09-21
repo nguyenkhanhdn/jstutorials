@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Thông tin hồ sơ người dùng (Sinh viên hoặc Giảng viên)",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "ID người dùng Firebase Authentication",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "Địa chỉ email của người dùng",
+          "maxLength": 256
+        },
+        "fullName": {
+          "type": "string",
+          "description": "Họ và tên",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "role": {
+          "type": "string",
+          "description": "Vai trò trong hệ thống",
+          "enum": ["student", "teacher", "admin"]
+        },
+        "studentCode": {
+          "type": "string",
+          "description": "Mã sinh viên (ví dụ: PS25101)",
+          "maxLength": 30
+        },
+        "avatar": {
+          "type": "string",
+          "description": "URL ảnh đại diện",
+          "maxLength": 500
+        },
+        "className": {
+          "type": "string",
+          "description": "Lớp học (ví dụ: WD18301)",
+          "maxLength": 50
+        },
+        "xp": {
+          "type": "number",
+          "description": "Tổng điểm kinh nghiệm tích lũy"
+        },
+        "streakDays": {
+          "type": "number",
+          "description": "Số ngày học liên tục"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Thời điểm tạo tài khoản ISO string hoặc timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Thời điểm cập nhật gần nhất"
+        }
+      },
+      "required": ["uid", "email", "fullName", "role"]
+    },
+    "LessonProgress": {
+      "title": "LessonProgress",
+      "description": "Tiến độ học tập chi tiết của từng bài học",
+      "type": "object",
+      "properties": {
+        "lessonId": {
+          "type": "string",
+          "description": "Mã bài học (ví dụ: les-2-1)",
+          "maxLength": 64
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Đã hoàn thành bài học hay chưa"
+        },
+        "score": {
+          "type": "number",
+          "description": "Điểm số đạt được (0-100)"
+        },
+        "timeSpentMinutes": {
+          "type": "number",
+          "description": "Tổng thời gian học tập tính bằng phút"
+        },
+        "completedSteps": {
+          "type": "array",
+          "description": "Danh sách các bước (trong chu trình 16 bước) đã vượt qua"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Thời điểm cập nhật"
+        }
+      },
+      "required": ["lessonId", "completed"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Tài liệu hồ sơ người dùng cá nhân"
+    },
+    "/users/{userId}/progress/{lessonId}": {
+      "schema": "LessonProgress",
+      "description": "Tiến độ chi tiết từng bài học của sinh viên"
+    }
+  }
+}

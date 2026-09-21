@@ -10,9 +10,14 @@ import {
   CheckCircle2, 
   Search,
   Code2,
-  Trophy
+  Trophy,
+  LogIn,
+  UserCheck,
+  CloudCheck,
+  Cloud
 } from 'lucide-react';
 import { StudentProfile } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 export type AppViewMode = 'student' | 'teacher' | 'docs';
 export type StudentSubView = 'dashboard' | 'curriculum' | 'lesson' | 'practice' | 'bookmarks' | 'review';
@@ -26,6 +31,8 @@ interface HeaderProps {
   bookmarkCount: number;
   studentProfile?: StudentProfile;
   onOpenGamification?: () => void;
+  onOpenAuth?: () => void;
+  onOpenProfile?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -36,8 +43,12 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenKnowledgeMap,
   bookmarkCount,
   studentProfile,
-  onOpenGamification
+  onOpenGamification,
+  onOpenAuth,
+  onOpenProfile
 }) => {
+  const { currentUser, userProfile } = useAuth();
+  const activeProfile = userProfile || studentProfile;
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -128,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({
                   title="Xem chi tiết chuỗi chuyên cần"
                 >
                   <Flame className="w-3.5 h-3.5 text-amber-700 fill-amber-500" />
-                  <span>{studentProfile?.streakDays || 7} ngày</span>
+                  <span>{activeProfile?.streakDays || 7} ngày</span>
                 </button>
                 <button
                   onClick={onOpenGamification}
@@ -136,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
                   title="Xem Cấp độ & Huy hiệu năng lực"
                 >
                   <Zap className="w-3.5 h-3.5 text-indigo-700 fill-indigo-500" />
-                  <span>{(studentProfile?.xp || 1450).toLocaleString()} XP</span>
+                  <span>{(activeProfile?.xp || 1450).toLocaleString()} XP</span>
                 </button>
                 <button
                   onClick={onOpenGamification}
@@ -147,13 +158,52 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </div>
 
-              {/* Student Avatar */}
-              <div className="flex items-center gap-2 pl-2">
-                <img
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
-                  alt="Student"
-                  className="w-8 h-8 rounded-full border border-slate-200 shadow-xs"
-                />
+              {/* User Account / Profile Button */}
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+                {currentUser ? (
+                  <button
+                    onClick={onOpenProfile}
+                    className="flex items-center gap-2 px-2 py-1 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer text-left"
+                    title="Xem và chỉnh sửa hồ sơ sinh viên"
+                  >
+                    <img
+                      src={activeProfile?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"}
+                      alt={activeProfile?.fullName || "Student"}
+                      className="w-7 h-7 rounded-full border border-indigo-200 object-cover"
+                    />
+                    <div className="hidden xl:block text-[11px] leading-tight">
+                      <div className="font-extrabold text-slate-900 truncate max-w-[90px]">
+                        {activeProfile?.fullName || 'Sinh viên'}
+                      </div>
+                      <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span>Cloud ID</span>
+                      </div>
+                    </div>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={onOpenAuth}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
+                      title="Đăng ký hoặc Đăng nhập tài khoản"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Đăng nhập / Đăng ký</span>
+                    </button>
+                    <button
+                      onClick={onOpenProfile}
+                      className="p-1 rounded-xl border border-slate-200 hover:bg-slate-100 cursor-pointer"
+                      title="Xem hồ sơ hiện tại"
+                    >
+                      <img
+                        src={activeProfile?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"}
+                        alt="Profile"
+                        className="w-7 h-7 rounded-full"
+                      />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ) : viewMode === 'teacher' ? (
@@ -162,13 +212,18 @@ export const Header: React.FC<HeaderProps> = ({
                 Lớp: WD18301 (25 SV)
               </span>
               <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
-                  GV
-                </div>
-                <div className="hidden sm:block text-xs">
-                  <div className="font-bold text-slate-900">Thầy Khang IT</div>
-                  <div className="text-slate-600">Giảng viên bộ môn</div>
-                </div>
+                <button
+                  onClick={currentUser ? onOpenProfile : onOpenAuth}
+                  className="flex items-center gap-2 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
+                >
+                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                    GV
+                  </div>
+                  <div className="hidden sm:block text-xs">
+                    <div className="font-bold text-slate-900">{currentUser ? activeProfile?.fullName : 'Thầy Khang IT'}</div>
+                    <div className="text-slate-600 text-[10px]">{currentUser ? 'Tài khoản Giảng viên' : 'Đăng nhập GV'}</div>
+                  </div>
+                </button>
               </div>
             </div>
           ) : (
