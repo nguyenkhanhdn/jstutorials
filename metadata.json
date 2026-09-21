@@ -1,0 +1,6 @@
+{
+  "name": "JS Master - Học liệu JavaScript Tương tác",
+  "description": "Nền tảng học liệu số tương tác môn JavaScript dành cho sinh viên Cao đẳng CNTT theo mô hình Learning-by-Doing, Microlearning và Competency-Based Education",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
