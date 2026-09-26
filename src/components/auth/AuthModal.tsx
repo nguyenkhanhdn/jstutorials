@@ -186,7 +186,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {mode === 'register' && (
               <>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
                     Họ và Tên *
                   </label>
                   <div className="relative">
@@ -204,7 +204,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
                       Mã Sinh Viên / GV
                     </label>
                     <div className="relative">
@@ -220,7 +220,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
                       Vai trò
                     </label>
                     <select
@@ -238,7 +238,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             {/* Email Field */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
                 Địa chỉ Email *
               </label>
               <div className="relative">
@@ -256,7 +256,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             {/* Password Field */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
                 Mật khẩu *
               </label>
               <div className="relative">
@@ -296,7 +296,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* Divider */}
           <div className="relative flex items-center justify-center pt-1">
             <div className="border-t border-slate-200 w-full" />
-            <span className="bg-white px-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider shrink-0">
+            <span className="bg-white px-2 text-xs text-slate-400 font-bold uppercase tracking-wider shrink-0">
               Hoặc
             </span>
           </div>
@@ -319,21 +319,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           {/* Quick Demo Switcher */}
           <div className="pt-2 border-t border-slate-100">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
               Dành cho kiểm thử nhanh (Demo Switcher):
             </div>
             <div className="grid grid-cols-2 gap-1.5">
               <button
                 type="button"
                 onClick={() => handleDemoQuickSwitch('sv-01')}
-                className="p-2 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-200 text-left text-[11px] font-bold text-slate-800 transition-colors cursor-pointer"
+                className="p-2 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-200 text-left text-xs font-bold text-slate-800 transition-colors cursor-pointer"
               >
                 🎓 SV Nguyễn Văn An (Tăng tốc)
               </button>
               <button
                 type="button"
                 onClick={() => handleDemoQuickSwitch('sv-02')}
-                className="p-2 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-200 text-left text-[11px] font-bold text-slate-800 transition-colors cursor-pointer"
+                className="p-2 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-200 text-left text-xs font-bold text-slate-800 transition-colors cursor-pointer"
               >
                 🛡️ SV Bích Ngọc (Giàn giáo)
               </button>

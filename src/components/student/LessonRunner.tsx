@@ -212,12 +212,12 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
 
               {showLessonSelector && (
                 <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-2xl border border-slate-200 shadow-xl z-50 p-2 space-y-2">
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
                     Danh mục bài học toàn khóa (17 Modules)
                   </div>
                   {CURRICULUM_MODULES.map(mod => (
                     <div key={mod.id} className="space-y-1">
-                      <div className="text-[11px] font-black text-slate-700 px-2 pt-1 border-t border-slate-100">
+                      <div className="text-xs font-black text-slate-700 px-2 pt-1 border-t border-slate-100">
                         M{mod.number}. {mod.title}
                       </div>
                       {mod.lessons.map(l => (
@@ -234,7 +234,7 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
                           }`}
                         >
                           <span className="truncate pr-2">{l.title}</span>
-                          <span className="text-[10px] text-slate-400 shrink-0">{l.durationMinutes}p</span>
+                          <span className="text-xs text-slate-400 shrink-0">{l.durationMinutes}p</span>
                         </button>
                       ))}
                     </div>
@@ -320,11 +320,11 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
               {lesson.learningObjectives.map(lo => (
-                <div key={lo.id} className="flex items-start gap-1.5 bg-white p-1.5 rounded-lg border border-indigo-100 shadow-xs">
-                  <span className="font-mono font-bold text-indigo-700 shrink-0 text-[10px] px-1 py-0.5 bg-indigo-50 rounded">
+                <div key={lo.id} className="flex items-start gap-1.5 bg-white p-2 rounded-lg border border-indigo-100 shadow-xs">
+                  <span className="font-mono font-bold text-indigo-700 shrink-0 text-xs px-1.5 py-0.5 bg-indigo-50 rounded">
                     {lo.code}
                   </span>
-                  <span className="text-[11px] leading-tight text-slate-800">{lo.title}</span>
+                  <span className="text-xs leading-normal text-slate-800">{lo.title}</span>
                 </div>
               ))}
             </div>
@@ -389,8 +389,8 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
 
               {/* Syntax block */}
               {section.syntax && (
-                <div className="bg-slate-900 text-amber-300 p-3 rounded-xl font-mono text-xs border border-slate-800">
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1 font-sans font-bold">
+                <div className="bg-slate-900 text-amber-300 p-3.5 rounded-xl font-mono text-xs border border-slate-800">
+                  <div className="text-xs text-slate-400 uppercase tracking-wider mb-1 font-sans font-bold">
                     Cú pháp chuẩn:
                   </div>
                   <pre className="whitespace-pre-wrap">{section.syntax}</pre>
@@ -401,7 +401,7 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
               <div>
                 <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                   <span>Ví dụ minh họa & Chạy thử:</span>
-                  <span className="text-slate-500 text-[11px] font-normal">Bạn có thể sửa code và chạy trực tiếp</span>
+                  <span className="text-slate-500 text-xs font-normal">Bạn có thể sửa code và chạy trực tiếp</span>
                 </div>
                 <CodeSandbox
                   initialCode={section.codeExample}

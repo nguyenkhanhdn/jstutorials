@@ -76,7 +76,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                 alt={userProfile.fullName} 
                 className="w-16 h-16 rounded-2xl border-2 border-white/40 shadow-lg object-cover bg-slate-800"
               />
-              <span className={`absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
+              <span className={`absolute -bottom-1 -right-1 px-2 py-0.5 rounded text-xs font-black uppercase tracking-wider ${
                 userProfile.role === 'teacher' ? 'bg-amber-400 text-slate-950' : 'bg-indigo-400 text-slate-950'
               }`}>
                 {userProfile.role === 'teacher' ? 'Giảng viên' : 'Sinh viên'}
@@ -90,7 +90,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                 <span>•</span>
                 <span>{userProfile.email}</span>
               </div>
-              <div className="text-[11px] text-slate-300 mt-1 flex items-center gap-1.5">
+              <div className="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span>Đồng bộ hồ sơ: {currentUser ? 'Cloud Firestore' : 'Bản demo thử nghiệm'}</span>
               </div>
@@ -111,7 +111,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
           {/* Quick Metrics Grid */}
           <div className="grid grid-cols-3 gap-3">
             <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80">
-              <div className="text-amber-800 text-[11px] font-bold flex items-center gap-1">
+              <div className="text-amber-800 text-xs font-bold flex items-center gap-1">
                 <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 <span>Streak</span>
               </div>
@@ -121,7 +121,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             </div>
 
             <div className="p-3 rounded-2xl bg-indigo-50/70 border border-indigo-200/80">
-              <div className="text-indigo-800 text-[11px] font-bold flex items-center gap-1">
+              <div className="text-indigo-800 text-xs font-bold flex items-center gap-1">
                 <Zap className="w-3.5 h-3.5 fill-indigo-500 text-indigo-500" />
                 <span>Kinh nghiệm</span>
               </div>
@@ -131,7 +131,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             </div>
 
             <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80">
-              <div className="text-emerald-800 text-[11px] font-bold flex items-center gap-1">
+              <div className="text-emerald-800 text-xs font-bold flex items-center gap-1">
                 <Award className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Hoàn thành</span>
               </div>
@@ -186,7 +186,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             {isEditing ? (
               <form onSubmit={handleSave} className="space-y-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Họ và tên</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Họ và tên</label>
                   <input
                     type="text"
                     value={fullName}
@@ -197,7 +197,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Mã sinh viên</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Mã sinh viên</label>
                     <input
                       type="text"
                       value={studentCode}
@@ -206,7 +206,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Lớp học</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Lớp học</label>
                     <input
                       type="text"
                       value={classGroup}
@@ -217,7 +217,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Chọn ảnh đại diện nhanh:</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Chọn ảnh đại diện nhanh:</label>
                   <div className="flex items-center gap-2">
                     {['An', 'Ngoc', 'Long', 'Duc', 'Ha', 'Khai'].map(seed => (
                       <button
@@ -243,19 +243,19 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             ) : (
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <span className="text-slate-400 text-[11px]">Họ và tên:</span>
+                  <span className="text-slate-400 text-xs">Họ và tên:</span>
                   <div className="font-bold text-slate-900 mt-0.5">{userProfile.fullName}</div>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[11px]">Mã SV / GV:</span>
+                  <span className="text-slate-400 text-xs">Mã SV / GV:</span>
                   <div className="font-bold text-slate-900 mt-0.5 font-mono">{userProfile.code}</div>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[11px]">Email liên hệ:</span>
+                  <span className="text-slate-400 text-xs">Email liên hệ:</span>
                   <div className="font-medium text-slate-700 mt-0.5">{userProfile.email}</div>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[11px]">Lớp sinh hoạt:</span>
+                  <span className="text-slate-400 text-xs">Lớp sinh hoạt:</span>
                   <div className="font-medium text-slate-700 mt-0.5">{userProfile.classGroup}</div>
                 </div>
               </div>

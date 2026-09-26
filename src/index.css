@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+@theme {
+  --text-xs: 0.84375rem; /* ~13.5px */
+  --text-xs--line-height: 1.35rem;
+}
+
+/* ==========================================================================
+   TĂNG CỠ CHỮ CÁC STYLE XX-SM, X-SML VÀ CÁC UTILITY CHỮ NHỎ
+   Đảm bảo khả năng đọc tốt (Accessibility & Readability) trên mọi thiết bị
+   ========================================================================== */
+
+:root {
+  font-size: 16px;
+}
+
+/* Các lớp kích thước chữ xx-sm (~13px) và x-sml (14px) */
+.text-xxs,
+.text-xx-sm,
+.text-xxsmall {
+  font-size: 0.8125rem !important; /* 13px thay vì 9-10px */
+  line-height: 1.25rem !important;
+}
+
+.text-xsml,
+.text-x-sml,
+.text-xsmall {
+  font-size: 0.875rem !important; /* 14px thay vì 11-12px */
+  line-height: 1.35rem !important;
+}
+
+/* Tự động nâng cấp các selector font-size dạng inline pixel quá nhỏ */
+[class*="text-[8px]"],
+[class*="text-[9px]"],
+[class*="text-[10px]"] {
+  font-size: 0.8125rem !important; /* 13px tối thiểu */
+  line-height: 1.25rem !important;
+}
+
+[class*="text-[11px]"] {
+  font-size: 0.84375rem !important; /* 13.5px */
+  line-height: 1.3rem !important;
+}
+
+/* Tăng cỡ chữ chuẩn của text-xs để không còn bị quá bé */
+.text-xs {
+  font-size: 0.84375rem !important; /* ~13.5px */
+  line-height: 1.35rem !important;
+}

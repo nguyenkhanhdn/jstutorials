@@ -171,7 +171,7 @@ export const AdaptiveLearningModal: React.FC<AdaptiveLearningModalProps> = ({
                   <button
                     key={c.id}
                     onClick={() => setSelectedChainId(c.id)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       selectedChainId === c.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -181,7 +181,7 @@ export const AdaptiveLearningModal: React.FC<AdaptiveLearningModalProps> = ({
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-500">
+            <p className="text-xs text-slate-500">
               Nếu bạn gặp khó khăn ở kỹ năng <strong>{activeChain.targetSkillCode}</strong>, hệ thống sẽ truy ngược các kỹ năng nền tảng phía dưới:
             </p>
 
@@ -192,13 +192,13 @@ export const AdaptiveLearningModal: React.FC<AdaptiveLearningModalProps> = ({
                   className="p-3 rounded-xl border border-slate-200 bg-slate-50 space-y-1.5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 text-[11px]">{node.code}</span>
-                    <span className="text-[10px] text-slate-400">Tầng {i + 1}</span>
+                    <span className="font-bold text-slate-900 text-xs">{node.code}</span>
+                    <span className="text-xs text-slate-400">Tầng {i + 1}</span>
                   </div>
-                  <div className="font-medium text-slate-800 text-[11px] line-clamp-2">
+                  <div className="font-medium text-slate-800 text-xs line-clamp-2">
                     {node.title}
                   </div>
-                  <div className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold inline-block">
+                  <div className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold inline-block">
                     ✓ {node.classMasteryRate}% cả lớp đạt
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export const AdaptiveLearningModal: React.FC<AdaptiveLearningModalProps> = ({
           </div>
 
           {/* AI Tutor Scaffolding Rule reminder */}
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
             <div className="font-bold text-slate-800 flex items-center gap-1.5">
               <Bot className="w-3.5 h-3.5 text-indigo-600" />
               <span>Quy Chuẩn Giàn Giáo Sư Phạm (Scaffolding):</span>

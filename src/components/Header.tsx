@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-slate-900 tracking-tight text-lg">Web Master</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
                   HTML • CSS • JS
                 </span>
               </div>
@@ -171,11 +171,11 @@ export const Header: React.FC<HeaderProps> = ({
                       alt={activeProfile?.fullName || "Student"}
                       className="w-7 h-7 rounded-full border border-indigo-200 object-cover"
                     />
-                    <div className="hidden xl:block text-[11px] leading-tight">
+                    <div className="hidden xl:block text-xs leading-tight">
                       <div className="font-extrabold text-slate-900 truncate max-w-[90px]">
                         {activeProfile?.fullName || 'Sinh viên'}
                       </div>
-                      <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5">
+                      <div className="text-xs text-emerald-600 font-semibold flex items-center gap-0.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         <span>Cloud ID</span>
                       </div>
@@ -221,7 +221,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                   <div className="hidden sm:block text-xs">
                     <div className="font-bold text-slate-900">{currentUser ? activeProfile?.fullName : 'Thầy Khang IT'}</div>
-                    <div className="text-slate-600 text-[10px]">{currentUser ? 'Tài khoản Giảng viên' : 'Đăng nhập GV'}</div>
+                    <div className="text-slate-600 text-xs">{currentUser ? 'Tài khoản Giảng viên' : 'Đăng nhập GV'}</div>
                   </div>
                 </button>
               </div>

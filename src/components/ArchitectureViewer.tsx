@@ -77,7 +77,7 @@ export const ArchitectureViewer: React.FC = () => {
               >
                 <div className="truncate pr-2">
                   <div className="font-semibold truncate">{doc.title}</div>
-                  <div className={`text-[10px] truncate ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>
+                  <div className={`text-xs truncate ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>
                     {doc.summary}
                   </div>
                 </div>
@@ -90,7 +90,7 @@ export const ArchitectureViewer: React.FC = () => {
         {/* Content Viewer (Right 8 cols) */}
         <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xs space-y-6">
           <div className="pb-4 border-b border-slate-100">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
               {currentDoc.badge}
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">

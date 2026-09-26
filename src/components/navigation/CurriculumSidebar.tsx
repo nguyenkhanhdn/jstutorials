@@ -127,10 +127,10 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
               <Layout className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+              <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
                 Mục lục đào tạo
               </h2>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Đã hoàn thành {totalCompleted}/{totalLessons} bài học
               </p>
             </div>
@@ -178,19 +178,19 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
             className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-orange-50/80 transition-colors group text-left"
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
                 <Code2 className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-xs text-slate-900 group-hover:text-orange-950">
+                  <span className="font-extrabold text-sm text-slate-900 group-hover:text-orange-950">
                     1. HTML Tutorials
                   </span>
-                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-orange-100 text-orange-800 border border-orange-200">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">
                     12 Chủ đề
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500">Cấu trúc, Thẻ, Form, Bảng, Semantic</p>
+                <p className="text-xs text-slate-500">Cấu trúc, Thẻ, Form, Bảng, Semantic</p>
               </div>
             </div>
             <div className="text-slate-400 group-hover:text-slate-700">
@@ -210,7 +210,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                   <button
                     key={lesson.id}
                     onClick={() => onSelectLesson(lesson.id)}
-                    className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center justify-between gap-2 transition-all ${
+                    className={`w-full text-left px-2.5 py-2 rounded-xl text-xs font-medium flex items-center justify-between gap-2 transition-all ${
                       isActive
                         ? 'bg-orange-500 text-slate-950 font-bold shadow-xs'
                         : isDone
@@ -220,15 +220,15 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                   >
                     <div className="flex items-center gap-2 truncate">
                       {isDone ? (
-                        <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-slate-950' : 'text-emerald-600'}`} />
+                        <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-emerald-600'}`} />
                       ) : (
-                        <Circle className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-300'}`} />
+                        <Circle className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-300'}`} />
                       )}
                       <span className="truncate">
                         <strong>H{mod.number}.</strong> {mod.title}
                       </span>
                     </div>
-                    <span className={`text-[10px] shrink-0 font-medium ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+                    <span className={`text-xs shrink-0 font-medium ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>
                       {lesson.durationMinutes}p
                     </span>
                   </button>
@@ -247,19 +247,19 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
             className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-blue-50/80 transition-colors group text-left"
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
                 <Palette className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-xs text-slate-900 group-hover:text-blue-950">
+                  <span className="font-extrabold text-sm text-slate-900 group-hover:text-blue-950">
                     2. CSS Định kiểu & Giao diện
                   </span>
-                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
                     34 Chủ đề
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500">Box Model, Flexbox, Grid, Animation, RWD</p>
+                <p className="text-xs text-slate-500">Box Model, Flexbox, Grid, Animation, RWD</p>
               </div>
             </div>
             <div className="text-slate-400 group-hover:text-slate-700">
@@ -271,10 +271,10 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
           {openTracks.css && (
             <div className="mt-1.5 ml-2 pl-3 border-l-2 border-blue-200 space-y-2">
               {/* Mode switch: 34 Chủ đề vs 8 Chuyên đề */}
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg text-[10px] font-medium text-slate-600 mb-2">
+              <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600 mb-2">
                 <button
                   onClick={() => setCssDisplayMode('topics')}
-                  className={`flex-1 py-1 rounded-md transition-all text-center ${
+                  className={`flex-1 py-1.5 rounded-lg transition-all text-center ${
                     cssDisplayMode === 'topics'
                       ? 'bg-white text-blue-700 font-bold shadow-xs'
                       : 'hover:text-slate-900'
@@ -284,7 +284,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                 </button>
                 <button
                   onClick={() => setCssDisplayMode('modules')}
-                  className={`flex-1 py-1 rounded-md transition-all text-center ${
+                  className={`flex-1 py-1.5 rounded-lg transition-all text-center ${
                     cssDisplayMode === 'modules'
                       ? 'bg-white text-blue-700 font-bold shadow-xs'
                       : 'hover:text-slate-900'
@@ -305,7 +305,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                       <button
                         key={topic.id}
                         onClick={() => onSelectLesson(topic.id)}
-                        className={`w-full text-left px-2 py-1.5 rounded-xl text-xs flex items-center justify-between gap-1.5 transition-all ${
+                        className={`w-full text-left px-2.5 py-2 rounded-xl text-xs font-medium flex items-center justify-between gap-1.5 transition-all ${
                           isActive
                             ? 'bg-blue-600 text-white font-bold shadow-xs'
                             : isDone
@@ -316,15 +316,15 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                       >
                         <div className="flex items-center gap-1.5 truncate">
                           {isDone ? (
-                            <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                            <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
                           ) : (
-                            <Circle className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-300'}`} />
+                            <Circle className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-300'}`} />
                           )}
                           <span className="truncate">
                             <strong>{topic.topicNumber}.</strong> {topic.title}
                           </span>
                         </div>
-                        <span className={`text-[10px] shrink-0 font-medium ${isActive ? 'text-blue-100' : 'text-slate-400'}`}>
+                        <span className={`text-xs shrink-0 font-medium ${isActive ? 'text-blue-100' : 'text-slate-500'}`}>
                           {topic.durationMinutes}p
                         </span>
                       </button>
@@ -342,10 +342,10 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                       <div key={mod.id} className="space-y-1">
                         <div
                           onClick={() => toggleModule(mod.id)}
-                          className="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-slate-700 hover:text-blue-800 cursor-pointer rounded-lg hover:bg-blue-50/50"
+                          className="flex items-center justify-between px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:text-blue-800 cursor-pointer rounded-lg hover:bg-blue-50/50"
                         >
                           <span className="truncate">C{mod.number}. {mod.title}</span>
-                          <ChevronRight className={`w-3 h-3 text-slate-400 transition-transform ${isModOpen ? 'rotate-90' : ''}`} />
+                          <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isModOpen ? 'rotate-90' : ''}`} />
                         </div>
 
                         {isModOpen && (
@@ -357,7 +357,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                                 <button
                                   key={les.id}
                                   onClick={() => onSelectLesson(les.id)}
-                                  className={`w-full text-left px-2 py-1.5 rounded-lg text-xs flex items-center justify-between gap-1.5 transition-all ${
+                                  className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between gap-1.5 transition-all ${
                                     isActive
                                       ? 'bg-blue-600 text-white font-bold shadow-xs'
                                       : isDone
@@ -367,13 +367,13 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                                 >
                                   <div className="flex items-center gap-1.5 truncate">
                                     {isDone ? (
-                                      <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                                      <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
                                     ) : (
-                                      <Circle className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-300'}`} />
+                                      <Circle className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-300'}`} />
                                     )}
                                     <span className="truncate">{les.title}</span>
                                   </div>
-                                  <span className={`text-[10px] shrink-0 ${isActive ? 'text-blue-100' : 'text-slate-400'}`}>
+                                  <span className={`text-xs shrink-0 ${isActive ? 'text-blue-100' : 'text-slate-500'}`}>
                                     {les.durationMinutes}p
                                   </span>
                                 </button>
@@ -399,19 +399,19 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
             className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-amber-50/80 transition-colors group text-left"
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
                 <Terminal className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-xs text-slate-900 group-hover:text-amber-950">
+                  <span className="font-extrabold text-sm text-slate-900 group-hover:text-amber-950">
                     3. JavaScript Thực chiến
                   </span>
-                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                     17 Modules
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500">DOM, Event, Async, Fetch, Mini Projects</p>
+                <p className="text-xs text-slate-500">DOM, Event, Async, Fetch, Mini Projects</p>
               </div>
             </div>
             <div className="text-slate-400 group-hover:text-slate-700">
@@ -428,10 +428,10 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                   <div key={mod.id} className="space-y-1">
                     <div
                       onClick={() => toggleModule(mod.id)}
-                      className="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-slate-700 hover:text-amber-800 cursor-pointer rounded-lg hover:bg-amber-50/50"
+                      className="flex items-center justify-between px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:text-amber-800 cursor-pointer rounded-lg hover:bg-amber-50/50"
                     >
                       <span className="truncate">M{mod.number}. {mod.title}</span>
-                      <ChevronRight className={`w-3 h-3 text-slate-400 transition-transform ${isModOpen ? 'rotate-90' : ''}`} />
+                      <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isModOpen ? 'rotate-90' : ''}`} />
                     </div>
 
                     {isModOpen && (
@@ -443,7 +443,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                             <button
                               key={les.id}
                               onClick={() => onSelectLesson(les.id)}
-                              className={`w-full text-left px-2 py-1.5 rounded-lg text-xs flex items-center justify-between gap-1.5 transition-all ${
+                              className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between gap-1.5 transition-all ${
                                 isActive
                                   ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
                                   : isDone
@@ -453,13 +453,13 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                             >
                               <div className="flex items-center gap-1.5 truncate">
                                 {isDone ? (
-                                  <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-slate-950' : 'text-emerald-600'}`} />
+                                  <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-emerald-600'}`} />
                                 ) : (
-                                  <Circle className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-300'}`} />
+                                  <Circle className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-300'}`} />
                                 )}
                                 <span className="truncate">{les.title}</span>
                               </div>
-                              <span className={`text-[10px] shrink-0 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+                              <span className={`text-xs shrink-0 ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>
                                 {les.durationMinutes}p
                               </span>
                             </button>
@@ -478,11 +478,11 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
 
       {/* Footer Track Switcher / Quick Stats */}
       <div className="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
-        <span className="text-[11px] text-slate-500">Chuẩn năng lực CNTT</span>
+        <span className="text-xs text-slate-500 font-medium">Chuẩn năng lực CNTT</span>
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-orange-500" title="HTML" />
-          <span className="w-2 h-2 rounded-full bg-blue-500" title="CSS" />
-          <span className="w-2 h-2 rounded-full bg-amber-500" title="JavaScript" />
+          <span className="w-2.5 h-2.5 rounded-full bg-orange-500" title="HTML" />
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" title="CSS" />
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500" title="JavaScript" />
         </div>
       </div>
     </aside>
