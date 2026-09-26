@@ -1,3 +1,5 @@
+export type CurriculumTrack = 'html' | 'css' | 'javascript';
+
 export type ProgressStatus = 'not_started' | 'in_progress' | 'completed' | 'needs_review' | 'mastered';
 
 export type BookmarkReason = 'chua_hieu' | 'can_hoc_lai' | 'kho_nho' | 'tim_hieu_sau' | 'vi_du_quan_trong';
@@ -75,6 +77,7 @@ export interface Exercise {
   testCases: TestCase[];
   hints: string[];
   explanation: string;
+  language?: 'html' | 'javascript' | 'css';
 }
 
 export interface Question {
@@ -104,6 +107,8 @@ export interface Quiz {
 export interface Lesson {
   id: string;
   moduleId: string;
+  track?: CurriculumTrack;
+  language?: 'html' | 'javascript' | 'css';
   title: string;
   order: number;
   durationMinutes: number;
@@ -119,6 +124,7 @@ export interface Lesson {
     starterCode: string;
     expectedConsoleOutput: string;
     hint: string;
+    language?: 'html' | 'javascript' | 'css';
   };
   exercises: {
     basic: Exercise;
@@ -134,6 +140,7 @@ export interface Lesson {
 export interface Module {
   id: string;
   number: number;
+  track?: CurriculumTrack;
   title: string;
   englishTitle: string;
   description: string;

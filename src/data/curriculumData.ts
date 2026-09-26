@@ -1,9 +1,12 @@
-import { Module } from '../types';
+import { Module, CurriculumTrack } from '../types';
+import { HTML_MODULES } from './htmlLessons';
+import { CSS_MODULES } from './cssLessonsData';
 
-export const CURRICULUM_MODULES: Module[] = [
+export const JS_MODULES: Module[] = [
   {
     id: 'mod-1',
     number: 1,
+    track: 'javascript',
     title: 'Tổng quan JavaScript',
     englishTitle: 'JavaScript Overview & Environment',
     description: 'Bản chất JavaScript, môi trường thực thi trình duyệt & Node.js, console API, nhúng script, cú pháp và debug cơ bản.',
@@ -297,3 +300,77 @@ export const CURRICULUM_MODULES: Module[] = [
     ]
   }
 ];
+
+export interface TrackInfo {
+  id: CurriculumTrack;
+  name: string;
+  shortName: string;
+  order: number;
+  description: string;
+  badge: string;
+  color: string;
+  borderColor: string;
+  bgColor: string;
+  modulesCount: number;
+  lessonsCount: number;
+  durationHours: number;
+}
+
+export const CURRICULUM_TRACKS: TrackInfo[] = [
+  {
+    id: 'html',
+    name: '1. HTML — Cấu trúc & Đánh dấu Siêu văn bản',
+    shortName: 'HTML5',
+    order: 1,
+    description: 'Xây dựng bộ khung sườn trang web vững chắc, làm chủ 12 chủ đề cốt lõi từ Cấu trúc, Metadata, Text, Links, Media, Tables, Forms đến Semantic & Đồ họa.',
+    badge: '12 Chủ đề Tutorials',
+    color: 'text-orange-600',
+    borderColor: 'border-orange-200',
+    bgColor: 'bg-orange-500',
+    modulesCount: 12,
+    lessonsCount: 12,
+    durationHours: 55
+  },
+  {
+    id: 'css',
+    name: '2. CSS — Định kiểu & Thiết kế Giao diện',
+    shortName: 'CSS3',
+    order: 2,
+    description: 'Định kiểu thẩm mỹ, làm chủ Box Model, Flexbox, CSS Grid, Typography, Responsive Web Design và chuyển động mượt mà.',
+    badge: '8 Chuyên đề Chuẩn',
+    color: 'text-blue-600',
+    borderColor: 'border-blue-200',
+    bgColor: 'bg-blue-500',
+    modulesCount: 8,
+    lessonsCount: 26,
+    durationHours: 64
+  },
+  {
+    id: 'javascript',
+    name: '3. JavaScript — Lập trình Tương tác & Logic',
+    shortName: 'JavaScript ES6+',
+    order: 3,
+    description: 'Lập trình logic tương tác, DOM Manipulation, Event Handling, Bất đồng bộ Async/Await, Fetch API và 6 Mini Projects thực chiến.',
+    badge: '17 Modules Thực chiến',
+    color: 'text-amber-600',
+    borderColor: 'border-amber-200',
+    bgColor: 'bg-amber-500',
+    modulesCount: 17,
+    lessonsCount: 75,
+    durationHours: 90
+  }
+];
+
+export const CURRICULUM_MODULES: Module[] = [
+  ...HTML_MODULES,
+  ...CSS_MODULES,
+  ...JS_MODULES
+];
+
+export function getModulesByTrack(track: CurriculumTrack): Module[] {
+  if (track === 'html') return HTML_MODULES;
+  if (track === 'css') return CSS_MODULES;
+  return JS_MODULES;
+}
+
+export { HTML_MODULES, CSS_MODULES };

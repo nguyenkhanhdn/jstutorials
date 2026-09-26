@@ -15,9 +15,11 @@ import {
   Sparkles,
   Target,
   GitBranch,
-  User
+  User,
+  Code2,
+  Palette
 } from 'lucide-react';
-import { CURRICULUM_MODULES } from '../../data/curriculumData';
+import { CURRICULUM_MODULES, CURRICULUM_TRACKS } from '../../data/curriculumData';
 import { Bookmark, StudentProfile } from '../../types';
 import { gamificationService } from '../../services/gamificationService';
 import { AdaptiveLearningModal } from './AdaptiveLearningModal';
@@ -72,11 +74,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
           <div className="flex flex-wrap items-center gap-3">
             <button
+              onClick={() => onStartLesson('les-html-1')}
+              className="px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+            >
+              <Code2 className="w-4 h-4" />
+              <span>Học HTML (Bài 1)</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => onStartLesson('les-2-1')}
               className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all active:scale-95"
             >
               <BookOpen className="w-4 h-4 fill-slate-950" />
-              <span>Tiếp tục học Bài 2.1</span>
+              <span>Tiếp tục JS Bài 2.1</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -90,7 +100,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               className="px-4 py-3 rounded-2xl bg-indigo-600/80 hover:bg-indigo-600 border border-indigo-400/40 text-white font-semibold text-sm transition-all flex items-center gap-2 cursor-pointer shadow-md"
             >
               <GitBranch className="w-4 h-4 text-indigo-300" />
-              <span>Lộ trình thích ứng DDA</span>
+              <span>Lộ trình DDA</span>
             </button>
             {onOpenProfile && (
               <button
@@ -99,7 +109,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 title="Quản lý thông tin hồ sơ và tiến độ học tập cá nhân"
               >
                 <User className="w-4 h-4 text-amber-400" />
-                <span>Hồ sơ & Tiến độ</span>
+                <span>Hồ sơ</span>
               </button>
             )}
           </div>
@@ -107,6 +117,69 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
         {/* Ambient glow decoration */}
         <div className="absolute right-0 bottom-0 translate-x-12 translate-y-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      </div>
+
+      {/* 3 Pillars Track Cards: 1. HTML, 2. CSS, 3. JavaScript */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-indigo-600" />
+              <span>Cấu trúc 3 Trụ cột Kiến thức Front-end</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">Khung chương trình đào tạo phân tầng: HTML • CSS • JavaScript</p>
+          </div>
+          <button
+            onClick={() => onNavigateTab('curriculum')}
+            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+          >
+            <span>Khung chương trình chi tiết</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {CURRICULUM_TRACKS.map(tr => (
+            <div
+              key={tr.id}
+              className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-xs ${tr.bgColor}`}>
+                    {tr.id === 'html' && <Code2 className="w-4 h-4" />}
+                    {tr.id === 'css' && <Palette className="w-4 h-4" />}
+                    {tr.id === 'javascript' && <Zap className="w-4 h-4" />}
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    {tr.badge}
+                  </span>
+                </div>
+                <h3 className="font-bold text-sm text-slate-900">{tr.name}</h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">{tr.description}</p>
+              </div>
+
+              <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">{tr.modulesCount} chuyên đề</span>
+                <button
+                  onClick={() => {
+                    if (tr.id === 'html') onStartLesson('les-html-1');
+                    else if (tr.id === 'css') onStartLesson('les-css-1-1');
+                    else onStartLesson('les-2-1');
+                  }}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${
+                    tr.id === 'html' ? 'bg-orange-50 text-orange-700 hover:bg-orange-100' :
+                    tr.id === 'css' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
+                    'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                  }`}
+                >
+                  <span>{tr.id === 'html' ? 'Học HTML' : tr.id === 'css' ? 'Học CSS' : 'Học JS'}</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* KPI Stats Grid */}

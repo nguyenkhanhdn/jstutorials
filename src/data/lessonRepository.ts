@@ -1,6 +1,7 @@
 import { Lesson, Question, Exercise, PredictOutputItem } from '../types';
 import { SAMPLE_LESSON } from './sampleLessonData';
 import { CURRICULUM_MODULES } from './curriculumData';
+import { ALL_HTML_LESSONS } from './htmlLessons';
 
 // Detailed bespoke lessons for key modules
 export const LESSON_1_3: Lesson = {
@@ -846,8 +847,12 @@ checkUser("linh@fpt.edu.vn");`,
   ]
 };
 
-// Fallback dynamic generator for any lesson in 17 modules
+// Fallback dynamic generator for any lesson in modules
 export function getLessonById(lessonId: string): Lesson {
+  // Check HTML lessons first
+  const htmlLesson = ALL_HTML_LESSONS.find(l => l.id === lessonId);
+  if (htmlLesson) return htmlLesson;
+
   if (lessonId === 'les-2-1') return SAMPLE_LESSON;
   if (lessonId === 'les-1-3') return LESSON_1_3;
   if (lessonId === 'les-3-2') return LESSON_3_2;

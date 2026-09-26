@@ -56,17 +56,17 @@ export const Header: React.FC<HeaderProps> = ({
           
           {/* Logo & Platform Title */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-md shadow-amber-500/20">
-              JS
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-amber-500/20">
+              WEB
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-900 tracking-tight text-lg">JS Master</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                  Cao đẳng CNTT
+                <span className="font-extrabold text-slate-900 tracking-tight text-lg">Web Master</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                  HTML • CSS • JS
                 </span>
               </div>
-              <p className="text-xs text-slate-700 hidden sm:block">Học liệu số tương tác • Learning-by-Doing</p>
+              <p className="text-xs text-slate-700 hidden sm:block">Học liệu số tương tác • Cao đẳng CNTT</p>
             </div>
           </div>
 

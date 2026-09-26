@@ -117,7 +117,7 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
   const handleRunExerciseTests = async () => {
     setIsEvaluating(true);
     const code = exerciseCodes[activeExLevel];
-    const results = await evaluateTestCases(code, currentExercise.testCases);
+    const results = await evaluateTestCases(code, currentExercise.testCases, lesson.language || currentExercise.language);
     setExerciseResults(prev => ({ ...prev, [activeExLevel]: results }));
     setIsEvaluating(false);
 
@@ -260,9 +260,15 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                Module {currentModule.number} • {currentModule.title}
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold border ${
+                lesson.track === 'html' ? 'bg-orange-100 text-orange-900 border-orange-200' :
+                lesson.track === 'css' ? 'bg-blue-100 text-blue-900 border-blue-200' :
+                'bg-amber-100 text-amber-900 border-amber-200'
+              }`}>
+                {lesson.track === 'html' ? `HTML Chuyên đề ${currentModule.number} • ${currentModule.title}` :
+                 lesson.track === 'css' ? `CSS Chuyên đề ${currentModule.number} • ${currentModule.title}` :
+                 `Module ${currentModule.number} • ${currentModule.title}`}
               </span>
               <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700">
                 Thời lượng: {lesson.durationMinutes} phút
@@ -612,7 +618,8 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
               initialCode={lesson.interactivePractice.starterCode}
               expectedOutput={lesson.interactivePractice.expectedConsoleOutput}
               title={lesson.interactivePractice.title}
-              description="Chỉnh sửa mã nguồn và bấm 'Chạy Code' để đối chiếu với kết quả kỳ vọng."
+              language={lesson.language || lesson.interactivePractice.language || 'javascript'}
+              description={lesson.language === 'html' ? "Chỉnh sửa mã HTML và bấm 'Render & Kiểm tra' để xem kết quả trực quan ngay lập tức." : "Chỉnh sửa mã nguồn và bấm 'Chạy Code' để đối chiếu với kết quả kỳ vọng."}
               onOpenAITutor={(code, err) => onOpenAITutor(lesson.interactivePractice.title, code, err, 'Hãy giúp tôi hoàn thành bài thực hành này')}
               onSuccess={() => {
                 confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
@@ -715,6 +722,7 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
               <CodeSandbox
                 initialCode={exerciseCodes[activeExLevel]}
                 title={`Bài tập ${activeExLevel.toUpperCase()}: ${currentExercise.title}`}
+                language={lesson.language || currentExercise.language || 'javascript'}
                 onOpenAITutor={(c, err) => onOpenAITutor(currentExercise.title, c, err, currentExercise.description)}
               />
             </div>
