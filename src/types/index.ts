@@ -216,6 +216,7 @@ export interface DailyQuest {
 
 export interface StudentProfile {
   id: string;
+  uid?: string;
   code: string;
   fullName: string;
   email: string;
@@ -237,6 +238,8 @@ export interface StudentProfile {
   rankTitle?: string;
   unlockedBadgeIds?: string[];
   dailyQuestsCompleted?: string[];
+  department?: string;
+  teachingSubjects?: string[];
 }
 
 export interface AITutorResponse {

@@ -47,8 +47,10 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuth,
   onOpenProfile
 }) => {
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, userProfile, isTeacher, isStudent } = useAuth();
   const activeProfile = userProfile || studentProfile;
+  const isTeacherUser = activeProfile?.role === 'teacher' || activeProfile?.role === 'admin' || isTeacher;
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -65,16 +67,26 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
                   HTML • CSS • JS
                 </span>
+                {isTeacherUser ? (
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                    <Users className="w-3 h-3 text-emerald-700" />
+                    <span>Giảng viên</span>
+                  </span>
+                ) : (
+                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                    Sinh viên
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-700 hidden sm:block">Học liệu số tương tác • Cao đẳng CNTT</p>
             </div>
           </div>
 
-          {/* Primary View Mode Switcher */}
+          {/* Primary View Mode Switcher: Teacher View ONLY visible for teachers */}
           <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
             <button
               onClick={() => setViewMode('student')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 viewMode === 'student'
                   ? 'bg-white text-slate-900 shadow-xs font-bold'
                   : 'text-slate-700 hover:text-slate-900'
@@ -83,20 +95,29 @@ export const Header: React.FC<HeaderProps> = ({
               <GraduationCap className="w-4 h-4 text-indigo-700" />
               <span>Góc Sinh viên</span>
             </button>
-            <button
-              onClick={() => setViewMode('teacher')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
-                viewMode === 'teacher'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-700 hover:text-slate-900'
-              }`}
-            >
-              <Users className="w-4 h-4 text-emerald-700" />
-              <span>Góc Giảng viên</span>
-            </button>
+
+            {/* ONLY visible to Teacher */}
+            {isTeacherUser && (
+              <button
+                onClick={() => setViewMode('teacher')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  viewMode === 'teacher'
+                    ? 'bg-emerald-600 text-white shadow-xs font-bold'
+                    : 'text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50'
+                }`}
+                title="Bảng điều khiển Giảng viên (Chỉ giảng viên mới được xem)"
+              >
+                <Users className="w-4 h-4" />
+                <span>Góc Giảng viên</span>
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-500/30 border border-emerald-300 text-emerald-900 ml-0.5">
+                  GV
+                </span>
+              </button>
+            )}
+
             <button
               onClick={() => setViewMode('docs')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 viewMode === 'docs'
                   ? 'bg-white text-slate-900 shadow-xs font-bold'
                   : 'text-slate-700 hover:text-slate-900'
@@ -163,21 +184,30 @@ export const Header: React.FC<HeaderProps> = ({
                 {currentUser ? (
                   <button
                     onClick={onOpenProfile}
-                    className="flex items-center gap-2 px-2 py-1 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer text-left"
-                    title="Xem và chỉnh sửa hồ sơ sinh viên"
+                    className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer text-left"
+                    title="Xem và quản lý hồ sơ tài khoản"
                   >
                     <img
                       src={activeProfile?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"}
-                      alt={activeProfile?.fullName || "Student"}
-                      className="w-7 h-7 rounded-full border border-indigo-200 object-cover"
+                      alt={activeProfile?.fullName || "User"}
+                      className={`w-7 h-7 rounded-full border object-cover ${isTeacherUser ? 'border-emerald-500' : 'border-indigo-300'}`}
                     />
                     <div className="hidden xl:block text-xs leading-tight">
-                      <div className="font-extrabold text-slate-900 truncate max-w-[90px]">
-                        {activeProfile?.fullName || 'Sinh viên'}
+                      <div className="font-extrabold text-slate-900 truncate max-w-[100px]">
+                        {activeProfile?.fullName || 'Người dùng'}
                       </div>
-                      <div className="text-xs text-emerald-600 font-semibold flex items-center gap-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        <span>Cloud ID</span>
+                      <div className="text-xs font-semibold flex items-center gap-1">
+                        {isTeacherUser ? (
+                          <span className="text-emerald-700 font-bold flex items-center gap-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span>Giảng viên</span>
+                          </span>
+                        ) : (
+                          <span className="text-indigo-700 font-bold flex items-center gap-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                            <span>Sinh viên</span>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </button>

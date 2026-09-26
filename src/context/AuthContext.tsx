@@ -5,7 +5,8 @@ import {
   signInWithPopup, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  signOut as firebaseSignOut 
+  signOut as firebaseSignOut,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { 
   doc, 
@@ -17,7 +18,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db, googleProvider, handleFirestoreError, OperationType } from '../lib/firebase';
 import { StudentProfile, StudentProgress } from '../types';
-import { MOCK_STUDENTS } from '../data/mockStudentAnalytics';
+import { MOCK_STUDENTS, MOCK_TEACHER } from '../data/mockStudentAnalytics';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -25,9 +26,14 @@ interface AuthContextType {
   lessonProgressMap: Record<string, StudentProgress>;
   isLoading: boolean;
   authError: string | null;
+  isTeacher: boolean;
+  isAdmin: boolean;
+  isStudent: boolean;
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   registerWithEmail: (email: string, pass: string, fullName: string, studentCode: string, role: 'student' | 'teacher') => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  setUserRole: (role: 'student' | 'teacher') => Promise<void>;
   logout: () => Promise<void>;
   updateUserProfile: (data: Partial<StudentProfile>) => Promise<void>;
   saveLessonProgress: (lessonId: string, progressData: Partial<StudentProgress>) => Promise<void>;
@@ -57,29 +63,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userSnap = await getDoc(userDocRef);
 
           if (userSnap.exists()) {
-            setUserProfile(userSnap.data() as StudentProfile);
+            const data = userSnap.data() as StudentProfile;
+            setUserProfile({
+              ...data,
+              id: data.id || user.uid,
+              uid: data.uid || user.uid
+            });
           } else {
             // Initial profile creation if not exists yet
-            const defaultRole = user.email === 'khanhn@fpt.edu.vn' ? 'teacher' : 'student';
+            const isInstructor = user.email === 'khanhn@fpt.edu.vn';
+            const defaultRole = isInstructor ? 'teacher' : 'student';
             const initialProfile: StudentProfile = {
               id: user.uid,
-              code: user.email?.split('@')[0]?.toUpperCase() || `PS${Math.floor(10000 + Math.random() * 90000)}`,
-              fullName: user.displayName || user.email?.split('@')[0] || 'Sinh viên FPT',
+              uid: user.uid,
+              code: isInstructor ? 'GV-KHANH' : (user.email?.split('@')[0]?.toUpperCase() || `PS${Math.floor(10000 + Math.random() * 90000)}`),
+              fullName: user.displayName || (isInstructor ? 'Thầy Nguyễn Nam Khánh' : (user.email?.split('@')[0] || 'Sinh viên FPT')),
               email: user.email || '',
               avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
-              classGroup: 'WD18301 - Lập trình JS',
-              overallProgress: 15,
-              completedLessons: 1,
-              totalLessons: 16,
-              averageQuizScore: 85,
-              xp: 250,
-              streakDays: 3,
+              classGroup: isInstructor ? 'Bộ môn CNTT • FPT Polytechnic' : 'WD18301 - Lập trình Web',
+              overallProgress: isInstructor ? 100 : 15,
+              completedLessons: isInstructor ? 75 : 1,
+              totalLessons: 75,
+              averageQuizScore: isInstructor ? 98 : 85,
+              xp: isInstructor ? 9999 : 250,
+              streakDays: isInstructor ? 45 : 3,
               atRisk: false,
               lastActive: 'Vừa xong',
               weakObjectives: [],
               bookmarkCount: 0,
               role: defaultRole,
-              rankTitle: 'Tập sự JS'
+              rankTitle: isInstructor ? 'Giảng viên Cao cấp' : 'Tập sự JS'
             };
             await setDoc(userDocRef, initialProfile);
             setUserProfile(initialProfile);
@@ -134,6 +147,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         msg = 'Email hoặc mật khẩu không chính xác.';
       } else if (err.code === 'auth/invalid-email') {
         msg = 'Định dạng email không hợp lệ.';
+      } else if (err.code === 'auth/too-many-requests') {
+        msg = 'Quá nhiều lần thử sai. Vui lòng thử lại sau ít phút hoặc đặt lại mật khẩu.';
       }
       setAuthError(msg);
       throw new Error(msg);
@@ -150,25 +165,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthError(null);
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      const isTeacherRole = role === 'teacher' || email.trim() === 'khanhn@fpt.edu.vn';
       const newProfile: StudentProfile = {
         id: cred.user.uid,
-        code: studentCode.trim().toUpperCase() || `PS${Math.floor(10000 + Math.random() * 90000)}`,
-        fullName: fullName.trim() || 'Học viên mới',
+        uid: cred.user.uid,
+        code: studentCode.trim().toUpperCase() || (isTeacherRole ? `GV${Math.floor(10 + Math.random() * 90)}` : `PS${Math.floor(10000 + Math.random() * 90000)}`),
+        fullName: fullName.trim() || (isTeacherRole ? 'Giảng viên' : 'Học viên mới'),
         email: email.trim(),
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${cred.user.uid}`,
-        classGroup: 'WD18301 - Lập trình JS',
-        overallProgress: 0,
-        completedLessons: 0,
-        totalLessons: 16,
-        averageQuizScore: 0,
-        xp: 100, // Welcome bonus XP
+        classGroup: isTeacherRole ? 'Bộ môn CNTT • FPT Polytechnic' : 'WD18301 - Lập trình Web',
+        overallProgress: isTeacherRole ? 100 : 0,
+        completedLessons: isTeacherRole ? 75 : 0,
+        totalLessons: 75,
+        averageQuizScore: isTeacherRole ? 95 : 0,
+        xp: isTeacherRole ? 5000 : 100, // Welcome bonus XP
         streakDays: 1,
         atRisk: false,
         lastActive: 'Vừa xong',
         weakObjectives: [],
         bookmarkCount: 0,
-        role: role,
-        rankTitle: 'Tập sự JS'
+        role: isTeacherRole ? 'teacher' : 'student',
+        rankTitle: isTeacherRole ? 'Giảng viên' : 'Tập sự JS'
       };
       await setDoc(doc(db, 'users', cred.user.uid), newProfile);
       setUserProfile(newProfile);
@@ -179,9 +196,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         msg = 'Email này đã được đăng ký. Vui lòng chọn Đăng nhập.';
       } else if (err.code === 'auth/weak-password') {
         msg = 'Mật khẩu quá ngắn, yêu cầu ít nhất 6 ký tự.';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'Email không đúng định dạng.';
       }
       setAuthError(msg);
       throw new Error(msg);
+    }
+  };
+
+  const resetPassword = async (emailToReset: string) => {
+    setAuthError(null);
+    try {
+      await sendPasswordResetEmail(auth, emailToReset);
+    } catch (err: any) {
+      console.error('Password reset error:', err);
+      let msg = 'Không thể gửi email đặt lại mật khẩu. Vui lòng kiểm tra lại địa chỉ email.';
+      if (err.code === 'auth/user-not-found') {
+        msg = 'Không tìm thấy tài khoản với email này.';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'Địa chỉ email không hợp lệ.';
+      }
+      setAuthError(msg);
+      throw new Error(msg);
+    }
+  };
+
+  const setUserRole = async (newRole: 'student' | 'teacher') => {
+    if (!userProfile) return;
+    const isTeacherRole = newRole === 'teacher';
+    const updated: StudentProfile = {
+      ...userProfile,
+      role: newRole,
+      rankTitle: isTeacherRole ? 'Giảng viên' : 'Tập sự JS',
+      code: userProfile.code.startsWith('PS') && isTeacherRole ? 'GV01' : userProfile.code
+    };
+    setUserProfile(updated);
+
+    if (currentUser) {
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          role: newRole,
+          rankTitle: updated.rankTitle,
+          code: updated.code
+        });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.UPDATE, `users/${currentUser.uid}`);
+      }
     }
   };
 
@@ -197,12 +257,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUserProfile = async (data: Partial<StudentProfile>) => {
     if (!userProfile) return;
-    const updated = { ...userProfile, ...data, lastActive: 'Vừa xong' };
+    const updated: StudentProfile = { 
+      ...userProfile, 
+      ...data, 
+      uid: userProfile.uid || userProfile.id,
+      lastActive: 'Vừa xong' 
+    };
     setUserProfile(updated);
 
     if (currentUser) {
       try {
-        await updateDoc(doc(db, 'users', currentUser.uid), updated);
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          ...data,
+          uid: currentUser.uid,
+          lastActive: 'Vừa xong'
+        });
       } catch (err) {
         handleFirestoreError(err, OperationType.UPDATE, `users/${currentUser.uid}`);
       }
@@ -244,7 +313,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Update overall stats in parent profile
         const allProgressValues = Object.values({ ...lessonProgressMap, [lessonId]: merged });
         const completedCount = allProgressValues.filter(p => p.status === 'completed' || p.status === 'mastered').length;
-        const progressPct = Math.round((completedCount / (userProfile.totalLessons || 16)) * 100);
+        const progressPct = Math.round((completedCount / (userProfile.totalLessons || 75)) * 100);
         
         await updateDoc(doc(db, 'users', currentUser.uid), {
           completedLessons: completedCount,
@@ -259,6 +328,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Quick switch between demo students/teacher for convenience
   const switchDemoProfile = (profileId: string) => {
+    if (profileId === 'gv-khanh' || profileId === 'teacher' || profileId === 'gv-01') {
+      setUserProfile(MOCK_TEACHER);
+      return;
+    }
     const found = MOCK_STUDENTS.find(s => s.id === profileId);
     if (found) {
       setUserProfile(found);
@@ -266,6 +339,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearAuthError = () => setAuthError(null);
+
+  // Computed role checks
+  const isTeacher = userProfile?.role === 'teacher' || userProfile?.role === 'admin' || currentUser?.email === 'khanhn@fpt.edu.vn';
+  const isAdmin = userProfile?.role === 'admin' || currentUser?.email === 'khanhn@fpt.edu.vn';
+  const isStudent = !isTeacher;
 
   return (
     <AuthContext.Provider
@@ -275,9 +353,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lessonProgressMap,
         isLoading,
         authError,
+        isTeacher,
+        isAdmin,
+        isStudent,
         loginWithGoogle,
         loginWithEmail,
         registerWithEmail,
+        resetPassword,
+        setUserRole,
         logout,
         updateUserProfile,
         saveLessonProgress,
@@ -297,3 +380,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+

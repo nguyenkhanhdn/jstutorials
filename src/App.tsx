@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Header, AppViewMode, StudentSubView } from './components/Header';
 import { StudentDashboard } from './components/student/StudentDashboard';
 import { CurriculumView } from './components/student/CurriculumView';
@@ -20,11 +20,12 @@ import { CURRICULUM_MODULES } from './data/curriculumData';
 import { getLessonById } from './data/lessonRepository';
 import { storageService } from './services/storageService';
 import { Bookmark, StudentProfile, SelfAssessmentLevel } from './types';
+import { ShieldAlert } from 'lucide-react';
 
 const ALL_LESSONS = CURRICULUM_MODULES.flatMap(m => m.lessons);
 
 function AppInner() {
-  const { userProfile, saveLessonProgress, updateUserProfile } = useAuth();
+  const { userProfile, isTeacher, saveLessonProgress, updateUserProfile } = useAuth();
   const [viewMode, setViewMode] = useState<AppViewMode>('student');
   const [studentSubView, setStudentSubView] = useState<StudentSubView>('lesson');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -35,6 +36,14 @@ function AppInner() {
   });
 
   const currentStudent = userProfile || fallbackStudent;
+  const isTeacherUser = currentStudent.role === 'teacher' || currentStudent.role === 'admin' || isTeacher;
+
+  // Auto-protect: Students cannot access or stay in teacher view mode
+  useEffect(() => {
+    if (!isTeacherUser && viewMode === 'teacher') {
+      setViewMode('student');
+    }
+  }, [isTeacherUser, viewMode]);
 
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
     return storageService.getBookmarks();
@@ -199,9 +208,35 @@ function AppInner() {
 
       {/* Main Container with 2-Column Architecture */}
       <main className="flex-1 flex flex-col">
-        {viewMode === 'teacher' && (
+        {viewMode === 'teacher' && isTeacherUser && (
           <div className="pb-16">
             <TeacherDashboard />
+          </div>
+        )}
+
+        {viewMode === 'teacher' && !isTeacherUser && (
+          <div className="max-w-md mx-auto my-16 p-8 bg-white rounded-3xl border border-rose-200 shadow-xl text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200">
+              <ShieldAlert className="w-7 h-7" />
+            </div>
+            <h2 className="text-lg font-black text-slate-900">Khu vực dành riêng cho Giảng viên</h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Bạn đang đăng nhập với vai trò <strong>Sinh viên</strong> ({currentStudent.fullName}). Theo quy định hệ thống, học sinh không được nhìn thấy các công cụ quản lý lớp học và chẩn đoán của giảng viên.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-2 pt-2">
+              <button
+                onClick={() => setViewMode('student')}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+              >
+                Quay lại Góc Sinh viên
+              </button>
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold cursor-pointer"
+              >
+                Đăng nhập Giảng viên
+              </button>
+            </div>
           </div>
         )}
 
@@ -325,6 +360,10 @@ function AppInner() {
       <UserProfileModal
         isOpen={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
+        onNavigateToTeacher={() => {
+          setViewMode('teacher');
+          setProfileModalOpen(false);
+        }}
       />
 
     </div>

@@ -1,8 +1,33 @@
 import { StudentProfile } from '../types';
 
+export const MOCK_TEACHER: StudentProfile = {
+  id: 'gv-khanh',
+  uid: 'gv-khanh',
+  code: 'GV-KHANH',
+  fullName: 'Thầy Nguyễn Nam Khánh',
+  email: 'khanhn@fpt.edu.vn',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+  classGroup: 'Bộ môn CNTT • FPT Polytechnic',
+  overallProgress: 100,
+  completedLessons: 75,
+  totalLessons: 75,
+  averageQuizScore: 98,
+  xp: 9999,
+  streakDays: 45,
+  atRisk: false,
+  lastActive: 'Vừa xong',
+  weakObjectives: [],
+  bookmarkCount: 0,
+  role: 'teacher',
+  rankTitle: 'Giảng viên Cao cấp',
+  department: 'Bộ môn Phát triển Phần mềm & Web',
+  teachingSubjects: ['Lập trình JavaScript', 'HTML5/CSS3 & Responsive', 'React & Web Frontend']
+};
+
 export const MOCK_STUDENTS: StudentProfile[] = [
   {
     id: 'sv-01',
+    uid: 'sv-01',
     code: 'PS25101',
     fullName: 'Nguyễn Văn An',
     email: 'annvps25101@fpt.edu.vn',
@@ -17,10 +42,13 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     atRisk: false,
     lastActive: '15 phút trước',
     weakObjectives: [],
-    bookmarkCount: 4
+    bookmarkCount: 4,
+    role: 'student',
+    rankTitle: 'Tập sự JS'
   },
   {
     id: 'sv-02',
+    uid: 'sv-02',
     code: 'PS25102',
     fullName: 'Trần Thị Bích Ngọc',
     email: 'ngocttbps25102@fpt.edu.vn',
@@ -36,10 +64,13 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     atRiskReason: 'Không đăng nhập 6 ngày qua; Điểm Quiz trung bình < 60%',
     lastActive: '6 ngày trước',
     weakObjectives: ['LO2.3', 'LO2.4', 'LO3.2'],
-    bookmarkCount: 9
+    bookmarkCount: 9,
+    role: 'student',
+    rankTitle: 'Tân binh Web'
   },
   {
     id: 'sv-03',
+    uid: 'sv-03',
     code: 'PS25103',
     fullName: 'Lê Hoàng Long',
     email: 'longlhps25103@fpt.edu.vn',
@@ -54,10 +85,13 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     atRisk: false,
     lastActive: '2 giờ trước',
     weakObjectives: ['LO2.4'],
-    bookmarkCount: 6
+    bookmarkCount: 6,
+    role: 'student',
+    rankTitle: 'Tập sự JS'
   },
   {
     id: 'sv-04',
+    uid: 'sv-04',
     code: 'PS25104',
     fullName: 'Phạm Minh Đức',
     email: 'ducpmps25104@fpt.edu.vn',
@@ -73,10 +107,13 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     atRiskReason: 'Quiz attempts > 4 lần vẫn trượt bài 2.3; Tiến độ chậm hơn 50%',
     lastActive: '3 ngày trước',
     weakObjectives: ['LO2.1', 'LO2.3', 'LO2.4'],
-    bookmarkCount: 11
+    bookmarkCount: 11,
+    role: 'student',
+    rankTitle: 'Tân binh Web'
   },
   {
     id: 'sv-05',
+    uid: 'sv-05',
     code: 'PS25105',
     fullName: 'Vũ Thảo Linh',
     email: 'linhvttps25105@fpt.edu.vn',
@@ -91,10 +128,13 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     atRisk: false,
     lastActive: 'Vừa xong',
     weakObjectives: [],
-    bookmarkCount: 3
+    bookmarkCount: 3,
+    role: 'student',
+    rankTitle: 'Chiến binh JS'
   },
   {
     id: 'sv-06',
+    uid: 'sv-06',
     code: 'PS25106',
     fullName: 'Đỗ Tuấn Khải',
     email: 'khaidtps25106@fpt.edu.vn',
@@ -109,7 +149,9 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     atRisk: false,
     lastActive: 'Hôm qua',
     weakObjectives: ['LO2.3'],
-    bookmarkCount: 5
+    bookmarkCount: 5,
+    role: 'student',
+    rankTitle: 'Tập sự JS'
   }
 ];
 
