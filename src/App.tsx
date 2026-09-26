@@ -13,6 +13,7 @@ import { KnowledgeMapModal } from './components/student/KnowledgeMapModal';
 import { GamificationHubModal } from './components/student/GamificationHubModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { UserProfileModal } from './components/auth/UserProfileModal';
+import { CurriculumSidebar } from './components/navigation/CurriculumSidebar';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { MOCK_STUDENTS } from './data/mockStudentAnalytics';
 import { CURRICULUM_MODULES } from './data/curriculumData';
@@ -25,7 +26,8 @@ const ALL_LESSONS = CURRICULUM_MODULES.flatMap(m => m.lessons);
 function AppInner() {
   const { userProfile, saveLessonProgress, updateUserProfile } = useAuth();
   const [viewMode, setViewMode] = useState<AppViewMode>('student');
-  const [studentSubView, setStudentSubView] = useState<StudentSubView>('dashboard');
+  const [studentSubView, setStudentSubView] = useState<StudentSubView>('lesson');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Fallback local student if context is loading
   const [fallbackStudent, setFallbackStudent] = useState<StudentProfile>(() => {
@@ -38,9 +40,9 @@ function AppInner() {
     return storageService.getBookmarks();
   });
 
-  // Active Lesson State
+  // Active Lesson State - default to HTML Lesson 1
   const [currentLessonId, setCurrentLessonId] = useState<string>(() => {
-    return storageService.getActiveLessonId() || 'les-2-1';
+    return storageService.getActiveLessonId() || 'les-html-1';
   });
 
   const currentLesson = useMemo(() => {
@@ -195,62 +197,82 @@ function AppInner() {
         onOpenProfile={() => setProfileModalOpen(true)}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 pb-16">
-        {viewMode === 'teacher' && <TeacherDashboard />}
+      {/* Main Container with 2-Column Architecture */}
+      <main className="flex-1 flex flex-col">
+        {viewMode === 'teacher' && (
+          <div className="pb-16">
+            <TeacherDashboard />
+          </div>
+        )}
 
-        {viewMode === 'docs' && <ArchitectureViewer />}
+        {viewMode === 'docs' && (
+          <div className="pb-16">
+            <ArchitectureViewer />
+          </div>
+        )}
 
         {viewMode === 'student' && (
-          <>
-            {studentSubView === 'dashboard' && (
-              <StudentDashboard
-                student={currentStudent}
-                bookmarks={bookmarks}
-                onStartLesson={handleStartLesson}
-                onNavigateTab={(tab) => setStudentSubView(tab)}
-                onOpenKnowledgeMap={() => setKnowledgeMapOpen(true)}
-                onOpenGamification={() => setGamificationModalOpen(true)}
-                onOpenProfile={() => setProfileModalOpen(true)}
-                onOpenAuth={() => setAuthModalOpen(true)}
-              />
-            )}
+          <div className="flex flex-1 relative">
+            {/* Left Column: 3 Major Tracks (1. HTML, 2. CSS, 3. JavaScript) */}
+            <CurriculumSidebar
+              currentLessonId={currentLessonId}
+              onSelectLesson={handleStartLesson}
+              completedLessonIds={new Set(storageService.getCompletedLessonIds())}
+              isOpen={sidebarOpen}
+              onToggleOpen={() => setSidebarOpen(prev => !prev)}
+            />
 
-            {studentSubView === 'curriculum' && (
-              <CurriculumView
-                onSelectLesson={handleStartLesson}
-              />
-            )}
+            {/* Right Column: Main Interactive Workspace */}
+            <div className="flex-1 min-w-0 pb-16 overflow-x-hidden">
+              {studentSubView === 'dashboard' && (
+                <StudentDashboard
+                  student={currentStudent}
+                  bookmarks={bookmarks}
+                  onStartLesson={handleStartLesson}
+                  onNavigateTab={(tab) => setStudentSubView(tab)}
+                  onOpenKnowledgeMap={() => setKnowledgeMapOpen(true)}
+                  onOpenGamification={() => setGamificationModalOpen(true)}
+                  onOpenProfile={() => setProfileModalOpen(true)}
+                  onOpenAuth={() => setAuthModalOpen(true)}
+                />
+              )}
 
-            {studentSubView === 'lesson' && (
-              <LessonRunner
-                lesson={currentLesson}
-                onOpenAITutor={handleOpenAITutor}
-                onOpenBookmark={handleOpenBookmarkModal}
-                onCompleteLesson={handleLessonCompleted}
-                onNextLesson={handleNextLesson}
-                onPrevLesson={currentLessonIndex > 0 ? handlePrevLesson : undefined}
-                onBackToCurriculum={() => setStudentSubView('curriculum')}
-                onSelectLesson={handleStartLesson}
-              />
-            )}
+              {studentSubView === 'curriculum' && (
+                <CurriculumView
+                  onSelectLesson={handleStartLesson}
+                />
+              )}
 
-            {studentSubView === 'review' && (
-              <ReviewCenter
-                onOpenAITutor={handleOpenAITutor}
-                onJumpToLesson={handleStartLesson}
-              />
-            )}
+              {studentSubView === 'lesson' && (
+                <LessonRunner
+                  lesson={currentLesson}
+                  onOpenAITutor={handleOpenAITutor}
+                  onOpenBookmark={handleOpenBookmarkModal}
+                  onCompleteLesson={handleLessonCompleted}
+                  onNextLesson={handleNextLesson}
+                  onPrevLesson={currentLessonIndex > 0 ? handlePrevLesson : undefined}
+                  onBackToCurriculum={() => setStudentSubView('curriculum')}
+                  onSelectLesson={handleStartLesson}
+                />
+              )}
 
-            {studentSubView === 'bookmarks' && (
-              <BookmarkManager
-                bookmarks={bookmarks}
-                onToggleResolve={handleToggleResolve}
-                onRemoveBookmark={handleRemoveBookmark}
-                onJumpToLesson={handleStartLesson}
-              />
-            )}
-          </>
+              {studentSubView === 'review' && (
+                <ReviewCenter
+                  onOpenAITutor={handleOpenAITutor}
+                  onJumpToLesson={handleStartLesson}
+                />
+              )}
+
+              {studentSubView === 'bookmarks' && (
+                <BookmarkManager
+                  bookmarks={bookmarks}
+                  onToggleResolve={handleToggleResolve}
+                  onRemoveBookmark={handleRemoveBookmark}
+                  onJumpToLesson={handleStartLesson}
+                />
+              )}
+            </div>
+          </div>
         )}
       </main>
 

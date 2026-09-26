@@ -872,9 +872,12 @@ export function getLessonById(lessonId: string): Lesson {
   }
 
   // Construct a realistic, interactive Lesson matching the curriculum metadata
+  const modTrack = foundModule.track || (foundModule.id.startsWith('mod-html') ? 'html' : (foundModule.id.startsWith('mod-css') ? 'css' : 'javascript'));
   return {
     id: foundLessonMeta.id,
     moduleId: foundModule.id,
+    track: modTrack,
+    language: modTrack === 'html' ? 'html' : (modTrack === 'css' ? 'css' : 'javascript'),
     title: foundLessonMeta.title,
     order: 1,
     durationMinutes: foundLessonMeta.durationMinutes,
