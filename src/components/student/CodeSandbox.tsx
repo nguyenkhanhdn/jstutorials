@@ -28,12 +28,16 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   const [copied, setCopied] = useState(false);
   const [isMatch, setIsMatch] = useState<boolean | null>(null);
   
-  const isHtml = language === 'html' || (code.includes('<') && code.includes('>'));
-  const [activeOutputTab, setActiveOutputTab] = useState<'preview' | 'console'>(isHtml ? 'preview' : 'console');
+  const isHtmlOrCss = language === 'html' || language === 'css' || (code.includes('<') && code.includes('>')) || (code.includes('{') && code.includes(':') && !code.includes('console.log'));
+  const isHtml = isHtmlOrCss;
+  const [activeOutputTab, setActiveOutputTab] = useState<'preview' | 'console'>(isHtmlOrCss ? 'preview' : 'console');
 
   const htmlPreviewSrcDoc = useMemo(() => {
-    if (!isHtml) return '';
-    return `<!DOCTYPE html>
+    if (!isHtmlOrCss) return '';
+
+    // If already has HTML markup, render directly
+    if (code.includes('<')) {
+      return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -57,20 +61,46 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
 ${code}
 </body>
 </html>`;
-  }, [code, isHtml]);
+    }
+
+    // Pure CSS input: wrap inside <style> and provide live preview elements
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; padding: 16px; margin: 0; color: #1e293b; background: #f8fafc; line-height: 1.5; }
+    ${code}
+  </style>
+</head>
+<body>
+  <div class="css-preview-container">
+    <h1>Tiêu đề xem trước (H1)</h1>
+    <p>Đoạn văn xem trước hiệu ứng CSS trực quan trong thời gian thực.</p>
+    <button class="btn">Nút bấm Button</button>
+    <div class="card" style="margin-top: 12px; padding: 16px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 9999px; font-size: 11px;">MẪU THỬ</span>
+      <h3>Thẻ Card Xem Trước</h3>
+      <p>Áp dụng các thuộc tính mô hình hộp, màu sắc và bóng đổ.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+  }, [code, isHtmlOrCss]);
 
   const handleRun = async () => {
     setIsRunning(true);
     setExecutionError(undefined);
 
-    if (isHtml) {
-      const result = runHtmlCode(code);
+    if (isHtmlOrCss) {
+      const wrapped = code.includes('<') ? code : `<style>${code}</style>`;
+      const result = runHtmlCode(wrapped);
       setLogs(result.logs);
       setExecutionError(result.error);
 
       if (expectedOutput) {
-        const fullLower = code.toLowerCase();
-        const expectedClean = expectedOutput.trim().toLowerCase();
+        const fullLower = code.toLowerCase().replace(/\s+/g, ' ');
+        const expectedClean = expectedOutput.trim().toLowerCase().replace(/\s+/g, ' ');
         const actualClean = result.outputString.trim().toLowerCase();
         const matched = fullLower.includes(expectedClean) || actualClean.includes(expectedClean);
         setIsMatch(matched);

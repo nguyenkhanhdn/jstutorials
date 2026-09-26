@@ -166,7 +166,25 @@ export async function evaluateTestCases(
   for (const tc of testCases) {
     const expected = tc.expectedOutput.trim();
 
-    if (isHtml) {
+    if (language === 'css' || (!isHtml && code.includes('{') && code.includes(':') && !code.includes('console.log'))) {
+      const fullCode = tc.inputCode ? `${tc.inputCode}\n${code}` : code;
+      const rawCodeNormalized = fullCode.toLowerCase().replace(/\s+/g, ' ');
+      const expectedNormalized = expected.toLowerCase().replace(/\s+/g, ' ');
+
+      const passed =
+        rawCodeNormalized.includes(expectedNormalized) ||
+        fullCode.includes(expected);
+
+      if (!passed) allPassed = false;
+
+      testResults.push({
+        testCaseId: tc.id,
+        description: tc.description,
+        passed,
+        actualOutput: passed ? `[Khớp quy tắc CSS] "${expected}"` : `[Chưa tìm thấy khai báo CSS: "${expected}"]`,
+        expectedOutput: expected
+      });
+    } else if (isHtml) {
       const fullCode = tc.inputCode ? `${tc.inputCode}\n${code}` : code;
       const parser = new DOMParser();
       const doc = parser.parseFromString(fullCode, 'text/html');

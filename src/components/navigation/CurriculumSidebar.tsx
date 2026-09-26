@@ -20,6 +20,7 @@ import {
   PanelLeftOpen
 } from 'lucide-react';
 import { CURRICULUM_TRACKS, HTML_MODULES, CSS_MODULES, JS_MODULES } from '../../data/curriculumData';
+import { CSS_TOPICS_LIST } from '../../data/cssLessonsData';
 import { CurriculumTrack, ProgressStatus } from '../../types';
 
 interface CurriculumSidebarProps {
@@ -38,6 +39,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   onToggleOpen
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [cssDisplayMode, setCssDisplayMode] = useState<'topics' | 'modules'>('topics');
   
   // Track open state for 3 big sections
   const [openTracks, setOpenTracks] = useState<Record<CurriculumTrack, boolean>>({
@@ -45,6 +47,17 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
     css: false,
     javascript: false
   });
+
+  // Auto-expand track when current lesson changes
+  React.useEffect(() => {
+    if (currentLessonId.startsWith('les-html')) {
+      setOpenTracks(prev => ({ ...prev, html: true }));
+    } else if (currentLessonId.startsWith('les-css')) {
+      setOpenTracks(prev => ({ ...prev, css: true }));
+    } else {
+      setOpenTracks(prev => ({ ...prev, javascript: true }));
+    }
+  }, [currentLessonId]);
 
   // Track open state for individual modules within tracks (for multi-lesson modules)
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({
@@ -75,6 +88,17 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   const filteredHtml = useMemo(() => filterList(HTML_MODULES), [searchQuery]);
   const filteredCss = useMemo(() => filterList(CSS_MODULES), [searchQuery]);
   const filteredJs = useMemo(() => filterList(JS_MODULES), [searchQuery]);
+
+  const filteredCssTopics = useMemo(() => {
+    if (!searchQuery.trim()) return CSS_TOPICS_LIST;
+    const q = searchQuery.toLowerCase();
+    return CSS_TOPICS_LIST.filter(t => 
+      t.title.toLowerCase().includes(q) ||
+      t.englishTitle.toLowerCase().includes(q) ||
+      t.summary.toLowerCase().includes(q) ||
+      t.tags.some(tag => tag.toLowerCase().includes(q))
+    );
+  }, [searchQuery]);
 
   // Overall stats
   const totalCompleted = completedLessonIds.size;
@@ -229,13 +253,13 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-extrabold text-xs text-slate-900 group-hover:text-blue-950">
-                    2. CSS Layout & Giao diện
+                    2. CSS Định kiểu & Giao diện
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                    8 Modules
+                    34 Chủ đề
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500">Box Model, Flexbox, Grid, Responsive</p>
+                <p className="text-[10px] text-slate-500">Box Model, Flexbox, Grid, Animation, RWD</p>
               </div>
             </div>
             <div className="text-slate-400 group-hover:text-slate-700">
@@ -243,57 +267,125 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
             </div>
           </button>
 
-          {/* CSS Modules List */}
+          {/* CSS Content Area */}
           {openTracks.css && (
             <div className="mt-1.5 ml-2 pl-3 border-l-2 border-blue-200 space-y-2">
-              {filteredCss.map(mod => {
-                const isModOpen = !!openModules[mod.id] || searchQuery.length > 0;
-                return (
-                  <div key={mod.id} className="space-y-1">
-                    <div
-                      onClick={() => toggleModule(mod.id)}
-                      className="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-slate-700 hover:text-blue-800 cursor-pointer rounded-lg hover:bg-blue-50/50"
-                    >
-                      <span className="truncate">C{mod.number}. {mod.title}</span>
-                      <ChevronRight className={`w-3 h-3 text-slate-400 transition-transform ${isModOpen ? 'rotate-90' : ''}`} />
-                    </div>
+              {/* Mode switch: 34 Chủ đề vs 8 Chuyên đề */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg text-[10px] font-medium text-slate-600 mb-2">
+                <button
+                  onClick={() => setCssDisplayMode('topics')}
+                  className={`flex-1 py-1 rounded-md transition-all text-center ${
+                    cssDisplayMode === 'topics'
+                      ? 'bg-white text-blue-700 font-bold shadow-xs'
+                      : 'hover:text-slate-900'
+                  }`}
+                >
+                  34 Chủ đề
+                </button>
+                <button
+                  onClick={() => setCssDisplayMode('modules')}
+                  className={`flex-1 py-1 rounded-md transition-all text-center ${
+                    cssDisplayMode === 'modules'
+                      ? 'bg-white text-blue-700 font-bold shadow-xs'
+                      : 'hover:text-slate-900'
+                  }`}
+                >
+                  8 Chuyên đề
+                </button>
+              </div>
 
-                    {isModOpen && (
-                      <div className="ml-2 space-y-0.5">
-                        {mod.lessons.map(les => {
-                          const isActive = les.id === currentLessonId;
-                          const isDone = completedLessonIds.has(les.id);
-                          return (
-                            <button
-                              key={les.id}
-                              onClick={() => onSelectLesson(les.id)}
-                              className={`w-full text-left px-2 py-1.5 rounded-lg text-xs flex items-center justify-between gap-1.5 transition-all ${
-                                isActive
-                                  ? 'bg-blue-600 text-white font-bold shadow-xs'
-                                  : isDone
-                                  ? 'text-slate-800 hover:bg-blue-50/60'
-                                  : 'text-slate-600 hover:bg-slate-100/80'
-                              }`}
-                            >
-                              <div className="flex items-center gap-1.5 truncate">
-                                {isDone ? (
-                                  <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
-                                ) : (
-                                  <Circle className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-300'}`} />
-                                )}
-                                <span className="truncate">{les.title}</span>
-                              </div>
-                              <span className={`text-[10px] shrink-0 ${isActive ? 'text-blue-100' : 'text-slate-400'}`}>
-                                {les.durationMinutes}p
-                              </span>
-                            </button>
-                          );
-                        })}
+              {/* View 1: 34 Chủ đề CSS dạng danh sách trực tiếp */}
+              {cssDisplayMode === 'topics' && (
+                <div className="space-y-1">
+                  {filteredCssTopics.map(topic => {
+                    const isActive = topic.id === currentLessonId;
+                    const isDone = completedLessonIds.has(topic.id);
+
+                    return (
+                      <button
+                        key={topic.id}
+                        onClick={() => onSelectLesson(topic.id)}
+                        className={`w-full text-left px-2 py-1.5 rounded-xl text-xs flex items-center justify-between gap-1.5 transition-all ${
+                          isActive
+                            ? 'bg-blue-600 text-white font-bold shadow-xs'
+                            : isDone
+                            ? 'text-slate-800 hover:bg-blue-50/60'
+                            : 'text-slate-600 hover:bg-slate-100/80'
+                        }`}
+                        title={topic.summary}
+                      >
+                        <div className="flex items-center gap-1.5 truncate">
+                          {isDone ? (
+                            <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                          ) : (
+                            <Circle className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-300'}`} />
+                          )}
+                          <span className="truncate">
+                            <strong>{topic.topicNumber}.</strong> {topic.title}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] shrink-0 font-medium ${isActive ? 'text-blue-100' : 'text-slate-400'}`}>
+                          {topic.durationMinutes}p
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* View 2: 8 Chuyên đề logic dạng nhóm mở rộng */}
+              {cssDisplayMode === 'modules' && (
+                <div className="space-y-1.5">
+                  {filteredCss.map(mod => {
+                    const isModOpen = !!openModules[mod.id] || searchQuery.length > 0;
+                    return (
+                      <div key={mod.id} className="space-y-1">
+                        <div
+                          onClick={() => toggleModule(mod.id)}
+                          className="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-slate-700 hover:text-blue-800 cursor-pointer rounded-lg hover:bg-blue-50/50"
+                        >
+                          <span className="truncate">C{mod.number}. {mod.title}</span>
+                          <ChevronRight className={`w-3 h-3 text-slate-400 transition-transform ${isModOpen ? 'rotate-90' : ''}`} />
+                        </div>
+
+                        {isModOpen && (
+                          <div className="ml-2 space-y-0.5">
+                            {mod.lessons.map(les => {
+                              const isActive = les.id === currentLessonId;
+                              const isDone = completedLessonIds.has(les.id);
+                              return (
+                                <button
+                                  key={les.id}
+                                  onClick={() => onSelectLesson(les.id)}
+                                  className={`w-full text-left px-2 py-1.5 rounded-lg text-xs flex items-center justify-between gap-1.5 transition-all ${
+                                    isActive
+                                      ? 'bg-blue-600 text-white font-bold shadow-xs'
+                                      : isDone
+                                      ? 'text-slate-800 hover:bg-blue-50/60'
+                                      : 'text-slate-600 hover:bg-slate-100/80'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-1.5 truncate">
+                                    {isDone ? (
+                                      <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                                    ) : (
+                                      <Circle className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-300'}`} />
+                                    )}
+                                    <span className="truncate">{les.title}</span>
+                                  </div>
+                                  <span className={`text-[10px] shrink-0 ${isActive ? 'text-blue-100' : 'text-slate-400'}`}>
+                                    {les.durationMinutes}p
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>

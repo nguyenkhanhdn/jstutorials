@@ -164,7 +164,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 <button
                   onClick={() => {
                     if (tr.id === 'html') onStartLesson('les-html-1');
-                    else if (tr.id === 'css') onStartLesson('les-css-1-1');
+                    else if (tr.id === 'css') onStartLesson('les-css-1');
                     else onStartLesson('les-2-1');
                   }}
                   className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${

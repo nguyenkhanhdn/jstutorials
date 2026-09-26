@@ -336,14 +336,14 @@ export const CURRICULUM_TRACKS: TrackInfo[] = [
     name: '2. CSS — Định kiểu & Thiết kế Giao diện',
     shortName: 'CSS3',
     order: 2,
-    description: 'Định kiểu thẩm mỹ, làm chủ Box Model, Flexbox, CSS Grid, Typography, Responsive Web Design và chuyển động mượt mà.',
-    badge: '8 Chuyên đề Chuẩn',
+    description: 'Làm chủ toàn diện 34 chủ đề CSS chuẩn hóa từ Cú pháp, Bộ chọn, Box Model, Flexbox, Grid, Hiệu ứng chuyển động, Responsive Design đến Lập trình CSS hiện đại.',
+    badge: '34 Chủ đề CSS Toàn diện',
     color: 'text-blue-600',
     borderColor: 'border-blue-200',
     bgColor: 'bg-blue-500',
     modulesCount: 8,
-    lessonsCount: 26,
-    durationHours: 64
+    lessonsCount: 34,
+    durationHours: 68
   },
   {
     id: 'javascript',

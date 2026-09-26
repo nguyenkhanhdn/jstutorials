@@ -2,6 +2,7 @@ import { Lesson, Question, Exercise, PredictOutputItem } from '../types';
 import { SAMPLE_LESSON } from './sampleLessonData';
 import { CURRICULUM_MODULES } from './curriculumData';
 import { ALL_HTML_LESSONS } from './htmlLessons';
+import { getCssLessonById } from './cssLessons';
 
 // Detailed bespoke lessons for key modules
 export const LESSON_1_3: Lesson = {
@@ -852,6 +853,10 @@ export function getLessonById(lessonId: string): Lesson {
   // Check HTML lessons first
   const htmlLesson = ALL_HTML_LESSONS.find(l => l.id === lessonId);
   if (htmlLesson) return htmlLesson;
+
+  // Check CSS lessons next
+  const cssLesson = getCssLessonById(lessonId);
+  if (cssLesson) return cssLesson;
 
   if (lessonId === 'les-2-1') return SAMPLE_LESSON;
   if (lessonId === 'les-1-3') return LESSON_1_3;
