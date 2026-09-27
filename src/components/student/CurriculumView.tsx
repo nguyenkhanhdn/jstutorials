@@ -33,6 +33,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
     'mod-html-1': true,
     'mod-html-2': true,
+    'mod-1': true,
     'mod-2': true
   });
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,7 +100,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
                 } else if (track.id === 'css') {
                   setExpandedModules(prev => ({ ...prev, 'mod-css-1': true }));
                 } else {
-                  setExpandedModules(prev => ({ ...prev, 'mod-2': true }));
+                  setExpandedModules(prev => ({ ...prev, 'mod-1': true, 'mod-2': true }));
                 }
               }}
               className={`p-5 rounded-3xl border-2 transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${

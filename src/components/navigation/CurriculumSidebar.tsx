@@ -48,7 +48,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
     javascript: false
   });
 
-  // Auto-expand track when current lesson changes
+  // Auto-expand track and module when current lesson changes
   React.useEffect(() => {
     if (currentLessonId.startsWith('les-html')) {
       setOpenTracks(prev => ({ ...prev, html: true }));
@@ -56,6 +56,14 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
       setOpenTracks(prev => ({ ...prev, css: true }));
     } else {
       setOpenTracks(prev => ({ ...prev, javascript: true }));
+    }
+
+    // Auto open the module containing this lesson
+    const foundMod = [...HTML_MODULES, ...CSS_MODULES, ...JS_MODULES].find(m =>
+      m.lessons.some(l => l.id === currentLessonId)
+    );
+    if (foundMod) {
+      setOpenModules(prev => ({ ...prev, [foundMod.id]: true }));
     }
   }, [currentLessonId]);
 

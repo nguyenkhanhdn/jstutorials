@@ -24,6 +24,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-2',
     number: 2,
+    track: 'javascript',
     title: 'Biến và kiểu dữ liệu',
     englishTitle: 'Variables & Data Types',
     description: 'Phân biệt let, const, var; kiểu dữ liệu nguyên thủy (Primitive) và tham chiếu (Reference); typeof, ép kiểu và template literals.',
@@ -42,6 +43,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-3',
     number: 3,
+    track: 'javascript',
     title: 'Toán tử và biểu thức',
     englishTitle: 'Operators & Expressions',
     description: 'Toán tử số học, gán, so sánh nghiêm ngặt (=== vs ==), logic (&&, ||, !), cơ chế ngắn mạch (short-circuit), toán tử tiền/hậu tố, Truthy & Falsy.',
@@ -59,6 +61,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-4',
     number: 4,
+    track: 'javascript',
     title: 'Cấu trúc điều khiển',
     englishTitle: 'Control Flow & Conditionals',
     description: 'Câu lệnh if, if...else, else if; switch-case tối ưu và toán tử ba ngôi (Ternary Operator) viết mã sạch.',
@@ -75,6 +78,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-5',
     number: 5,
+    track: 'javascript',
     title: 'Vòng lặp',
     englishTitle: 'Loops & Iterations',
     description: 'Vòng lặp for, while, do...while; lệnh break/continue; xử lý mảng và thuật toán duyệt cơ bản.',
@@ -92,6 +96,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-6',
     number: 6,
+    track: 'javascript',
     title: 'Hàm',
     englishTitle: 'Functions & Scope',
     description: 'Function declaration, function expression, Arrow function; parameters, arguments, return; default parameters và phạm vi biến (Scope).',
@@ -110,6 +115,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-7',
     number: 7,
+    track: 'javascript',
     title: 'Array (Mảng)',
     englishTitle: 'Arrays & Array Methods',
     description: 'Tạo mảng, thêm/xóa phần tử (push, pop, shift, unshift, splice); duyệt mảng với for...of; làm chủ các phương thức xử lý mảng cao cấp: map, filter, find, reduce, some, every.',
@@ -128,6 +134,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-8',
     number: 8,
+    track: 'javascript',
     title: 'Object (Đối tượng)',
     englishTitle: 'Objects & Object Methods',
     description: 'Khai báo Object literal, properties và methods; Dot notation vs Bracket notation; thêm/xóa/sửa thuộc tính; Destructuring và lồng nhau.',
@@ -145,6 +152,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-9',
     number: 9,
+    track: 'javascript',
     title: 'String, Number và Date',
     englishTitle: 'Built-in Objects: String, Number & Date',
     description: 'Xử lý chuỗi (includes, slice, split, replace, trim); phương thức toán học Math; xử lý ngày tháng thời gian Date thực tế.',
@@ -162,6 +170,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-10',
     number: 10,
+    track: 'javascript',
     title: 'DOM (Document Object Model)',
     englishTitle: 'DOM Manipulation',
     description: 'Cây DOM, truy vấn phần tử (querySelector, querySelectorAll); thay đổi textContent, innerHTML, classList, thuộc tính; tạo và xóa thẻ HTML bằng JS.',
@@ -180,6 +189,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-11',
     number: 11,
+    track: 'javascript',
     title: 'Event (Sự kiện)',
     englishTitle: 'Event Handling & Delegation',
     description: 'Lắng nghe sự kiện người dùng (click, input, change, submit); Event object (e.target, e.preventDefault); Event Delegation tối ưu hiệu năng.',
@@ -197,6 +207,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-12',
     number: 12,
+    track: 'javascript',
     title: 'Form và Validation',
     englishTitle: 'Form Processing & Validation',
     description: 'Trích xuất dữ liệu form; xây dựng bộ quy tắc kiểm tra (validation); hiển thị thông báo lỗi trực quan; xử lý submit không reload trang.',
@@ -214,6 +225,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-13',
     number: 13,
+    track: 'javascript',
     title: 'JavaScript nâng cao',
     englishTitle: 'Advanced JavaScript Concepts',
     description: 'Phạm vi biến sâu (Lexical Scope), Hoisting, Closure ứng dụng thực tế, Callback, Higher-Order Functions, Spread/Rest và ES Modules (import/export).',
@@ -232,6 +244,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-14',
     number: 14,
+    track: 'javascript',
     title: 'Asynchronous JavaScript',
     englishTitle: 'Asynchronous Programming',
     description: 'Mô hình đơn luồng (Single-thread), Event Loop; setTimeout/setInterval; Callback Hell; làm chủ Promise và cú pháp async/await với try/catch.',
@@ -250,6 +263,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-15',
     number: 15,
+    track: 'javascript',
     title: 'Fetch API và làm việc với dữ liệu',
     englishTitle: 'Fetch API & RESTful Data',
     description: 'Giao thức HTTP cơ bản (GET, POST, PUT, DELETE); định dạng JSON; gửi request bằng fetch(); xử lý response JSON và bắt lỗi mạng.',
@@ -267,6 +281,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-16',
     number: 16,
+    track: 'javascript',
     title: 'Local Storage',
     englishTitle: 'Client-side Storage',
     description: 'Phân biệt localStorage và sessionStorage; tuần tự hóa đối tượng với JSON.stringify và JSON.parse; duy trì dữ liệu ứng dụng sau khi F5 trang.',
@@ -283,6 +298,7 @@ export const JS_MODULES: Module[] = [
   {
     id: 'mod-17',
     number: 17,
+    track: 'javascript',
     title: 'JavaScript thực tế (Mini Projects)',
     englishTitle: 'Real-world Practical Mini Projects',
     description: 'Thực hành dự án tích hợp trọn vẹn: Máy tính bỏ túi (Calculator), Todo List CRUD có lưu trữ, Ứng dụng thi Quiz, Quản lý sinh viên và Ứng dụng thời tiết gọi API ngoài.',

@@ -3,6 +3,8 @@ import { Lesson, Question, Exercise, PredictOutputItem } from '../types';
 export const SAMPLE_LESSON: Lesson = {
   id: 'les-2-1',
   moduleId: 'mod-2',
+  track: 'javascript',
+  language: 'javascript',
   title: 'Khai báo biến với let, const và Kiểu dữ liệu nguyên thủy',
   order: 1,
   durationMinutes: 45,

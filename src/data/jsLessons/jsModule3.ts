@@ -1,5 +1,4 @@
 import { Lesson } from '../../types';
-import { LESSON_3_2 } from '../lessonRepository';
 
 // ==========================================
 // MODULE 3: TOÁN TỬ VÀ BIỂU THỨC
@@ -244,7 +243,289 @@ console.log("Tổng tiền sau 3 năm:", A);`,
   ]
 };
 
-export { LESSON_3_2 };
+export const LESSON_3_2: Lesson = {
+  id: 'les-3-2',
+  moduleId: 'mod-3',
+  track: 'javascript',
+  language: 'javascript',
+  title: '3.2 So sánh nghiêm ngặt (=== vs ==) & Thứ tự ưu tiên toán tử',
+  order: 2,
+  durationMinutes: 50,
+  difficulty: 'Cơ bản',
+  prerequisites: [
+    'Đã học Bài 2.1 & 2.2 về Kiểu dữ liệu nguyên thủy',
+    'Hiểu toán tử gán dấu bằng đơn (=) khác với so sánh'
+  ],
+  learningObjectives: [
+    {
+      id: 'LO3.2.1',
+      code: 'LO3.2.1',
+      title: 'Phân biệt so sánh bằng lỏng lẻo (==) và bằng nghiêm ngặt (===)',
+      description: 'Giải thích cơ chế ép kiểu tự động của toán tử == và tại sao chuẩn lập trình doanh nghiệp luôn bắt buộc dùng ===.',
+      bloomLevel: 'Understand',
+      masteryPercentage: 85
+    },
+    {
+      id: 'LO3.2.2',
+      code: 'LO3.2.2',
+      title: 'Vận dụng so sánh không bằng (!== vs !=)',
+      description: 'Áp dụng so sánh khác kiểu an toàn trong các câu lệnh rẽ nhánh nghiệp vụ.',
+      bloomLevel: 'Apply',
+      masteryPercentage: 88
+    },
+    {
+      id: 'LO3.2.3',
+      code: 'LO3.2.3',
+      title: 'Nhận diện các trường hợp ngoại lệ kinh điển của so sánh',
+      description: 'Hiểu bản chất tại sao NaN !== NaN và null == undefined nhưng null !== undefined.',
+      bloomLevel: 'Analyze',
+      masteryPercentage: 76
+    }
+  ],
+  sections: [
+    {
+      id: 'sec-3-2-1',
+      lessonId: 'les-3-2',
+      order: 1,
+      conceptName: 'Toán tử so sánh bằng (Strict Equality vs Loose Equality)',
+      title: '1. Bản chất sự khác nhau giữa == và ===',
+      explanation: 'Toán tử `==` (Loose Equality) tự động ép kiểu (Type Coercion) hai vế về cùng một kiểu dữ liệu trước khi so sánh giá trị. Ngược lại, `===` (Strict Equality) kiểm tra ĐỒNG THỜI cả Kiểu dữ liệu và Giá trị. Nếu khác kiểu dữ liệu, `===` lập tức trả về `false` mà không hề ép kiểu ngầm định.',
+      syntax: 'giaTri1 === giaTri2 // Khuyên dùng 100%\ngiaTri1 == giaTri2  // ❌ Tránh xa trong dự án thực tế',
+      codeExample: `// So sánh nghiêm ngặt (Strict)
+console.log(5 === 5);       // true
+console.log(5 === "5");     // false (Number !== String)
+
+// So sánh lỏng lẻo (Loose) - Cạm bẫy ép kiểu
+console.log(5 == "5");      // true (chuỗi "5" bị ép thành số 5)
+console.log(0 == false);    // true (false bị ép thành số 0)
+console.log("" == false);   // true (cả hai đều thành 0)`,
+      lineByLineExplanation: [
+        { line: 2, text: '5 === 5 cùng là number có cùng giá trị nên trả về true.' },
+        { line: 3, text: '5 === "5" trả về false vì số 5 thuộc kiểu number, chuỗi "5" thuộc kiểu string.' },
+        { line: 6, text: '5 == "5" trả về true vì toán tử == ép kiểu ngầm định chuỗi "5" thành số 5.' },
+        { line: 7, text: '0 == false trả về true vì boolean false bị ép kiểu thành số 0 trong toán tử ==.' }
+      ],
+      commonMistakes: [
+        'Dùng dấu == trong kiểm tra mã người dùng hoặc input form dẫn đến lỗi bảo mật bỏ qua kiểm tra kiểu.',
+        'So sánh NaN === NaN (luôn trả về false! Phải dùng Number.isNaN(val)).'
+      ],
+      whenToUse: 'Luôn luôn sử dụng === và !== trong 100% các câu lệnh điều kiện của dự án.',
+      whenNotToUse: 'Tuyệt đối không dùng == trừ trường hợp duy nhất muốn kiểm tra cả null hoặc undefined cùng lúc (val == null).',
+      realWorldUseCase: 'Kiểm tra mã trạng thái đơn hàng: status === "PAID" đảm bảo tính chính xác tuyệt đối.'
+    },
+    {
+      id: 'sec-3-2-2',
+      lessonId: 'les-3-2',
+      order: 2,
+      conceptName: 'Các trường hợp so sánh đặc biệt trong JavaScript',
+      title: '2. Ngoại lệ quan trọng: NaN, null và undefined',
+      explanation: 'JavaScript có một số quy tắc so sánh đặc thù cần ghi nhớ: null và undefined bằng nhau khi dùng `==` nhưng khác nhau khi dùng `===`. Đặc biệt, giá trị `NaN` không bằng bất kỳ thứ gì, kể cả chính nó!',
+      syntax: 'Number.isNaN(giaTri) // Cách duy nhất kiểm tra NaN\nval === null         // Kiểm tra chính xác null',
+      codeExample: `console.log(null == undefined);  // true
+console.log(null === undefined); // false
+
+console.log(NaN === NaN);        // false!
+console.log(Number.isNaN(NaN));  // true (Chuẩn)`,
+      lineByLineExplanation: [
+        { line: 1, text: 'null == undefined là true vì quy tắc đặc biệt của ECMAScript coi chúng cùng đại diện cho sự vắng mặt của giá trị.' },
+        { line: 2, text: 'null === undefined là false vì khác kiểu dữ liệu (object vs undefined).' },
+        { line: 4, text: 'NaN không thể bằng bất kỳ ai, kể cả chính nó.' },
+        { line: 5, text: 'Hàm Number.isNaN() là công cụ an toàn tuyệt đối để xác định giá trị NaN.' }
+      ],
+      commonMistakes: [
+        'Viết if (x === NaN) để bắt lỗi phép tính thất bại -> Câu điều kiện này KHÔNG BAO GIỜ đúng!'
+      ],
+      whenToUse: 'Sử dụng Number.isNaN() sau các phép toán chia cho 0 hoặc ép kiểu chuỗi chữ cái sang số.',
+      whenNotToUse: 'Không dùng hàm isNaN() toàn cục cũ vì nó tự ép kiểu ngầm định gây sai lệch (ví dụ isNaN("hello") là true).',
+      realWorldUseCase: 'Kiểm tra input nhập tuổi của người dùng: nếu Number.isNaN(Number(ageInput)) thì báo lỗi "Vui lòng nhập số hợp lệ".'
+    }
+  ],
+  predictOutputs: [
+    {
+      id: 'po-3-2-1',
+      code: `console.log(0 === false);`,
+      question: 'Kết quả in ra màn hình là gì?',
+      options: ['true', 'false', 'TypeError', 'undefined'],
+      correctAnswer: 'false',
+      explanation: 'Toán tử === kiểm tra kiểu dữ liệu: 0 là Number còn false là Boolean. Khác kiểu dữ liệu nên kết quả là false.',
+      hint: 'Toán tử nghiêm ngặt không tự động ép kiểu.'
+    },
+    {
+      id: 'po-3-2-2',
+      code: `console.log([] == false);`,
+      question: 'Kết quả của phép so sánh lỏng lẻo này là gì?',
+      options: ['true', 'false', 'TypeError', 'NaN'],
+      correctAnswer: 'true',
+      explanation: 'Mảng rỗng [] bị ép kiểu sang chuỗi "" rồi sang số 0; boolean false cũng bị ép thành số 0; 0 == 0 là true. Đây chính là lý do vì sao luôn phải dùng ===!',
+      hint: 'Toán tử == ép cả hai vế về dạng nguyên thủy rồi so sánh.'
+    }
+  ],
+  interactivePractice: {
+    id: 'ip-3-2',
+    title: 'Thực nghiệm ma trận so sánh lỏng lẻo vs nghiêm ngặt',
+    description: 'Chạy các câu lệnh so sánh sau và đối chiếu kết quả in ra trong Console để khắc sâu quy tắc vàng ===.',
+    starterCode: `console.log("5 == '5' ->", 5 == "5");
+console.log("5 === '5' ->", 5 === "5");
+console.log("null == undefined ->", null == undefined);
+console.log("null === undefined ->", null === undefined);
+console.log("NaN === NaN ->", NaN === NaN);
+console.log("Number.isNaN(NaN) ->", Number.isNaN(NaN));`,
+    expectedConsoleOutput: '5 === \'5\' -> false',
+    hint: 'Nhấn Chạy thử để quan sát sự khác biệt rõ rệt giữa == và ===.'
+  },
+  exercises: {
+    basic: {
+      id: 'ex-3-2-1',
+      lessonId: 'les-3-2',
+      title: 'Bài tập Cơ bản: Xây dựng hàm kiểm tra mật khẩu nghiêm ngặt',
+      difficulty: 'basic',
+      learningObjectiveIds: ['LO3.2.1'],
+      description: 'Cho biến enteredPin = "1234" và secretPin = 1234. Viết câu lệnh kiểm tra bằng toán tử so sánh nghiêm ngặt. Nếu cả hai bằng nhau in ra `Mở khóa thành công`. Ngược lại in ra `Mã PIN sai kiểu hoặc sai số!`.',
+      starterCode: `const enteredPin = "1234";
+const secretPin = 1234;
+
+// Viết điều kiện so sánh nghiêm ngặt:
+`,
+      solutionCode: `const enteredPin = "1234";
+const secretPin = 1234;
+
+if (enteredPin === secretPin) {
+  console.log("Mở khóa thành công");
+} else {
+  console.log("Mã PIN sai kiểu hoặc sai số!");
+}`,
+      testCases: [
+        {
+          id: 'tc-1',
+          description: 'Kiểm tra khác kiểu String vs Number',
+          expectedOutput: 'Mã PIN sai kiểu hoặc sai số!'
+        }
+      ],
+      hints: ['Sử dụng if (enteredPin === secretPin)'],
+      explanation: 'Vì enteredPin là chuỗi "1234" còn secretPin là số 1234, toán tử === trả về false, bảo vệ hệ thống khỏi các lỗi ép kiểu ngoài ý muốn.'
+    },
+    intermediate: {
+      id: 'ex-3-2-2',
+      lessonId: 'les-3-2',
+      title: 'Bài tập Trung bình: Bộ lọc giá trị hợp lệ (Bắt NaN và null)',
+      difficulty: 'intermediate',
+      learningObjectiveIds: ['LO3.2.3'],
+      description: 'Cho biến giaTri = NaN. Viết câu lệnh kiểm tra: nếu giaTri là NaN (dùng Number.isNaN) thì in ra `Dữ liệu không hợp lệ`. Ngược lại in ra `Dữ liệu hợp lệ: [giaTri]`.',
+      starterCode: `const giaTri = NaN;
+
+// Viết điều kiện kiểm tra NaN an toàn:
+`,
+      solutionCode: `const giaTri = NaN;
+if (Number.isNaN(giaTri)) {
+  console.log("Dữ liệu không hợp lệ");
+} else {
+  console.log(\`Dữ liệu hợp lệ: \${giaTri}\`);
+}`,
+      testCases: [
+        {
+          id: 'tc-1',
+          description: 'Bắt chính xác giá trị NaN',
+          expectedOutput: 'Dữ liệu không hợp lệ'
+        }
+      ],
+      hints: ['Dùng Number.isNaN(giaTri)'],
+      explanation: 'Không được dùng giaTri === NaN vì NaN không bằng chính nó. Luôn phải dùng Number.isNaN().'
+    },
+    challenge: {
+      id: 'ex-3-2-3',
+      lessonId: 'les-3-2',
+      title: 'Bài tập Thử thách: Kiểm tra xác thực trạng thái tài khoản',
+      difficulty: 'challenge',
+      learningObjectiveIds: ['LO3.2.1', 'LO3.2.2'],
+      description: 'Cho mảng danh sách người dùng. Hãy đếm có bao nhiêu tài khoản có thuộc tính `isVerified === true` và in ra: `Số tài khoản đã xác thực: [count]`.',
+      starterCode: `const users = [
+  { name: "An", isVerified: true },
+  { name: "Bình", isVerified: 1 }, // số 1 không được tính là true
+  { name: "Cường", isVerified: true },
+  { name: "Dương", isVerified: "true" } // chuỗi không được tính
+];
+
+let count = 0;
+// Viết vòng lặp for và so sánh nghiêm ngặt isVerified === true:
+
+console.log("Số tài khoản đã xác thực:", count);`,
+      solutionCode: `const users = [
+  { name: "An", isVerified: true },
+  { name: "Bình", isVerified: 1 },
+  { name: "Cường", isVerified: true },
+  { name: "Dương", isVerified: "true" }
+];
+
+let count = 0;
+for (const u of users) {
+  if (u.isVerified === true) {
+    count++;
+  }
+}
+console.log("Số tài khoản đã xác thực:", count);`,
+      testCases: [
+        {
+          id: 'tc-1',
+          description: 'Chỉ đếm đúng 2 phần tử có boolean true thực sự',
+          expectedOutput: 'Số tài khoản đã xác thực: 2'
+        }
+      ],
+      hints: ['Dùng u.isVerified === true để loại trừ số 1 và chuỗi "true"'],
+      explanation: 'So sánh nghiêm ngặt loại trừ hoàn toàn các giá trị truthy giả mạo như 1 hay "true".'
+    }
+  },
+  quiz: {
+    id: 'quiz-3-2',
+    lessonId: 'les-3-2',
+    title: 'Trắc nghiệm: So sánh nghiêm ngặt & Logic trong JavaScript',
+    passingScore: 70,
+    questions: [
+      {
+        id: 'q-3-2-1',
+        lessonId: 'les-3-2',
+        learningObjectiveId: 'LO3.2.1',
+        type: 'multiple_choice',
+        difficulty: 'easy',
+        prompt: 'Toán tử nào sau đây so sánh CẢ giá trị và kiểu dữ liệu mà KHÔNG ép kiểu ngầm định?',
+        options: [
+          { id: 'a', text: '==' },
+          { id: 'b', text: '===' },
+          { id: 'c', text: '=' },
+          { id: 'd', text: '!=' }
+        ],
+        correctAnswer: 'b',
+        explanation: 'Toán tử === (Strict Equality) so sánh cả Type và Value mà không thực hiện ép kiểu ngầm định.',
+        relatedLessonId: 'les-3-2'
+      },
+      {
+        id: 'q-3-2-2',
+        lessonId: 'les-3-2',
+        learningObjectiveId: 'LO3.2.3',
+        type: 'multiple_choice',
+        difficulty: 'medium',
+        prompt: 'Để kiểm tra một biến x có phải là NaN hay không, cách nào sau đây là CHUẨN XÁC nhất?',
+        options: [
+          { id: 'a', text: 'x === NaN' },
+          { id: 'b', text: 'typeof x === "NaN"' },
+          { id: 'c', text: 'Number.isNaN(x)' },
+          { id: 'd', text: 'x == NaN' }
+        ],
+        correctAnswer: 'c',
+        explanation: 'Trong JS, NaN không bằng chính nó. Do đó x === NaN luôn trả về false. Cách duy nhất là dùng Number.isNaN(x).',
+        relatedLessonId: 'les-3-2'
+      }
+    ]
+  },
+  summary: [
+    'Quy tắc vàng: 100% sử dụng === và !== trong mã nguồn thực tế.',
+    'Toán tử == tự động ép kiểu tiềm ẩn hàng loạt cạm bẫy khó lường.',
+    'NaN không bằng chính nó; luôn kiểm tra bằng hàm Number.isNaN().'
+  ],
+  suggestedBookmarks: [
+    'Bản chất ép kiểu của toán tử == vs ===',
+    'Ngoại lệ NaN !== NaN và phương thức Number.isNaN()'
+  ]
+};
 
 export const LESSON_3_3: Lesson = {
   id: 'les-3-3',
