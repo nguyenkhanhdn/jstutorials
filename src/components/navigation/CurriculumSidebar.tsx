@@ -71,6 +71,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({
     'mod-html-1': true,
     'mod-css-1': true,
+    'mod-1': true,
     'mod-2': true
   });
 

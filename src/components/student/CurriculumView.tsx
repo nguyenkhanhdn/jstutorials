@@ -198,11 +198,11 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
               </button>
             ) : (
               <button
-                onClick={() => onSelectLesson('les-2-1')}
+                onClick={() => onSelectLesson('les-1-1')}
                 className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-all active:scale-95"
               >
                 <BookOpen className="w-4 h-4" />
-                <span>Vào JS Bài 2.1</span>
+                <span>Học JS Bài 1.1</span>
               </button>
             )}
           </div>
@@ -308,6 +308,11 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
                         {mod.status === 'completed' && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                             Đã hoàn thành
+                          </span>
+                        )}
+                        {!isHtmlMod && !isCssMod && mod.number <= 6 && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300">
+                            Rút gọn 3 phần
                           </span>
                         )}
                       </div>

@@ -10,6 +10,7 @@ interface CodeSandboxProps {
   language?: 'html' | 'javascript' | 'css';
   onOpenAITutor: (code: string, error?: string) => void;
   onSuccess?: () => void;
+  onChange?: (code: string) => void;
 }
 
 export const CodeSandbox: React.FC<CodeSandboxProps> = ({
@@ -19,7 +20,8 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   description,
   language = 'javascript',
   onOpenAITutor,
-  onSuccess
+  onSuccess,
+  onChange
 }) => {
   const [code, setCode] = useState(initialCode);
   const [logs, setLogs] = useState<LogMessage[]>([]);
@@ -27,6 +29,13 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   const [executionError, setExecutionError] = useState<string | undefined>();
   const [copied, setCopied] = useState(false);
   const [isMatch, setIsMatch] = useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    setCode(initialCode);
+    setLogs([]);
+    setExecutionError(undefined);
+    setIsMatch(null);
+  }, [initialCode]);
   
   const isHtmlOrCss = language === 'html' || language === 'css' || (code.includes('<') && code.includes('>')) || (code.includes('{') && code.includes(':') && !code.includes('console.log'));
   const isHtml = isHtmlOrCss;
@@ -215,7 +224,11 @@ ${code}
           </div>
           <textarea
             value={code}
-            onChange={e => setCode(e.target.value)}
+            onChange={e => {
+              const val = e.target.value;
+              setCode(val);
+              if (onChange) onChange(val);
+            }}
             spellCheck={false}
             className="w-full flex-1 min-h-[200px] bg-transparent text-slate-200 font-mono text-xs leading-relaxed focus:outline-none resize-none selection:bg-indigo-500/30"
             placeholder={isHtml ? "<!-- Viết mã HTML tại đây... -->" : "// Viết code JavaScript tại đây..."}

@@ -104,6 +104,18 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
   const currentExercise = lesson.exercises[activeExLevel];
   const currentModule = CURRICULUM_MODULES.find(m => m.id === lesson.moduleId) || CURRICULUM_MODULES[0];
 
+  const isJsLesson = lesson.track === 'javascript' || lesson.language === 'javascript' || (!lesson.track && !lesson.id.startsWith('les-html') && !lesson.id.startsWith('les-css'));
+
+  const handleCompleteLesson = () => {
+    setIsCompleted(true);
+    onCompleteLesson(4);
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  };
+
   // Handle Predict Output Selection
   const handleSelectPredict = (itemId: string, option: string) => {
     setSelectedAnswers(prev => ({ ...prev, [itemId]: option }));
@@ -270,6 +282,11 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
                  lesson.track === 'css' ? `CSS Chuyên đề ${currentModule.number} • ${currentModule.title}` :
                  `Module ${currentModule.number} • ${currentModule.title}`}
               </span>
+              {isJsLesson && (
+                <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                  Cấu trúc 3 phần: Khái niệm • Ví dụ + Thực hành • Bài tập
+                </span>
+              )}
               <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700">
                 Thời lượng: {lesson.durationMinutes} phút
               </span>
@@ -334,14 +351,18 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
 
       {/* Primary Pedagogy Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200">
-        {[
+        {(isJsLesson ? [
+          { key: 'theory', label: '1. Khái niệm', icon: BookOpen },
+          { key: 'practice', label: '2. Ví dụ + Thực hành', icon: Terminal },
+          { key: 'exercises', label: '3. Bài tập', icon: Award },
+        ] : [
           { key: 'theory', label: '1. Khái niệm & Ví dụ', icon: BookOpen },
           { key: 'predict', label: '2. Dự đoán kết quả', icon: HelpCircle },
           { key: 'practice', label: '3. Thực hành Console', icon: Terminal },
           { key: 'exercises', label: '4. Bài tập phân cấp (L1-L3)', icon: Award },
           { key: 'quiz', label: '5. Bài kiểm tra Quiz (10 câu)', icon: CheckCircle2 },
           { key: 'self_assess', label: '6. Tự đánh giá năng lực', icon: Star },
-        ].map(tab => {
+        ]).map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
           return (
@@ -397,18 +418,34 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
                 </div>
               )}
 
-              {/* Interactive Code Example */}
-              <div>
-                <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                  <span>Ví dụ minh họa & Chạy thử:</span>
-                  <span className="text-slate-500 text-xs font-normal">Bạn có thể sửa code và chạy trực tiếp</span>
+              {/* Interactive Code Example / Preview */}
+              {isJsLesson ? (
+                <div className="bg-slate-950 text-slate-100 p-4 rounded-xl font-mono text-xs border border-slate-800 shadow-inner">
+                  <div className="text-[11px] text-slate-400 uppercase tracking-wider mb-2 font-sans font-bold flex items-center justify-between">
+                    <span>Mã ví dụ minh họa:</span>
+                    <button
+                      onClick={() => setActiveTab('practice')}
+                      className="text-amber-400 hover:text-amber-300 font-normal hover:underline flex items-center gap-1"
+                    >
+                      <span>Chạy thử tại Phần 2: Ví dụ & Thực hành</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <pre className="whitespace-pre-wrap overflow-x-auto text-amber-300">{section.codeExample}</pre>
                 </div>
-                <CodeSandbox
-                  initialCode={section.codeExample}
-                  title={`Ví dụ mục ${sIdx + 1}: ${section.conceptName}`}
-                  onOpenAITutor={(code, err) => onOpenAITutor(section.conceptName, code, err, 'Hãy giải thích ví dụ này cho tôi')}
-                />
-              </div>
+              ) : (
+                <div>
+                  <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                    <span>Ví dụ minh họa & Chạy thử:</span>
+                    <span className="text-slate-500 text-xs font-normal">Bạn có thể sửa code và chạy trực tiếp</span>
+                  </div>
+                  <CodeSandbox
+                    initialCode={section.codeExample}
+                    title={`Ví dụ mục ${sIdx + 1}: ${section.conceptName}`}
+                    onOpenAITutor={(code, err) => onOpenAITutor(section.conceptName, code, err, 'Hãy giải thích ví dụ này cho tôi')}
+                  />
+                </div>
+              )}
 
               {/* Line-by-line breakdown */}
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -462,20 +499,20 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
           ))}
 
           {/* Quick Continue Button */}
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-2">
             <button
-              onClick={() => setActiveTab('predict')}
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
+              onClick={() => setActiveTab(isJsLesson ? 'practice' : 'predict')}
+              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95"
             >
-              <span>Tiếp tục: Dự đoán kết quả</span>
+              <span>{isJsLesson ? 'Tiếp tục: 2. Ví dụ + Thực hành' : 'Tiếp tục: Dự đoán kết quả'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* Tab 2: Predict the Output */}
-      {activeTab === 'predict' && (
+      {/* Tab 2: Predict the Output (Hidden for JS lessons) */}
+      {!isJsLesson && activeTab === 'predict' && (
         <div className="space-y-6 animate-in fade-in duration-150">
           <div className="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 flex items-start gap-3 text-xs text-indigo-950">
             <Info className="w-5 h-5 text-indigo-700 shrink-0 mt-0.5" />
@@ -592,21 +629,65 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
         </div>
       )}
 
-      {/* Tab 3: Interactive Practice */}
+      {/* Tab 2: Examples & Interactive Practice */}
       {activeTab === 'practice' && (
         <div className="space-y-6 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+          {/* Header Banner */}
+          <div className="bg-amber-500/10 border border-amber-300 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-950">
+            <Terminal className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="font-bold text-sm block mb-0.5">Phần 2: Ví dụ + Thực hành tương tác</strong>
+              Học qua thực hành: Hãy chạy thử các ví dụ mẫu trên Console Sandbox bên dưới, tự do sửa đổi mã nguồn và hoàn thành bài thực hành tương tác!
+            </div>
+          </div>
+
+          {/* If JS: Show all section code examples in interactive sandboxes */}
+          {isJsLesson && lesson.sections && lesson.sections.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  A. Các ví dụ minh họa theo từng khái niệm ({lesson.sections.length} ví dụ):
+                </span>
+                <span className="text-[11px] text-slate-500">Chỉnh sửa code và bấm "Chạy Code" để xem Console</span>
+              </div>
+              {lesson.sections.map((section, sIdx) => (
+                <div key={section.id} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-md bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center">
+                        {sIdx + 1}
+                      </span>
+                      <span>Ví dụ: {section.title}</span>
+                    </h3>
+                    <span className="text-xs text-slate-500 font-mono hidden sm:inline">{section.conceptName}</span>
+                  </div>
+                  <CodeSandbox
+                    initialCode={section.codeExample}
+                    title={`Ví dụ mục ${sIdx + 1}: ${section.conceptName}`}
+                    language={lesson.language || 'javascript'}
+                    onOpenAITutor={(code, err) => onOpenAITutor(section.conceptName, code, err, 'Hãy giải thích ví dụ này cho tôi')}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Guided Interactive Practice Challenge */}
+          <div className="bg-white rounded-2xl border-2 border-indigo-200 p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 uppercase tracking-wider block mb-1">
+                  {isJsLesson ? 'B. Thử thách thực hành trực tiếp' : 'Thực hành tương tác'}
+                </span>
                 <h2 className="text-lg font-bold text-slate-900">{lesson.interactivePractice.title}</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Thực hành giải quyết bài toán nhỏ và quan sát đầu ra</p>
+                <p className="text-xs text-slate-500 mt-0.5">Thực hành giải quyết bài toán và đối chiếu kết quả Console kỳ vọng</p>
               </div>
               <button
                 onClick={() => onOpenAITutor(lesson.interactivePractice.title, lesson.interactivePractice.starterCode, undefined, 'Gợi ý bài thực hành')}
-                className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+                className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-semibold flex items-center gap-1.5"
               >
                 <Bot className="w-3.5 h-3.5" />
-                <span>Gợi ý từ AI Tutor</span>
+                <span>Gợi ý AI Tutor</span>
               </button>
             </div>
 
@@ -633,17 +714,17 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
 
           <div className="flex justify-between items-center pt-2">
             <button
-              onClick={() => setActiveTab('predict')}
+              onClick={() => setActiveTab('theory')}
               className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Dự đoán kết quả</span>
+              <span>← Quay lại: 1. Khái niệm</span>
             </button>
             <button
               onClick={() => setActiveTab('exercises')}
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
+              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95"
             >
-              <span>Tiếp tục: Bài tập phân cấp L1-L3</span>
+              <span>Tiếp tục: 3. Bài tập</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -723,6 +804,7 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
                 initialCode={exerciseCodes[activeExLevel]}
                 title={`Bài tập ${activeExLevel.toUpperCase()}: ${currentExercise.title}`}
                 language={lesson.language || currentExercise.language || 'javascript'}
+                onChange={(newCode) => setExerciseCodes(prev => ({ ...prev, [activeExLevel]: newCode }))}
                 onOpenAITutor={(c, err) => onOpenAITutor(currentExercise.title, c, err, currentExercise.description)}
               />
             </div>
@@ -787,27 +869,92 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
             )}
           </div>
 
-          <div className="flex justify-between items-center pt-2">
+          {/* Navigation & Completion Action */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-slate-200">
             <button
               onClick={() => setActiveTab('practice')}
-              className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2"
+              className="w-full sm:w-auto px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Thực hành Console</span>
+              <span>← Quay lại: 2. Ví dụ + Thực hành</span>
             </button>
-            <button
-              onClick={() => setActiveTab('quiz')}
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
-            >
-              <span>Tiếp tục: Bài kiểm tra Quiz (10 câu)</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+
+            {isJsLesson ? (
+              <div className="w-full sm:w-auto flex items-center gap-2">
+                {!isCompleted ? (
+                  <button
+                    onClick={handleCompleteLesson}
+                    className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-95"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Hoàn thành bài học (+100 XP)</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <span className="px-3 py-2 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl flex items-center gap-1.5 border border-emerald-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Đã hoàn thành!
+                    </span>
+                    {onNextLesson && (
+                      <button
+                        onClick={onNextLesson}
+                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95"
+                      >
+                        <span>Bài tiếp theo</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setActiveTab('quiz')}
+                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
+              >
+                <span>Tiếp tục: Bài kiểm tra Quiz (10 câu)</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
+
+          {/* Success Banner for JS Lessons */}
+          {isJsLesson && isCompleted && (
+            <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center justify-between gap-4 mt-4 animate-in zoom-in-95">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shadow-md text-base">
+                  ✓
+                </div>
+                <div>
+                  <h4 className="font-bold text-emerald-950 text-sm">Chúc mừng bạn đã hoàn thành xuất sắc bài học!</h4>
+                  <p className="text-xs text-emerald-800">Điểm năng lực và 100 XP đã được cộng vào hồ sơ sinh viên.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {onBackToCurriculum && (
+                  <button
+                    onClick={onBackToCurriculum}
+                    className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold"
+                  >
+                    Về danh mục môn học
+                  </button>
+                )}
+                {onNextLesson && (
+                  <button
+                    onClick={onNextLesson}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                  >
+                    Học bài tiếp theo →
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Tab 5: Lesson Quiz */}
-      {activeTab === 'quiz' && (
+      {/* Tab 5: Lesson Quiz (Hidden for JS lessons) */}
+      {!isJsLesson && activeTab === 'quiz' && (
         <div className="space-y-6 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
             <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -994,8 +1141,8 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
         </div>
       )}
 
-      {/* Tab 6: Self-Assessment & Completion */}
-      {activeTab === 'self_assess' && (
+      {/* Tab 6: Self-Assessment & Completion (Hidden for JS lessons) */}
+      {!isJsLesson && activeTab === 'self_assess' && (
         <div className="space-y-6 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
             <div className="pb-4 border-b border-slate-100">
