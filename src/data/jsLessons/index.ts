@@ -11,6 +11,11 @@ import { JS_MODULE_9_LESSONS } from './jsModule9';
 import { JS_MODULE_10_LESSONS } from './jsModule10';
 import { JS_MODULE_11_LESSONS } from './jsModule11';
 import { JS_MODULE_12_LESSONS } from './jsModule12';
+import { JS_MODULE_13_LESSONS } from './jsModule13';
+import { JS_MODULE_14_LESSONS } from './jsModule14';
+import { JS_MODULE_15_LESSONS } from './jsModule15';
+import { JS_MODULE_16_LESSONS } from './jsModule16';
+import { JS_MODULE_17_LESSONS } from './jsModule17';
 
 export * from './jsModule1';
 export * from './jsModule2';
@@ -24,6 +29,11 @@ export * from './jsModule9';
 export * from './jsModule10';
 export * from './jsModule11';
 export * from './jsModule12';
+export * from './jsModule13';
+export * from './jsModule14';
+export * from './jsModule15';
+export * from './jsModule16';
+export * from './jsModule17';
 
 export const ALL_JS_LESSONS: Lesson[] = [
   ...JS_MODULE_1_LESSONS,
@@ -38,6 +48,11 @@ export const ALL_JS_LESSONS: Lesson[] = [
   ...JS_MODULE_10_LESSONS,
   ...JS_MODULE_11_LESSONS,
   ...JS_MODULE_12_LESSONS,
+  ...JS_MODULE_13_LESSONS,
+  ...JS_MODULE_14_LESSONS,
+  ...JS_MODULE_15_LESSONS,
+  ...JS_MODULE_16_LESSONS,
+  ...JS_MODULE_17_LESSONS,
 ];
 
 export const JS_LESSONS_BY_MODULE: Record<string, Lesson[]> = {
@@ -53,6 +68,11 @@ export const JS_LESSONS_BY_MODULE: Record<string, Lesson[]> = {
   'mod-10': JS_MODULE_10_LESSONS,
   'mod-11': JS_MODULE_11_LESSONS,
   'mod-12': JS_MODULE_12_LESSONS,
+  'mod-13': JS_MODULE_13_LESSONS,
+  'mod-14': JS_MODULE_14_LESSONS,
+  'mod-15': JS_MODULE_15_LESSONS,
+  'mod-16': JS_MODULE_16_LESSONS,
+  'mod-17': JS_MODULE_17_LESSONS,
 };
 
 const jsLessonMap = new Map<string, Lesson>();

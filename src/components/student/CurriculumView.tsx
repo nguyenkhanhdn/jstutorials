@@ -310,7 +310,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
                             Đã hoàn thành
                           </span>
                         )}
-                        {!isHtmlMod && !isCssMod && mod.number <= 12 && (
+                        {!isHtmlMod && !isCssMod && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300">
                             Rút gọn 3 phần
                           </span>
