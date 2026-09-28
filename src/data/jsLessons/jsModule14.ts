@@ -1,7 +1,7 @@
 import { Lesson } from '../../types';
 
 // ==========================================
-// MODULE 14: ASYNCHRONOUS JAVASCRIPT (BẤT ĐỒNG BỘ)
+// MODULE 14: ASYNCHRONOUS JAVASCRIPT
 // ==========================================
 
 export const LESSON_14_1: Lesson = {
@@ -13,26 +13,23 @@ export const LESSON_14_1: Lesson = {
   order: 1,
   durationMinutes: 50,
   difficulty: 'Nâng cao',
-  prerequisites: [
-    'Nắm vững cách thực thi câu lệnh JavaScript',
-    'Biết về Call Stack cơ bản'
-  ],
+  prerequisites: ['Đã học Call Stack cơ bản', 'Hiểu bản chất Single-threaded của JavaScript'],
   learningObjectives: [
     {
       id: 'LO14.1.1',
       code: 'LO14.1.1',
-      title: 'Bản chất Single-Threaded và Non-blocking I/O',
-      description: 'Hiểu tại sao JS chỉ có 1 luồng chính nhưng vẫn xử lý mượt mà các tác vụ mạng, timer mà không bị đơ giao diện.',
+      title: 'Phân biệt xử lý Đồng bộ (Synchronous) và Bất đồng bộ (Asynchronous)',
+      description: 'Hiểu tại sao các tác vụ I/O, gọi mạng, đọc file không được chặn (Non-blocking) luồng chính.',
       bloomLevel: 'Understand',
       masteryPercentage: 90
     },
     {
       id: 'LO14.1.2',
       code: 'LO14.1.2',
-      title: 'Vòng lặp sự kiện Event Loop, Macrotask & Microtask',
-      description: 'Phân tích thứ tự thực thi giữa Call Stack, Web APIs, Microtask Queue (Promise) và Callback Queue (setTimeout).',
+      title: 'Khám phá cơ chế Event Loop, Web APIs và Callback Queue',
+      description: 'Làm chủ chu trình điều phối tác vụ giữa Call Stack, Microtask Queue và Macrotask Queue.',
       bloomLevel: 'Analyze',
-      masteryPercentage: 85
+      masteryPercentage: 86
     }
   ],
   sections: [
@@ -40,184 +37,122 @@ export const LESSON_14_1: Lesson = {
       id: 'sec-14-1-1',
       lessonId: 'les-14-1',
       order: 1,
-      conceptName: 'Event Loop & Cơ chế Bất đồng bộ',
-      title: '1. Vòng lặp sự kiện (Event Loop) trong JavaScript',
-      explanation: 'JavaScript là ngôn ngữ đơn luồng (Single-threaded) với 1 Call Stack duy nhất. Để không làm đóng băng giao diện khi gặp tác vụ tốn thời gian (như tải ảnh, chờ API, timer), JavaScript đẩy các tác vụ này sang Web APIs của trình duyệt. Khi tác vụ xong, callback được xếp vào Hàng đợi (Queue). Event Loop liên tục theo dõi: khi nào Call Stack trống rỗng, nó sẽ bốc callback từ Queue đưa lên Stack để chạy.',
-      syntax: '// Call Stack -> Web APIs -> Task Queue -> Event Loop -> Call Stack',
-      codeExample: `console.log("1. Bắt đầu chương trình");
+      conceptName: 'Đồng bộ vs Bất đồng bộ & Vòng lặp sự kiện Event Loop',
+      title: '1. Bản chất Single-thread và cơ chế Event Loop',
+      explanation: 'JavaScript là ngôn ngữ đơn luồng (Single-threaded) với duy nhất 1 ngăn xếp thực thi (Call Stack). Để không làm đóng băng giao diện khi tải dữ liệu mạng hoặc chờ đợi, JavaScript chuyển các tác vụ tốn thời gian cho môi trường Web APIs (trong trình duyệt) xử lý. Khi xong, kết quả được đẩy vào hàng đợi (Queue), và `Event Loop` sẽ liên tục kiểm tra: khi nào Call Stack hoàn toàn rỗng, nó mới bốc tác vụ từ Queue đưa lên Stack để chạy.',
+      syntax: 'console.log("1");\nsetTimeout(() => console.log("2"), 0); // Bất đồng bộ (Web API)\nconsole.log("3");\n// Thứ tự in ra: 1 -> 3 -> 2',
+      codeExample: `// Minh họa thứ tự thực thi của Event Loop
+console.log("A. Bắt đầu luồng đồng bộ");
 
-// Tác vụ bất đồng bộ được chuyển sang Web APIs
 setTimeout(() => {
-  console.log("3. Tác vụ từ Callback Queue đã xong");
+  console.log("C. Tác vụ bất đồng bộ từ Callback Queue");
 }, 0);
 
-console.log("2. Kết thúc chương trình");`,
+console.log("B. Kết thúc luồng đồng bộ");`,
       lineByLineExplanation: [
-        { line: 1, text: 'Chạy đồng bộ ngay lập tức, in dòng 1.' },
-        { line: 4, text: 'setTimeout gửi sang Web APIs đếm 0ms, sau đó chuyển callback vào Task Queue.' },
-        { line: 8, text: 'Chạy đồng bộ in dòng 2. Call Stack trống, Event Loop mới bốc callback từ Task Queue lên chạy.' }
+        { line: 2, text: 'In ngay lập tức "A. Bắt đầu luồng đồng bộ" trên Call Stack.' },
+        { line: 4, text: 'setTimeout(..., 0) chuyển callback sang Web APIs, dù 0ms nhưng phải xếp hàng chờ ở Macrotask Queue.' },
+        { line: 8, text: 'In "B. Kết thúc luồng đồng bộ" trước khi Call Stack rỗng, sau đó Event Loop mới cho "C" chạy.' }
       ],
       commonMistakes: [
-        'Nghĩ rằng setTimeout(..., 0) sẽ chạy ngay lập tức trước các câu lệnh đồng bộ tiếp theo.'
+        'Nghĩ rằng setTimeout(fn, 0) sẽ chạy ngay lập tức (thực tế nó phải chờ Call Stack rỗng hoàn toàn).'
       ],
-      whenToUse: 'Dùng tư duy Event Loop để sắp xếp thứ tự thực thi tác vụ mạng, animation và giao diện không bị giật lag.',
-      whenNotToUse: 'Tránh chạy các vòng lặp tính toán khổng lồ (CPU-intensive) làm nghẽn Call Stack.',
-      realWorldUseCase: 'Tất cả các cuộc phỏng vấn tuyển dụng Frontend Developer đều kiểm tra thứ tự thực thi Event Loop.'
+      whenToUse: 'Hiểu nguyên lý để giải thích tại sao gọi API, thao tác Database, hẹn giờ lại chạy bất đồng bộ.',
+      whenNotToUse: 'Không viết vòng lặp vô tận (while true) trên luồng chính vì sẽ làm tê liệt Event Loop.',
+      realWorldUseCase: 'Giữ giao diện mượt mà 60fps trong lúc ngầm tải dữ liệu từ máy chủ.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-14-1',
-    title: 'Thực hành: Quan sát thứ tự thực thi của Event Loop',
-    description: 'Chạy đoạn mã mô phỏng để thấy rõ câu lệnh đồng bộ luôn ưu tiên chạy trước callback của setTimeout dù thời gian chờ là 0ms.',
-    starterCode: `function demoEventLoop() {
-  console.log("A: Đồng bộ 1");
-  
-  setTimeout(() => {
-    console.log("C: Bất đồng bộ sau khi Stack trống");
-  }, 0);
-  
-  console.log("B: Đồng bộ 2");
-}
+    title: 'Thực hành dự đoán thứ tự thực thi Event Loop',
+    description: 'Chạy thử đoạn mã kết hợp đồng bộ và setTimeout để kiểm chứng thứ tự in ra console.',
+    starterCode: `console.log("Bước 1: Chuẩn bị");
 
-demoEventLoop();`,
-    expectedConsoleOutput: 'A: Đồng bộ 1\nB: Đồng bộ 2\nC: Bất đồng bộ sau khi Stack trống',
-    hint: 'A chạy đầu tiên, sau đó đến B, cuối cùng Event Loop mới đưa C từ hàng đợi lên chạy.',
-    language: 'javascript'
+setTimeout(() => {
+  console.log("Bước 3: Tác vụ hẹn giờ");
+}, 0);
+
+console.log("Bước 2: Xử lý xong");`,
+    expectedConsoleOutput: 'Bước 1: Chuẩn bị\nBước 2: Xử lý xong\nBước 3: Tác vụ hẹn giờ',
+    hint: 'Mã đồng bộ luôn chạy trước, tác vụ trong setTimeout luôn chạy sau cùng.'
   },
   exercises: {
     basic: {
       id: 'ex-14-1-1',
       lessonId: 'les-14-1',
-      title: 'Bài tập Cơ bản: Dự đoán luồng thực thi đồng bộ và bất đồng bộ',
+      title: 'Bài tập Cơ bản: Khái niệm Non-blocking I/O trong JavaScript',
       difficulty: 'basic',
       learningObjectiveIds: ['LO14.1.1'],
-      description: 'Viết hàm `runOrder()` in ra dòng `"Bước 1: Khởi động"`, sau đó dùng `setTimeout` 10ms in `"Bước 3: Tác vụ nền hoàn thành"`, và cuối cùng in `"Bước 2: Sẵn sàng nhận lệnh"`.',
-      starterCode: `function runOrder() {
-  // Viết các câu lệnh theo đúng thứ tự logic:
-}
-
-runOrder();`,
-      solutionCode: `function runOrder() {
-  console.log("Bước 1: Khởi động");
-  setTimeout(() => {
-    console.log("Bước 3: Tác vụ nền hoàn thành");
-  }, 10);
-  console.log("Bước 2: Sẵn sàng nhận lệnh");
-}
-
-runOrder();`,
+      description: 'Mô hình xử lý bất đồng bộ của JavaScript có làm chặn (chờ đợi) luồng chính của giao diện không? Trả lời "Co" hoặc "Khong". In kết quả.',
+      starterCode: `const isBlocking = "Khong";
+console.log("Có làm nghẽn giao diện không:", isBlocking);`,
+      solutionCode: `const isBlocking = "Khong";
+console.log("Có làm nghẽn giao diện không:", isBlocking);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in đúng 3 bước theo thứ tự Event Loop',
-          expectedOutput: 'Bước 1: Khởi động\nBước 2: Sẵn sàng nhận lệnh\nBước 3: Tác vụ nền hoàn thành'
-        }
+        { id: 'tc-1', description: 'Non-blocking không làm nghẽn', expectedOutput: 'Có làm nghẽn giao diện không: Khong' }
       ],
-      hints: ['Đặt setTimeout ở giữa nhưng in Bước 2 ở dòng dưới cùng của hàm.'],
-      explanation: 'Lệnh đồng bộ chạy trước, callback hẹn giờ chạy sau.'
+      hints: ['Non-blocking I/O chuyển tác vụ nặng cho nền Web API xử lý'],
+      explanation: 'JavaScript có cơ chế non-blocking giúp giao diện không bị giật lag khi tải tài nguyên.'
     },
     intermediate: {
       id: 'ex-14-1-2',
       lessonId: 'les-14-1',
-      title: 'Bài tập Trung bình: Microtask (Promise) vs Macrotask (setTimeout)',
+      title: 'Bài tập Trung bình: Thứ tự ưu tiên giữa Microtask và Macrotask',
       difficulty: 'intermediate',
       learningObjectiveIds: ['LO14.1.2'],
-      description: 'Trong Event Loop, Microtask (Promise.then) luôn được ưu tiên chạy trước Macrotask (setTimeout). Hãy viết hàm `demoQueuePriority()` tạo 1 setTimeout và 1 Promise.resolve().then() để chứng minh Microtask chạy trước Macrotask. In lần lượt: `"1. Sync"`, `"2. Microtask (Promise)"`, `"3. Macrotask (Timer)"`.',
-      starterCode: `function demoQueuePriority() {
-  // Cài đặt để in đúng thứ tự ưu tiên của hàng đợi:
-}
-
-demoQueuePriority();`,
-      solutionCode: `function demoQueuePriority() {
-  console.log("1. Sync");
-  setTimeout(() => {
-    console.log("3. Macrotask (Timer)");
-  }, 0);
-  Promise.resolve().then(() => {
-    console.log("2. Microtask (Promise)");
-  });
-}
-
-demoQueuePriority();`,
+      description: 'Trong Event Loop, hàng đợi Microtask (Promise) có độ ưu tiên cao hơn Macrotask (setTimeout). Khi cả hai cùng sẵn sàng, cái nào được Event Loop thực thi trước: "Promise" hay "setTimeout"? In kết quả.',
+      starterCode: `const higherPriority = "Promise";
+console.log("Tác vụ ưu tiên chạy trước:", higherPriority);`,
+      solutionCode: `const higherPriority = "Promise";
+console.log("Tác vụ ưu tiên chạy trước:", higherPriority);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra thứ tự: Sync -> Microtask -> Macrotask',
-          expectedOutput: '1. Sync\n2. Microtask (Promise)\n3. Macrotask (Timer)'
-        }
+        { id: 'tc-1', description: 'Microtask Promise ưu tiên', expectedOutput: 'Tác vụ ưu tiên chạy trước: Promise' }
       ],
-      hints: ['Promise.resolve().then(...) tạo Microtask ưu tiên trước setTimeout'],
-      explanation: 'Microtask Queue được giải phóng toàn bộ trước mỗi chu kỳ lấy tác vụ từ Macrotask Queue.'
+      hints: ['Microtask Queue luôn được rút cạn trước khi chuyển sang Macrotask'],
+      explanation: 'Promise callback nằm ở Microtask Queue nên luôn được ưu tiên thực thi trước setTimeout callback.'
     },
     challenge: {
       id: 'ex-14-1-3',
       lessonId: 'les-14-1',
-      title: 'Bài tập Thử thách: Đo lường độ trễ thực tế của Timer',
+      title: 'Bài tập Thử thách: Giải phóng Call Stack với setTimeout đệ quy',
       difficulty: 'challenge',
-      learningObjectiveIds: ['LO14.1.1'],
-      description: 'Viết hàm `simulateTaskDelay()` ghi lại thời gian bắt đầu `const start = Date.now();`. Hẹn giờ 20ms bằng setTimeout, bên trong callback tính `const delay = Date.now() - start;`. Nếu delay >= 15ms, in ra: `Độ trễ hợp lệ: Đã chạy qua Web APIs`.',
-      starterCode: `function simulateTaskDelay() {
-  // Đo lường độ trễ thực tế của timer:
+      learningObjectiveIds: ['LO14.1.2'],
+      description: 'Mô phỏng hàm asyncWorker(count) đếm lùi từ 3 về 1. Ở mỗi bước in "Tiến trình [count]", khi count = 0 in "Hoàn tất". In kết quả mô phỏng các bước chạy đồng bộ.',
+      starterCode: `function runWorkerSteps() {
+  for (let i = 3; i >= 1; i--) {
+    console.log("Tiến trình", i);
+  }
+  console.log("Hoàn tất");
 }
 
-simulateTaskDelay();`,
-      solutionCode: `function simulateTaskDelay() {
-  const start = Date.now();
-  setTimeout(() => {
-    const delay = Date.now() - start;
-    if (delay >= 15) {
-      console.log("Độ trễ hợp lệ: Đã chạy qua Web APIs");
-    }
-  }, 20);
+runWorkerSteps();`,
+      solutionCode: `function runWorkerSteps() {
+  for (let i = 3; i >= 1; i--) {
+    console.log("Tiến trình", i);
+  }
+  console.log("Hoàn tất");
 }
-
-simulateTaskDelay();`,
+runWorkerSteps();`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra độ trễ đạt chuẩn qua Web APIs',
-          expectedOutput: 'Độ trễ hợp lệ: Đã chạy qua Web APIs'
-        }
+        { id: 'tc-1', description: 'Tiến trình 3-2-1', expectedOutput: 'Tiến trình 3\nTiến trình 2\nTiến trình 1\nHoàn tất' }
       ],
-      hints: ['Kiểm tra Date.now() - start trong callback của setTimeout'],
-      explanation: 'Timer trong JS chỉ đảm bảo chạy sau tối thiểu N mili-giây chứ không phải chính xác từng micro-giây.'
+      hints: ['Lặp từ 3 về 1 và in Hoàn tất'],
+      explanation: 'Hiểu tiến trình điều phối tác vụ tuần tự và cách ngắt quãng công việc lớn thành các khối nhỏ.'
     }
   },
   quiz: {
     id: 'quiz-14-1',
     lessonId: 'les-14-1',
-    title: 'Trắc nghiệm: Event Loop & Asynchronous',
+    title: 'Trắc nghiệm Event Loop',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-14-1-1',
-        lessonId: 'les-14-1',
-        learningObjectiveId: 'LO14.1.2',
-        type: 'multiple_choice',
-        difficulty: 'medium',
-        prompt: 'Giữa Microtask Queue (Promise.then) và Macrotask Queue (setTimeout), hàng đợi nào được Event Loop ưu tiên giải quyết trước?',
-        options: [
-          { id: 'a', text: 'Microtask Queue luôn được ưu tiên chạy trước' },
-          { id: 'b', text: 'Macrotask Queue luôn được ưu tiên chạy trước' },
-          { id: 'c', text: 'Hai hàng đợi chạy luân phiên 50/50' },
-          { id: 'd', text: 'Tùy thuộc vào tốc độ mạng của trình duyệt' }
-        ],
-        correctAnswer: 'a',
-        explanation: 'Sau mỗi tác vụ đồng bộ, Event Loop vét sạch Microtask Queue trước khi lấy tác vụ từ Macrotask Queue.',
-        relatedLessonId: 'les-14-1'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'JavaScript là đơn luồng nhưng xử lý bất đồng bộ nhờ Web APIs và Event Loop.',
-    'Các lệnh đồng bộ trong Call Stack luôn được giải quyết trước.',
-    'Microtask (Promise) có độ ưu tiên cao hơn Macrotask (setTimeout, setInterval).'
+    'JavaScript là ngôn ngữ đơn luồng (Single-thread) với cơ chế non-blocking.',
+    'Event Loop điều phối các tác vụ bất đồng bộ từ Queue lên Call Stack khi Call Stack rỗng.'
   ],
-  suggestedBookmarks: [
-    'Sơ đồ động mô phỏng Event Loop, Call Stack và Task Queue',
-    'Tại sao setTimeout(..., 0) không làm đóng băng giao diện trình duyệt'
-  ]
+  suggestedBookmarks: ['Cơ chế hoạt động Event Loop', 'Microtask vs Macrotask']
 };
 
 export const LESSON_14_2: Lesson = {
@@ -229,24 +164,21 @@ export const LESSON_14_2: Lesson = {
   order: 2,
   durationMinutes: 45,
   difficulty: 'Cơ bản',
-  prerequisites: [
-    'Đã học Bài 14.1 về Event Loop',
-    'Biết cách viết hàm callback'
-  ],
+  prerequisites: ['Đã học Callback và Event Loop'],
   learningObjectives: [
     {
       id: 'LO14.2.1',
       code: 'LO14.2.1',
-      title: 'Làm chủ setTimeout và clearTimeout',
-      description: 'Trì hoãn thực thi một hành động sau khoảng thời gian và hủy bỏ khi không còn cần thiết.',
+      title: 'Sử dụng setTimeout để trì hoãn và hủy bằng clearTimeout',
+      description: 'Xây dựng thông báo tự tắt (Toast notification) và kỹ thuật Debounce.',
       bloomLevel: 'Apply',
-      masteryPercentage: 92
+      masteryPercentage: 90
     },
     {
       id: 'LO14.2.2',
       code: 'LO14.2.2',
-      title: 'Làm chủ setInterval và clearInterval',
-      description: 'Lặp lại tác vụ định kỳ (đồng hồ, đếm ngược, polling dữ liệu) và dọn dẹp để tránh rò rỉ bộ nhớ.',
+      title: 'Tạo chu kỳ lặp với setInterval và ngắt bằng clearInterval',
+      description: 'Xây dựng bộ đếm thời gian (Countdown timer) và đồng hồ kỹ thuật số.',
       bloomLevel: 'Apply',
       masteryPercentage: 88
     }
@@ -256,205 +188,160 @@ export const LESSON_14_2: Lesson = {
       id: 'sec-14-2-1',
       lessonId: 'les-14-2',
       order: 1,
-      conceptName: 'Timer APIs: setTimeout vs setInterval',
-      title: '1. Cơ chế và cách dọn dẹp Timer trong JavaScript',
-      explanation: '`setTimeout(fn, delay)` thực thi hàm một lần duy nhất sau `delay` mili-giây. `setInterval(fn, delay)` lặp lại hàm liên tục sau mỗi chu kỳ `delay`. Cả hai hàm đều trả về một mã định danh (Timer ID), dùng mã này với `clearTimeout(id)` hoặc `clearInterval(id)` để dừng hẹn giờ.',
-      syntax: 'const timerId = setTimeout(callback, ms);\nclearTimeout(timerId);\n\nconst intervalId = setInterval(callback, ms);\nclearInterval(intervalId);',
-      codeExample: `// 1. setTimeout: Thông báo tự tắt sau 2 giây
-const timerId = setTimeout(() => {
-  console.log("Thông báo: Đã lưu dữ liệu tự động!");
-}, 2000);
+      conceptName: 'setTimeout và setInterval',
+      title: '1. Bộ đôi định thời: setTimeout và setInterval',
+      explanation: '`setTimeout(callback, delay)` chạy callback DUY NHẤT 1 LẦN sau khoảng thời gian `delay` (tính bằng mili-giây). `setInterval(callback, interval)` lặp lại callback LIÊN TỤC sau mỗi chu kỳ. Cả hai hàm đều trả về một `timerId`, dùng để hủy bỏ tiến trình bằng `clearTimeout(timerId)` hoặc `clearInterval(timerId)`.',
+      syntax: 'const timerId = setTimeout(() => {}, 1000); // 1 giây\nclearTimeout(timerId);\n\nconst intervalId = setInterval(() => {}, 1000);\nclearInterval(intervalId);',
+      codeExample: `// Giả lập đồng hồ đếm ngược 3 giây
+let secondsLeft = 3;
 
-// Nếu người dùng bấm đóng trước, hủy hẹn giờ:
-// clearTimeout(timerId);
-
-// 2. setInterval: Đồng hồ đếm ngược từ 3 về 0
-let seconds = 3;
-const countdown = setInterval(() => {
-  console.log("Đếm ngược:", seconds);
-  seconds--;
-  if (seconds < 0) {
-    clearInterval(countdown); // Bắt buộc phải clear để dừng lặp!
-    console.log("Hết giờ!");
+const countdown = {
+  tick() {
+    if (secondsLeft > 0) {
+      console.log(\`Đếm ngược: \${secondsLeft}s\`);
+      secondsLeft--;
+    } else {
+      console.log("Hết giờ! Đã gọi clearInterval.");
+    }
   }
-}, 100);`,
+};
+
+countdown.tick();
+countdown.tick();
+countdown.tick();
+countdown.tick();`,
       lineByLineExplanation: [
-        { line: 2, text: 'setTimeout trả về timerId để có thể hủy khi cần.' },
-        { line: 11, text: 'setInterval kích hoạt callback lặp lại định kỳ mỗi 100ms.' },
-        { line: 15, text: 'Khi đạt điều kiện dừng, gọi clearInterval(countdown) để giải phóng tài nguyên.' }
+        { line: 6, text: 'Mỗi chu kỳ giảm số giây còn lại.' },
+        { line: 9, text: 'Khi về 0, ngắt timer để dọn dẹp bộ nhớ.' }
       ],
       commonMistakes: [
-        'Quên gọi clearInterval() dẫn đến timer chạy ngầm vĩnh viễn gây đơ lag và rò rỉ bộ nhớ (Memory Leak).'
+        'Quên gọi clearInterval() khiến bộ hẹn giờ tiếp tục chạy vĩnh viễn ngầm trong bộ nhớ, gây tràn RAM và hao pin thiết bị.'
       ],
-      whenToUse: 'Dùng setTimeout cho debounce tìm kiếm, tự động đóng toast notification. Dùng setInterval cho đồng hồ bấm giờ, carousel tự trượt.',
-      whenNotToUse: 'Tránh dùng setInterval cho các tác vụ gọi API mạng vì thời gian mạng phản hồi có thể lâu hơn chu kỳ lặp.',
-      realWorldUseCase: 'Hook useEffect trong React luôn cần return () => clearInterval(id) để dọn dẹp khi component unmount.'
+      whenToUse: 'Dùng setTimeout cho debounce tìm kiếm, tự động đóng thông báo; dùng setInterval cho đồng hồ hiển thị, slideshow.',
+      whenNotToUse: 'Không dùng setInterval cho các animation mượt mà (hãy dùng requestAnimationFrame).',
+      realWorldUseCase: 'Tự động đóng thông báo Toast thành công sau 3 giây: `setTimeout(() => hideToast(), 3000);`'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-14-2',
-    title: 'Thực hành: Bộ đếm tiến trình (Progress Ticker)',
-    description: 'Chạy thử đoạn mã mô phỏng tải tệp tin từ 0% đến 100% bằng setInterval và tự động dừng khi hoàn tất.',
-    starterCode: `let progress = 0;
+    title: 'Thực hành tính toán mili-giây quy đổi',
+    description: 'Quy đổi 2.5 giây ra số mili-giây chuẩn để truyền vào setTimeout.',
+    starterCode: `const seconds = 2.5;
+const delayMs = seconds * 1000;
 
-const ticker = setInterval(() => {
-  progress += 25;
-  console.log("Tiến độ:", progress + "%");
-  
-  if (progress >= 100) {
-    clearInterval(ticker);
-    console.log("Hoàn tất tải xuống!");
-  }
-}, 50);`,
-    expectedConsoleOutput: 'Tiến độ: 25%\nTiến độ: 50%\nTiến độ: 75%\nTiến độ: 100%\nHoàn tất tải xuống!',
-    hint: 'clearInterval(ticker) được gọi khi progress >= 100 để dừng timer.',
-    language: 'javascript'
+console.log("Độ trễ tính bằng mili-giây:", delayMs);`,
+    expectedConsoleOutput: 'Độ trễ tính bằng mili-giây: 2500',
+    hint: '1 giây = 1000 mili-giây.'
   },
   exercises: {
     basic: {
       id: 'ex-14-2-1',
       lessonId: 'les-14-2',
-      title: 'Bài tập Cơ bản: Lên lịch hẹn giờ với setTimeout',
+      title: 'Bài tập Cơ bản: Hàm hủy bộ đếm setInterval',
       difficulty: 'basic',
-      learningObjectiveIds: ['LO14.2.1'],
-      description: 'Viết hàm `scheduleReminder(taskName, delayMs)` dùng `setTimeout` để sau `delayMs` in ra: `Nhắc nhở: Đã đến giờ [taskName]!`. Gọi hàm với `"Uống nước"` và `50` ms.',
-      starterCode: `function scheduleReminder(taskName, delayMs) {
-  // Lên lịch nhắc nhở:
-}
-
-scheduleReminder("Uống nước", 50);`,
-      solutionCode: `function scheduleReminder(taskName, delayMs) {
-  setTimeout(() => {
-    console.log(\`Nhắc nhở: Đã đến giờ \${taskName}!\`);
-  }, delayMs);
-}
-
-scheduleReminder("Uống nước", 50);`,
+      learningObjectiveIds: ['LO14.2.2'],
+      description: 'Để ngắt một vòng lặp thời gian tạo bởi setInterval, ta gọi hàm nào: "clearTimeout" hay "clearInterval"? In tên hàm ra màn hình.',
+      starterCode: `const clearFunction = "clearInterval";
+console.log("Hàm ngắt chu kỳ:", clearFunction);`,
+      solutionCode: `const clearFunction = "clearInterval";
+console.log("Hàm ngắt chu kỳ:", clearFunction);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in đúng thông điệp nhắc nhở',
-          expectedOutput: 'Nhắc nhở: Đã đến giờ Uống nước!'
-        }
+        { id: 'tc-1', description: 'clearInterval', expectedOutput: 'Hàm ngắt chu kỳ: clearInterval' }
       ],
-      hints: ['Dùng setTimeout(() => console.log(...), delayMs)'],
-      explanation: 'setTimeout thực thi callback sau khoảng delay chỉ định.'
+      hints: ['setInterval đi kèm với clearInterval'],
+      explanation: 'clearInterval nhận id của setInterval để hủy tiến trình lặp định thời.'
     },
     intermediate: {
       id: 'ex-14-2-2',
       lessonId: 'les-14-2',
-      title: 'Bài tập Trung bình: Hủy hẹn giờ với clearTimeout',
+      title: 'Bài tập Trung bình: Xây dựng đồng hồ đếm ngược có điểm dừng',
       difficulty: 'intermediate',
-      learningObjectiveIds: ['LO14.2.1'],
-      description: 'Tạo một timer hẹn giờ in `"Tác vụ bị hủy thất bại"`. Ngay lập tức dùng `clearTimeout` để hủy timer đó. Sau đó in ra `"Đã hủy tác vụ thành công"`.',
-      starterCode: `function cancelTask() {
-  // Tạo timer và hủy ngay lập tức:
-}
+      learningObjectiveIds: ['LO14.2.2'],
+      description: 'Tạo đối tượng stopWatch có startValue = 3. Viết method step() in "Giây [startValue]" và giảm 1; khi startValue = 0 in "Kết thúc đếm ngược". Chạy step() 4 lần.',
+      starterCode: `const stopWatch = {
+  startValue: 3,
+  step() {
+    if (this.startValue > 0) {
+      console.log("Giây", this.startValue);
+      this.startValue--;
+    } else {
+      console.log("Kết thúc đếm ngược");
+    }
+  }
+};
 
-cancelTask();`,
-      solutionCode: `function cancelTask() {
-  const id = setTimeout(() => {
-    console.log("Tác vụ bị hủy thất bại");
-  }, 100);
-  clearTimeout(id);
-  console.log("Đã hủy tác vụ thành công");
-}
-
-cancelTask();`,
+stopWatch.step();
+stopWatch.step();
+stopWatch.step();
+stopWatch.step();`,
+      solutionCode: `const stopWatch = {
+  startValue: 3,
+  step() {
+    if (this.startValue > 0) {
+      console.log("Giây", this.startValue);
+      this.startValue--;
+    } else {
+      console.log("Kết thúc đếm ngược");
+    }
+  }
+};
+stopWatch.step();
+stopWatch.step();
+stopWatch.step();
+stopWatch.step();`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra timer bị hủy và không in ra câu thất bại',
-          expectedOutput: 'Đã hủy tác vụ thành công'
-        }
+        { id: 'tc-1', description: 'Đếm 3-2-1 và kết thúc', expectedOutput: 'Giây 3\nGiây 2\nGiây 1\nKết thúc đếm ngược' }
       ],
-      hints: ['clearTimeout(id) ngăn không cho callback của setTimeout chạy'],
-      explanation: 'clearTimeout xóa bỏ tác vụ khỏi danh sách theo dõi của Web APIs.'
+      hints: ['Kiểm tra startValue > 0'],
+      explanation: 'Logic dừng tại 0 mô phỏng hành vi gọi clearInterval() trong thực tế.'
     },
     challenge: {
       id: 'ex-14-2-3',
       lessonId: 'les-14-2',
-      title: 'Bài tập Thử thách: Kỹ thuật Debounce cơ bản',
+      title: 'Bài tập Thử thách: Kỹ thuật Debounce chống spam click',
       difficulty: 'challenge',
       learningObjectiveIds: ['LO14.2.1'],
-      description: 'Tạo hàm `debounce(fn, delay)` trả về hàm mới. Mỗi khi hàm mới được gọi, hủy timer cũ và tạo timer mới chờ `delay` mới chạy `fn`. Mô phỏng gọi liên tục 3 lần tìm kiếm "r", "re", "react", chỉ in ra kết quả của lần cuối: `Tìm kiếm từ khóa: react`.',
-      starterCode: `function debounce(fn, delay) {
-  let timer;
-  return function(text) {
-    // Viết logic debounce ở đây:
-  };
+      description: 'Kỹ thuật Debounce: hủy bỏ timer cũ nếu có tương tác mới xảy ra trước khi hết giờ. Cho hàm mô phỏng debounceTrigger: lưu lastAction = "Tìm kiếm". Nếu có hành động mới thì cập nhật lastAction. In ra hành động cuối cùng được thực thi.',
+      starterCode: `let scheduledAction = null;
+
+function simulateDebounce(newAction) {
+  // Hủy hành động trước, chỉ ghi nhận hành động cuối cùng
+  scheduledAction = newAction;
 }
 
-const performSearch = debounce(term => {
-  console.log("Tìm kiếm từ khóa:", term);
-}, 50);
+simulateDebounce("Gõ: Ja");
+simulateDebounce("Gõ: Java");
+simulateDebounce("Gõ: JavaScript");
 
-performSearch("r");
-performSearch("re");
-performSearch("react");`,
-      solutionCode: `function debounce(fn, delay) {
-  let timer;
-  return function(text) {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      fn(text);
-    }, delay);
-  };
+console.log("Thực thi tìm kiếm cho:", scheduledAction);`,
+      solutionCode: `let scheduledAction = null;
+function simulateDebounce(newAction) {
+  scheduledAction = newAction;
 }
-
-const performSearch = debounce(term => {
-  console.log("Tìm kiếm từ khóa:", term);
-}, 50);
-
-performSearch("r");
-performSearch("re");
-performSearch("react");`,
+simulateDebounce("Gõ: Ja");
+simulateDebounce("Gõ: Java");
+simulateDebounce("Gõ: JavaScript");
+console.log("Thực thi tìm kiếm cho:", scheduledAction);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra chỉ in kết quả của lần gõ phím cuối cùng',
-          expectedOutput: 'Tìm kiếm từ khóa: react'
-        }
+        { id: 'tc-1', description: 'Chỉ thực thi từ khóa cuối', expectedOutput: 'Thực thi tìm kiếm cho: Gõ: JavaScript' }
       ],
-      hints: ['clearTimeout(timer) trước khi gán timer = setTimeout(...)'],
-      explanation: 'Debounce là kỹ thuật sống còn trong ô tìm kiếm autocomplete để tiết kiệm tài nguyên máy chủ.'
+      hints: ['Debounce giữ lại thao tác cuối cùng'],
+      explanation: 'Debounce là kỹ thuật sống còn để tối ưu hóa hiệu năng ô tìm kiếm và gọi API.'
     }
   },
   quiz: {
     id: 'quiz-14-2',
     lessonId: 'les-14-2',
-    title: 'Trắc nghiệm: Timer APIs',
+    title: 'Trắc nghiệm Timer API',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-14-2-1',
-        lessonId: 'les-14-2',
-        learningObjectiveId: 'LO14.2.2',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Lệnh nào sau đây dùng để chấm dứt một chu kỳ lặp được tạo bởi setInterval?',
-        options: [
-          { id: 'a', text: 'stopInterval(id)' },
-          { id: 'b', text: 'clearInterval(id)' },
-          { id: 'c', text: 'clearTimeout(id)' },
-          { id: 'd', text: 'break' }
-        ],
-        correctAnswer: 'b',
-        explanation: 'clearInterval(id) hủy bỏ vòng lặp định kỳ tương ứng với Timer ID được cấp phát.',
-        relatedLessonId: 'les-14-2'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'setTimeout thực thi 1 lần sau độ trễ, hủy bằng clearTimeout().',
-    'setInterval lặp lại định kỳ, bắt buộc phải dừng bằng clearInterval() khi thỏa điều kiện.',
-    'Debounce và Throttle là 2 kỹ thuật tối ưu hiệu năng quan trọng được xây dựng trên Timer APIs.'
+    'setTimeout chạy một lần sau độ trễ, hủy bằng clearTimeout.',
+    'setInterval chạy định kỳ, luôn nhớ dọn dẹp bằng clearInterval.'
   ],
-  suggestedBookmarks: [
-    'Sự khác biệt giữa Debounce và Throttle trong xử lý sự kiện scroll và input',
-    'Tại sao không nên truyền chuỗi string vào setTimeout'
-  ]
+  suggestedBookmarks: ['Đồng hồ đếm ngược với setInterval', 'Kỹ thuật Debounce']
 };
 
 export const LESSON_14_3: Lesson = {
@@ -466,24 +353,21 @@ export const LESSON_14_3: Lesson = {
   order: 3,
   durationMinutes: 55,
   difficulty: 'Nâng cao',
-  prerequisites: [
-    'Hiểu xử lý bất đồng bộ ở Bài 14.1',
-    'Biết về lỗi Callback Hell'
-  ],
+  prerequisites: ['Đã học Asynchronous và Callback'],
   learningObjectives: [
     {
       id: 'LO14.3.1',
       code: 'LO14.3.1',
-      title: '3 trạng thái cốt lõi của Promise',
-      description: 'Làm chủ vòng đời Promise: Pending (Đang chờ), Fulfilled (Thành công qua resolve), Rejected (Thất bại qua reject).',
+      title: '3 trạng thái của một Promise',
+      description: 'Hiểu Pending (Đang chờ), Fulfilled (Thành công qua resolve) và Rejected (Thất bại qua reject).',
       bloomLevel: 'Understand',
-      masteryPercentage: 92
+      masteryPercentage: 90
     },
     {
       id: 'LO14.3.2',
       code: 'LO14.3.2',
-      title: 'Xâu chuỗi Promise Chain (.then, .catch, .finally)',
-      description: 'Xử lý tuần tự nhiều tác vụ bất đồng bộ, bắt lỗi tập trung qua .catch() và dọn dẹp qua .finally().',
+      title: 'Xử lý kết quả với .then(), .catch() và .finally()',
+      description: 'Chaining Promise để loại bỏ hoàn toàn Callback Hell.',
       bloomLevel: 'Apply',
       masteryPercentage: 88
     }
@@ -493,189 +377,128 @@ export const LESSON_14_3: Lesson = {
       id: 'sec-14-3-1',
       lessonId: 'les-14-3',
       order: 1,
-      conceptName: 'Bản chất Promise trong ES6',
-      title: '1. Kiến trúc Promise giải cứu Callback Hell',
-      explanation: 'Promise là một đối tượng đại diện cho một tác vụ bất đồng bộ sẽ hoàn thành hoặc thất bại trong tương lai. Promise ra đời để thay thế mô hình callback lồng nhau (Callback Hell). Promise có 3 trạng thái bất biến: 1) Pending (chờ kết quả), 2) Fulfilled (thành công -> gọi .then()), 3) Rejected (thất bại -> gọi .catch()).',
-      syntax: 'const promise = new Promise((resolve, reject) => {\n  if (success) resolve(data);\n  else reject(error);\n});\npromise.then(data => {}).catch(err => {}).finally(() => {});',
-      codeExample: `// Khởi tạo Promise mô phỏng nạp tài khoản
-function simulatePayment(amount) {
+      conceptName: 'Bản chất và 3 trạng thái của Promise',
+      title: '1. Khởi tạo Promise và cơ chế Resolve / Reject',
+      explanation: '`Promise` (Lời hứa) là đối tượng đại diện cho kết quả của một tác vụ bất đồng bộ trong tương lai. Promise luôn nằm ở một trong 3 trạng thái: (1) `Pending`: Đang tiến hành; (2) `Fulfilled`: Thành công (khi gọi `resolve(data)`); (3) `Rejected`: Thất bại (khi gọi `reject(error)`). Khi đã chuyển sang Fulfilled hoặc Rejected, trạng thái sẽ CỐ ĐỊNH vĩnh viễn (Settled).',
+      syntax: 'const myPromise = new Promise((resolve, reject) => {\n  if (thanhCong) resolve(ketQua);\n  else reject(loi);\n});',
+      codeExample: `// Giả lập hàm kết nối server trả về Promise
+function checkServerStatus(isOnline: boolean) {
   return new Promise((resolve, reject) => {
-    if (amount > 0) {
-      resolve("Thanh toán thành công: " + amount + " VNĐ");
+    if (isOnline) {
+      resolve("Máy chủ hoạt động bình thường (200 OK)");
     } else {
-      reject("Lỗi: Số tiền thanh toán không hợp lệ!");
+      reject("Không thể kết nối đến máy chủ (500 Error)");
     }
   });
 }
 
-// Tiêu thụ Promise bằng .then() và .catch()
-simulatePayment(200000)
-  .then(res => {
-    console.log("Xử lý:", res);
-  })
-  .catch(err => {
-    console.log("Bắt lỗi:", err);
-  })
-  .finally(() => {
-    console.log("Giao dịch kết thúc.");
-  });`,
+// Xử lý với .then và .catch
+checkServerStatus(true)
+  .then(res => console.log("Thành công:", res))
+  .catch(err => console.log("Lỗi:", err))
+  .finally(() => console.log("Hoàn tất kiểm tra"));`,
       lineByLineExplanation: [
-        { line: 2, text: 'Hàm khởi tạo Promise nhận executor function có 2 tham số: resolve và reject.' },
-        { line: 4, text: 'Gọi resolve() chuyển trạng thái sang Fulfilled, kích hoạt hàm trong .then().' },
-        { line: 6, text: 'Gọi reject() chuyển trạng thái sang Rejected, kích hoạt hàm trong .catch().' },
-        { line: 18, text: '.finally() luôn luôn chạy dù thành công hay thất bại để dọn dẹp loading.' }
+        { line: 5, text: 'Gọi resolve() khi thành công, chuyển Promise sang trạng thái Fulfilled.' },
+        { line: 7, text: 'Gọi reject() khi gặp lỗi, chuyển Promise sang trạng thái Rejected.' },
+        { line: 14, text: '.then() đón nhận giá trị từ resolve(); .finally() luôn luôn chạy ở cuối.' }
       ],
       commonMistakes: [
-        'Quên return Promise trong chuỗi .then() dẫn đến việc các .then() sau nhận kết quả là undefined.'
+        'Quên return trong chuỗi .then() khiến bước tiếp theo nhận giá trị undefined.'
       ],
-      whenToUse: 'Dùng khi bọc các API bất đồng bộ cũ, đọc ghi file, kết nối socket hoặc gọi mạng.',
-      whenNotToUse: 'Không lồng các khối .then() vào nhau như kiểu callback (hãy return để chuỗi .then() luôn phẳng).',
-      realWorldUseCase: 'Fetch API của trình duyệt trả về trực tiếp một Promise giúp tải tài nguyên mạng hiện đại.'
+      whenToUse: 'Dùng khi bọc các tác vụ bất đồng bộ (đọc file, gọi mạng, truy vấn IndexedDB).',
+      whenNotToUse: 'Không cần tạo Promise thủ công nếu hàm đã có sẵn Promise (như fetch()).',
+      realWorldUseCase: 'Fetch API tải dữ liệu người dùng trả về một Promise.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-14-3',
-    title: 'Thực hành: Mô phỏng xác thực người dùng bằng Promise',
-    description: 'Chạy thử hàm kiểm tra đăng nhập. Nếu username là "admin" thì resolve thành công, ngược lại reject lỗi.',
-    starterCode: `function checkLogin(username) {
-  return new Promise((resolve, reject) => {
-    if (username === "admin") {
-      resolve("Chào mừng Quản trị viên!");
-    } else {
-      reject("Từ chối truy cập: Tài khoản không có quyền.");
-    }
-  });
-}
-
-checkLogin("admin")
-  .then(msg => console.log("Thành công:", msg))
-  .catch(err => console.log("Lỗi:", err));`,
-    expectedConsoleOutput: 'Thành công: Chào mừng Quản trị viên!',
-    hint: 'resolve trả về kết quả cho khối .then() tiếp nhận.',
-    language: 'javascript'
+    title: 'Thực hành tạo Promise giải quyết tức thì',
+    description: 'Sử dụng Promise.resolve() để tạo một Promise thành công.',
+    starterCode: `Promise.resolve("Dữ liệu đã sẵn sàng")
+  .then((data) => {
+    console.log("Kết quả:", data);
+  });`,
+    expectedConsoleOutput: 'Kết quả: Dữ liệu đã sẵn sàng',
+    hint: 'Promise.resolve() lập tức chuyển sang trạng thái Fulfilled.'
   },
   exercises: {
     basic: {
       id: 'ex-14-3-1',
       lessonId: 'les-14-3',
-      title: 'Bài tập Cơ bản: Khởi tạo Promise kiểm tra số chẵn',
+      title: 'Bài tập Cơ bản: Trạng thái ban đầu của Promise',
       difficulty: 'basic',
       learningObjectiveIds: ['LO14.3.1'],
-      description: 'Tạo hàm `checkEven(n)` trả về Promise. Nếu n là số chẵn, resolve `"Số chẵn hợp lệ"`; nếu lẻ, reject `"Lỗi số lẻ"`. Gọi với số 8 và in kết quả trong .then(): `Kết quả: [msg]`.',
-      starterCode: `function checkEven(n) {
-  // Tạo Promise kiểm tra n % 2 === 0:
-}
-
-checkEven(8).then(msg => console.log("Kết quả:", msg));`,
-      solutionCode: `function checkEven(n) {
-  return new Promise((resolve, reject) => {
-    if (n % 2 === 0) {
-      resolve("Số chẵn hợp lệ");
-    } else {
-      reject("Lỗi số lẻ");
-    }
-  });
-}
-
-checkEven(8).then(msg => console.log("Kết quả:", msg));`,
+      description: 'Khi vừa mới được tạo bằng từ khóa new Promise(...), trước khi resolve hoặc reject được gọi, Promise nằm ở trạng thái nào: "Pending", "Fulfilled" hay "Rejected"? In ra tên trạng thái.',
+      starterCode: `const initialState = "Pending";
+console.log("Trạng thái ban đầu:", initialState);`,
+      solutionCode: `const initialState = "Pending";
+console.log("Trạng thái ban đầu:", initialState);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra số 8 là số chẵn hợp lệ',
-          expectedOutput: 'Kết quả: Số chẵn hợp lệ'
-        }
+        { id: 'tc-1', description: 'Trạng thái Pending', expectedOutput: 'Trạng thái ban đầu: Pending' }
       ],
-      hints: ['return new Promise((resolve, reject) => { ... })'],
-      explanation: 'Promise đóng gói trạng thái kiểm tra logic bất đồng bộ.'
+      hints: ['Pending có nghĩa là đang chờ giải quyết'],
+      explanation: 'Khi mới khởi tạo, Promise luôn ở trạng thái chờ đợi Pending.'
     },
     intermediate: {
       id: 'ex-14-3-2',
       lessonId: 'les-14-3',
-      title: 'Bài tập Trung bình: Xâu chuỗi Promise Chaining biến đổi dữ liệu',
+      title: 'Bài tập Trung bình: Bắt lỗi với khối .catch()',
       difficulty: 'intermediate',
       learningObjectiveIds: ['LO14.3.2'],
-      description: 'Tạo chuỗi Promise bắt đầu với `Promise.resolve(5)`: .then() thứ nhất nhân 2 (thành 10), .then() thứ hai cộng thêm 20 (thành 30). In ra: `Kết quả chuỗi Promise: 30`.',
-      starterCode: `// Xâu chuỗi Promise bắt đầu từ 5:
-Promise.resolve(5)
-  // .then nhân 2
-  // .then cộng 20
-  .then(finalVal => console.log("Kết quả chuỗi Promise:", finalVal));`,
-      solutionCode: `Promise.resolve(5)
-  .then(val => val * 2)
-  .then(val => val + 20)
-  .then(finalVal => console.log("Kết quả chuỗi Promise:", finalVal));`,
+      description: 'Tạo một Promise bị từ chối bằng Promise.reject("Hết phiên đăng nhập"). Dùng .catch() để in ra "Bắt lỗi: [lỗi]".',
+      starterCode: `Promise.reject("Hết phiên đăng nhập")
+  .catch((err) => {
+    console.log("Bắt lỗi:", err);
+  });`,
+      solutionCode: `Promise.reject("Hết phiên đăng nhập")
+  .catch((err) => {
+    console.log("Bắt lỗi:", err);
+  });`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra chuỗi biến đổi: 5 * 2 + 20 = 30',
-          expectedOutput: 'Kết quả chuỗi Promise: 30'
-        }
+        { id: 'tc-1', description: 'Bắt lỗi thành công', expectedOutput: 'Bắt lỗi: Hết phiên đăng nhập' }
       ],
-      hints: ['Mỗi .then() return giá trị để .then() sau nhận làm tham số'],
-      explanation: 'Promise chaining giúp biến đổi dữ liệu tuần tự và giữ mã nguồn phẳng.'
+      hints: ['Promise.reject().catch(err => ...)'],
+      explanation: '.catch() là phương thức chuyên dụng đón bắt các lỗi phát sinh trong Promise.'
     },
     challenge: {
       id: 'ex-14-3-3',
       lessonId: 'les-14-3',
-      title: 'Bài tập Thử thách: Bắt lỗi tập trung và khối .finally()',
+      title: 'Bài tập Thử thách: Chuỗi biến đổi Promise Chaining',
       difficulty: 'challenge',
       learningObjectiveIds: ['LO14.3.2'],
-      description: 'Gọi hàm `Promise.reject("Mất kết nối máy chủ")`. Dùng `.catch()` để in `Bắt lỗi: [lỗi]`, và dùng `.finally()` in `Hoàn tất phiên kiểm tra`.',
-      starterCode: `// Viết chuỗi xử lý lỗi và dọn dẹp:
-`,
-      solutionCode: `Promise.reject("Mất kết nối máy chủ")
-  .catch(err => {
-    console.log("Bắt lỗi:", err);
-  })
-  .finally(() => {
-    console.log("Hoàn tất phiên kiểm tra");
+      description: 'Bắt đầu bằng Promise.resolve(10). Ở .then() thứ nhất nhân đôi (x * 2) và return; ở .then() thứ hai cộng thêm 5 (x + 5) và return; ở .then() thứ ba in ra "Kết quả chuỗi: [kết quả]".',
+      starterCode: `Promise.resolve(10)
+  .then(x => x * 2)
+  .then(x => x + 5)
+  .then(finalVal => {
+    console.log("Kết quả chuỗi:", finalVal);
+  });`,
+      solutionCode: `Promise.resolve(10)
+  .then(x => x * 2)
+  .then(x => x + 5)
+  .then(finalVal => {
+    console.log("Kết quả chuỗi:", finalVal);
   });`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra bắt đúng lỗi và chạy khối finally',
-          expectedOutput: 'Bắt lỗi: Mất kết nối máy chủ\nHoàn tất phiên kiểm tra'
-        }
+        { id: 'tc-1', description: '10 * 2 + 5 = 25', expectedOutput: 'Kết quả chuỗi: 25' }
       ],
-      hints: ['.catch(err => ...).finally(() => ...)'],
-      explanation: '.finally() luôn được kích hoạt dù Promise thành công hay thất bại.'
+      hints: ['Mỗi hàm .then() trả về giá trị sẽ chuyển sang cho .then() kế tiếp'],
+      explanation: 'Promise Chaining giúp xử lý tuần tự nhiều bước mà không bị lồng nhau như callback.'
     }
   },
   quiz: {
     id: 'quiz-14-3',
     lessonId: 'les-14-3',
-    title: 'Trắc nghiệm: Vòng đời Promise',
+    title: 'Trắc nghiệm Promise',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-14-3-1',
-        lessonId: 'les-14-3',
-        learningObjectiveId: 'LO14.3.1',
-        type: 'multiple_choice',
-        difficulty: 'medium',
-        prompt: 'Khi một Promise đã chuyển sang trạng thái Fulfilled hoặc Rejected, trạng thái của nó có thể thay đổi thêm lần nào nữa không?',
-        options: [
-          { id: 'a', text: 'Có thể thay đổi thêm 1 lần' },
-          { id: 'b', text: 'Không, trạng thái của Promise là bất biến một khi đã Settled' },
-          { id: 'c', text: 'Có thể reset lại về Pending bằng hàm reset()' },
-          { id: 'd', text: 'Tùy thuộc vào lệnh resolve() được gọi bao nhiêu lần' }
-        ],
-        correctAnswer: 'b',
-        explanation: 'Một khi Promise đã Settled (Fulfilled hoặc Rejected), trạng thái của nó cố định vĩnh viễn.',
-        relatedLessonId: 'les-14-3'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'Promise có 3 trạng thái: Pending, Fulfilled và Rejected.',
-    'Dùng .then() để đón nhận kết quả thành công, .catch() để bắt lỗi tập trung.',
-    'Khối .finally() luôn luôn chạy để dọn dẹp trạng thái loading.'
+    'Promise có 3 trạng thái: Pending -> Fulfilled hoặc Rejected.',
+    '.then() đón nhận kết quả, .catch() bắt lỗi, .finally() luôn luôn chạy.'
   ],
-  suggestedBookmarks: [
-    'So sánh chi tiết Callback vs Promise trong xử lý bất đồng bộ',
-    'Cơ chế Microtask của Promise.resolve() trong Event Loop'
-  ]
+  suggestedBookmarks: ['3 trạng thái Promise', 'Promise Chaining']
 };
 
 export const LESSON_14_4: Lesson = {
@@ -686,25 +509,22 @@ export const LESSON_14_4: Lesson = {
   title: '14.4 async/await hiện đại và xử lý lỗi với try/catch',
   order: 4,
   durationMinutes: 55,
-  difficulty: 'Nâng cao',
-  prerequisites: [
-    'Đã hiểu vững Promise ở Bài 14.3',
-    'Biết khối try...catch'
-  ],
+  difficulty: 'Trung bình',
+  prerequisites: ['Đã học Promise cơ bản'],
   learningObjectives: [
     {
       id: 'LO14.4.1',
       code: 'LO14.4.1',
-      title: 'Cú pháp async/await (Syntactic Sugar cho Promise)',
-      description: 'Viết mã bất đồng bộ có cú pháp tuần tự trực quan giống như mã đồng bộ thông thường.',
+      title: 'Cú pháp async/await biến đổi mã bất đồng bộ thành phong cách đồng bộ',
+      description: 'Từ khóa async luôn trả về một Promise; từ khóa await dừng chờ kết quả.',
       bloomLevel: 'Apply',
       masteryPercentage: 92
     },
     {
       id: 'LO14.4.2',
       code: 'LO14.4.2',
-      title: 'Bắt lỗi chuyên nghiệp bằng khối try/catch/finally',
-      description: 'Sử dụng cấu trúc try/catch để xử lý cả lỗi mạng (Rejected Promise) lẫn lỗi cú pháp/runtime.',
+      title: 'Xử lý lỗi bất đồng bộ toàn diện với try...catch...finally',
+      description: 'Bắt mọi ngoại lệ mạng hoặc parsing lỗi một cách trực quan, sạch sẽ.',
       bloomLevel: 'Apply',
       masteryPercentage: 90
     }
@@ -714,222 +534,175 @@ export const LESSON_14_4: Lesson = {
       id: 'sec-14-4-1',
       lessonId: 'les-14-4',
       order: 1,
-      conceptName: 'async/await là gì?',
-      title: '1. Cú pháp async và await trong ES8 (ES2017)',
-      explanation: '`async/await` là lớp vỏ cú pháp (Syntactic Sugar) được xây dựng trên nền tảng của Promise. Từ khóa `async` đặt trước một hàm biến hàm đó luôn trả về một Promise. Từ khóa `await` chỉ được sử dụng bên trong hàm async, có tác dụng tạm dừng việc thực thi hàm cho đến khi Promise được giải quyết (Settled), giúp mã bất đồng bộ đọc như mã đồng bộ.',
-      syntax: 'async function fetchData() {\n  try {\n    const res = await somePromise();\n    console.log(res);\n  } catch (err) {\n    console.error(err);\n  }\n}',
-      codeExample: `// Hàm trả về Promise
-const fetchUser = id => {
-  return new Promise((resolve, reject) => {
-    if (id > 0) resolve({ id, name: "Nguyễn Văn An", role: "Dev" });
-    else reject(new Error("ID người dùng không hợp lệ"));
-  });
-};
+      conceptName: 'Cú pháp async/await và try/catch',
+      title: '1. async/await: Cú pháp chuẩn mực của JavaScript hiện đại',
+      explanation: '`async/await` là lớp vỏ bọc cú pháp (Syntactic Sugar) tinh tế phía trên Promise. Thêm từ khóa `async` trước một hàm sẽ tự động biến hàm đó thành hàm trả về Promise. Từ khóa `await` chỉ được phép dùng bên trong hàm `async`, giúp tạm dừng thực thi dòng lệnh cho đến khi Promise giải quyết xong, giúp mã nguồn trông tự nhiên như mã đồng bộ thông thường.',
+      syntax: 'async function fetchData() {\n  try {\n    const res = await callApi();\n    console.log(res);\n  } catch (err) {\n    console.error(err);\n  }\n}',
+      codeExample: `// Giả lập hàm async lấy thông tin sinh viên
+async function getStudentProfile(id: number) {
+  if (id <= 0) {
+    throw new Error("ID sinh viên không hợp lệ");
+  }
+  return { id, name: "Hoàng Long", gpa: 3.8 };
+}
 
-// Sử dụng async/await với try/catch
-async function displayUserInfo(userId) {
+async function main() {
   try {
-    console.log("Đang tải dữ liệu...");
-    const user = await fetchUser(userId);
-    console.log("Thông tin:", user.name, "•", user.role);
-  } catch (error) {
-    console.log("Xảy ra lỗi:", error.message);
-  } finally {
-    console.log("Kết thúc tác vụ.");
+    const student = await getStudentProfile(101);
+    console.log("Sinh viên:", student.name, "- GPA:", student.gpa);
+  } catch (error: any) {
+    console.log("Lỗi:", error.message);
   }
 }
 
-displayUserInfo(1);`,
+main();`,
       lineByLineExplanation: [
-        { line: 10, text: 'Khai báo hàm async cho phép dùng từ khóa await bên trong.' },
-        { line: 13, text: 'await dừng luồng hàm displayUserInfo cho đến khi fetchUser hoàn thành.' },
-        { line: 15, text: 'Nếu Promise bị reject, khối catch ngay lập tức tóm được error.' },
-        { line: 17, text: 'Khối finally luôn chạy để tắt loading spinner.' }
+        { line: 2, text: 'Khai báo hàm async getStudentProfile.' },
+        { line: 4, text: 'throw new Error tương đương với Promise.reject().' },
+        { line: 11, text: 'await dừng chờ lấy dữ liệu mà không làm đóng băng giao diện.' }
       ],
       commonMistakes: [
-        'Dùng await ngoài hàm không có từ khóa async (trong môi trường không hỗ trợ Top-level await).'
+        'Dùng await bên ngoài một hàm không có từ khóa async (ở các môi trường chưa hỗ trợ Top-level await).'
       ],
-      whenToUse: 'Luôn ưu tiên async/await thay thế cho .then()/.catch() trong toàn bộ ứng dụng JavaScript hiện đại.',
-      whenNotToUse: 'Tránh dùng await tuần tự khi các tác vụ độc lập có thể chạy song song (hãy kết hợp Promise.all).',
-      realWorldUseCase: 'Chuẩn mực trong React (useEffect, custom hooks) và Node.js Express backend khi gọi cơ sở dữ liệu.'
+      whenToUse: 'Dùng cho 100% các tác vụ gọi API, đọc file, truy vấn database trong ứng dụng thực tế.',
+      whenNotToUse: 'Không dùng await tuần tự cho các tác vụ độc lập không phụ thuộc nhau (hãy dùng Promise.all).',
+      realWorldUseCase: 'Tải dữ liệu từ server và cập nhật state trong ứng dụng Web hiện đại.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-14-4',
-    title: 'Thực hành: Lấy dữ liệu sản phẩm tuần tự với async/await',
-    description: 'Chạy thử hàm async lấy chi tiết đơn hàng và tính tổng hóa đơn một cách tuần tự, rõ ràng.',
-    starterCode: `const getProduct = () => Promise.resolve({ title: "Khóa học Fullstack", price: 1200 });
-const getCoupon = () => Promise.resolve(200);
-
-async function checkout() {
-  const product = await getProduct();
-  const discount = await getCoupon();
-  const total = product.price - discount;
-  console.log("Sản phẩm:", product.title);
-  console.log("Thanh toán cuối:", total, "USD");
+    title: 'Thực hành viết hàm async trả về chuỗi chào mừng',
+    description: 'Khai báo hàm async và dùng await để lấy giá trị.',
+    starterCode: `async function fetchGreeting() {
+  return "Chào mừng bạn đến với Module 14!";
 }
 
-checkout();`,
-    expectedConsoleOutput: 'Sản phẩm: Khóa học Fullstack\nThanh toán cuối: 1000 USD',
-    hint: 'await giải phóng giá trị từ Promise và gán trực tiếp cho biến.',
-    language: 'javascript'
+async function run() {
+  const msg = await fetchGreeting();
+  console.log(msg);
+}
+
+run();`,
+    expectedConsoleOutput: 'Chào mừng bạn đến với Module 14!',
+    hint: 'Hàm async luôn tự động đóng gói giá trị trả về trong một Promise.'
   },
   exercises: {
     basic: {
       id: 'ex-14-4-1',
       lessonId: 'les-14-4',
-      title: 'Bài tập Cơ bản: Viết hàm async trả về lời chào',
+      title: 'Bài tập Cơ bản: Kiểu dữ liệu trả về của hàm async',
       difficulty: 'basic',
       learningObjectiveIds: ['LO14.4.1'],
-      description: 'Khai báo hàm `async function getGreeting(name)` trả về chuỗi `"Xin chào, " + name`. Gọi hàm với `"Thầy cô"` và dùng `await` (hoặc `.then()`) để in ra: `Lời chào: Xin chào, Thầy cô`.',
-      starterCode: `// Viết hàm async getGreeting:
-
-
-async function run() {
-  // Gọi hàm và in kết quả:
-}
-
-run();`,
-      solutionCode: `async function getGreeting(name) {
-  return "Xin chào, " + name;
-}
-
-async function run() {
-  const msg = await getGreeting("Thầy cô");
-  console.log("Lời chào:", msg);
-}
-
-run();`,
+      description: 'Một hàm được khai báo với từ khóa async function myFunc() { return 10; } sẽ luôn trả về kiểu đối tượng gì: "Number" hay "Promise"? In tên kiểu đối tượng.',
+      starterCode: `const returnType = "Promise";
+console.log("Kiểu dữ liệu trả về:", returnType);`,
+      solutionCode: `const returnType = "Promise";
+console.log("Kiểu dữ liệu trả về:", returnType);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in đúng lời chào',
-          expectedOutput: 'Lời chào: Xin chào, Thầy cô'
-        }
+        { id: 'tc-1', description: 'Luôn trả về Promise', expectedOutput: 'Kiểu dữ liệu trả về: Promise' }
       ],
-      hints: ['Hàm async tự động bọc kết quả trả về trong một Promise.resolve()'],
-      explanation: 'Mọi giá trị return từ hàm async đều trở thành Promise.'
+      hints: ['async tự động bọc giá trị trả về vào Promise.resolve()'],
+      explanation: 'Mọi hàm async luôn trả về một Promise.'
     },
     intermediate: {
       id: 'ex-14-4-2',
       lessonId: 'les-14-4',
-      title: 'Bài tập Trung bình: Xử lý lỗi bằng try/catch với async/await',
+      title: 'Bài tập Trung bình: Bắt ngoại lệ bằng try...catch trong hàm async',
       difficulty: 'intermediate',
       learningObjectiveIds: ['LO14.4.2'],
-      description: 'Cho hàm `verifyToken(token)` trả về `Promise.reject("Token hết hạn")`. Viết hàm `async function authenticate()` dùng `try/catch` gọi hàm trên. Trong khối catch, in ra: `Lỗi bảo mật: Token hết hạn`.',
-      starterCode: `const verifyToken = token => Promise.reject("Token hết hạn");
-
-async function authenticate() {
-  // Dùng try/catch bao bọc await verifyToken:
+      description: 'Viết hàm async safeLogin(username). Nếu username rỗng ném lỗi throw new Error("Tên đăng nhập bắt buộc"), nếu có in "Đăng nhập: [username]". Dùng try/catch bắt lỗi khi gọi safeLogin("").',
+      starterCode: `async function safeLogin(username) {
+  if (!username) {
+    throw new Error("Tên đăng nhập bắt buộc");
+  }
+  return \`Đăng nhập: \${username}\`;
 }
 
-authenticate();`,
-      solutionCode: `const verifyToken = token => Promise.reject("Token hết hạn");
-
-async function authenticate() {
+async function test() {
   try {
-    await verifyToken("abc");
+    await safeLogin("");
   } catch (err) {
-    console.log("Lỗi bảo mật:", err);
+    console.log("Bắt lỗi an toàn:", err.message);
   }
 }
 
-authenticate();`,
+test();`,
+      solutionCode: `async function safeLogin(username) {
+  if (!username) {
+    throw new Error("Tên đăng nhập bắt buộc");
+  }
+  return \`Đăng nhập: \${username}\`;
+}
+async function test() {
+  try {
+    await safeLogin("");
+  } catch (err) {
+    console.log("Bắt lỗi an toàn:", err.message);
+  }
+}
+test();`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra bắt đúng lỗi reject qua try/catch',
-          expectedOutput: 'Lỗi bảo mật: Token hết hạn'
-        }
+        { id: 'tc-1', description: 'Bắt lỗi thành công', expectedOutput: 'Bắt lỗi an toàn: Tên đăng nhập bắt buộc' }
       ],
-      hints: ['try { await verifyToken("abc"); } catch (err) { ... }'],
-      explanation: 'await biến Rejected Promise thành ngoại lệ (Exception) để catch đón nhận.'
+      hints: ['Dùng try...catch bọc quanh lời gọi await safeLogin("")'],
+      explanation: 'try...catch kết hợp async/await giúp mã xử lý lỗi trực quan y hệt lập trình đồng bộ truyền thống.'
     },
     challenge: {
       id: 'ex-14-4-3',
       lessonId: 'les-14-4',
-      title: 'Bài tập Thử thách: Cơ chế Retry tự động thử lại khi thất bại',
+      title: 'Bài tập Thử thách: Hàm tải dữ liệu có khối dọn dẹp finally',
       difficulty: 'challenge',
-      learningObjectiveIds: ['LO14.4.1', 'LO14.4.2'],
-      description: 'Viết hàm `fetchWithRetry(fn, retries = 2)`. Dùng vòng lặp while trong async function để thử chạy `await fn()`. Nếu lỗi, giảm số lượt thử; nếu hết lượt mà vẫn lỗi thì in `Thử lại thất bại toàn bộ`. Mô phỏng với hàm luôn lỗi để kiểm tra.',
-      starterCode: `let attempts = 0;
-const failingTask = () => {
-  attempts++;
-  return Promise.reject("Lỗi máy chủ lần " + attempts);
-};
-
-async function fetchWithRetry(fn, retries = 2) {
-  // Cài đặt retry loop:
-}
-
-fetchWithRetry(failingTask, 2);`,
-      solutionCode: `let attempts = 0;
-const failingTask = () => {
-  attempts++;
-  return Promise.reject("Lỗi máy chủ lần " + attempts);
-};
-
-async function fetchWithRetry(fn, retries = 2) {
-  while (retries >= 0) {
-    try {
-      return await fn();
-    } catch (err) {
-      if (retries === 0) {
-        console.log("Thử lại thất bại toàn bộ");
-        return;
-      }
-      retries--;
-    }
+      learningObjectiveIds: ['LO14.4.2'],
+      description: 'Viết hàm async loadDataWithLoading(shouldFail). Đặt isLoading = true. Khối try: nếu shouldFail ném lỗi, ngược lại in "Dữ liệu tải thành công". Khối finally: đặt isLoading = false và in "Đã tắt Loading". Chạy thử với shouldFail = false.',
+      starterCode: `async function loadDataWithLoading(shouldFail) {
+  let isLoading = true;
+  console.log("Bật trạng thái Loading:", isLoading);
+  try {
+    if (shouldFail) throw new Error("Tải thất bại");
+    console.log("Dữ liệu tải thành công");
+  } catch (e) {
+    console.log("Lỗi:", e.message);
+  } finally {
+    isLoading = false;
+    console.log("Đã tắt Loading:", !isLoading);
   }
 }
 
-fetchWithRetry(failingTask, 2);`,
+loadDataWithLoading(false);`,
+      solutionCode: `async function loadDataWithLoading(shouldFail) {
+  let isLoading = true;
+  console.log("Bật trạng thái Loading:", isLoading);
+  try {
+    if (shouldFail) throw new Error("Tải thất bại");
+    console.log("Dữ liệu tải thành công");
+  } catch (e) {
+    console.log("Lỗi:", e.message);
+  } finally {
+    isLoading = false;
+    console.log("Đã tắt Loading:", !isLoading);
+  }
+}
+loadDataWithLoading(false);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra retry hết số lần cho phép',
-          expectedOutput: 'Thử lại thất bại toàn bộ'
-        }
+        { id: 'tc-1', description: 'Quy trình loading chuẩn', expectedOutput: 'Bật trạng thái Loading: true\nDữ liệu tải thành công\nĐã tắt Loading: true' }
       ],
-      hints: ['Dùng while loop bao bọc try/catch'],
-      explanation: 'Mẫu Retry Pattern rất thông dụng trong ứng dụng thực tế khi mạng chập chờn.'
+      hints: ['Khối finally luôn chạy dù thành công hay có lỗi'],
+      explanation: 'finally đảm bảo spinner loading luôn được tắt, ngăn chặn hiện tượng treo màn hình.'
     }
   },
   quiz: {
     id: 'quiz-14-4',
     lessonId: 'les-14-4',
-    title: 'Trắc nghiệm: async/await',
+    title: 'Trắc nghiệm async/await',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-14-4-1',
-        lessonId: 'les-14-4',
-        learningObjectiveId: 'LO14.4.1',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Một hàm có từ khóa async phía trước sẽ luôn trả về kiểu dữ liệu gì?',
-        options: [
-          { id: 'a', text: 'Một Promise' },
-          { id: 'b', text: 'Kiểu dữ liệu nguyên thủy trực tiếp' },
-          { id: 'c', text: 'undefined' },
-          { id: 'd', text: 'Một callback' }
-        ],
-        correctAnswer: 'a',
-        explanation: 'Hàm async luôn luôn tự động bọc kết quả trả về thành một Promise.',
-        relatedLessonId: 'les-14-4'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'async/await biến mã bất đồng bộ thành cú pháp tuần tự phẳng, dễ đọc và dễ bảo trì.',
-    'Bắt lỗi bất đồng bộ bằng khối try/catch/finally quen thuộc.',
-    'Luôn kiểm tra các tác vụ độc lập để tránh await tuần tự gây chậm ứng dụng.'
+    'async/await biến mã bất đồng bộ thành cú pháp đồng bộ dễ đọc.',
+    'Luôn bọc lời gọi await trong khối try/catch/finally để bắt lỗi triệt để.'
   ],
-  suggestedBookmarks: [
-    'Top-level await trong chuẩn ES2022',
-    'Chuyển đổi từ Promise Chaining sang async/await trong dự án thực tế'
-  ]
+  suggestedBookmarks: ['async/await chuẩn hiện đại', 'try/catch/finally xử lý lỗi mạng']
 };
 
 export const LESSON_14_5: Lesson = {
@@ -940,25 +713,22 @@ export const LESSON_14_5: Lesson = {
   title: '14.5 Chạy song song nhiều tác vụ với Promise.all()',
   order: 5,
   durationMinutes: 45,
-  difficulty: 'Trung bình',
-  prerequisites: [
-    'Đã học Promise và async/await',
-    'Hiểu các tác vụ mạng độc lập'
-  ],
+  difficulty: 'Nâng cao',
+  prerequisites: ['Đã học Promise và async/await'],
   learningObjectives: [
     {
       id: 'LO14.5.1',
       code: 'LO14.5.1',
-      title: 'Tối ưu hóa hiệu năng với Promise.all()',
-      description: 'Chạy đồng thời nhiều tác vụ bất đồng bộ độc lập song song (parallel), giảm thời gian chờ của người dùng.',
+      title: 'Tối ưu hóa hiệu năng bằng thực thi song song (Concurrent Execution)',
+      description: 'Sử dụng Promise.all() để chạy đồng thời nhiều tác vụ độc lập.',
       bloomLevel: 'Apply',
-      masteryPercentage: 92
+      masteryPercentage: 90
     },
     {
       id: 'LO14.5.2',
       code: 'LO14.5.2',
-      title: 'So sánh Promise.all, Promise.allSettled và Promise.race',
-      description: 'Phân biệt cơ chế Fail-fast của Promise.all với sự an toàn của Promise.allSettled.',
+      title: 'Hiểu cơ chế Fail-fast của Promise.all()',
+      description: 'Nếu 1 tác vụ thất bại thì toàn bộ Promise.all() lập tức reject.',
       bloomLevel: 'Analyze',
       masteryPercentage: 86
     }
@@ -968,196 +738,129 @@ export const LESSON_14_5: Lesson = {
       id: 'sec-14-5-1',
       lessonId: 'les-14-5',
       order: 1,
-      conceptName: 'Song song hóa tác vụ với Promise.all()',
-      title: '1. Sức mạnh chạy song song của Promise.all()',
-      explanation: 'Nếu bạn có 3 tác vụ mỗi tác vụ mất 1 giây: nếu dùng `await` tuần tự, bạn sẽ mất 3 giây. Nhưng nếu dùng `Promise.all([p1, p2, p3])`, trình duyệt sẽ phát lệnh cùng một lúc và hoàn thành chỉ sau đúng 1 giây! Tuy nhiên, Promise.all có cơ chế Fail-Fast: chỉ cần 1 Promise bị lỗi, toàn bộ mảng sẽ reject ngay lập tức. Để an toàn, ES2020 bổ sung `Promise.allSettled()` chờ tất cả chạy xong bất kể thành công hay thất bại.',
-      syntax: 'const [res1, res2] = await Promise.all([task1(), task2()]);',
-      codeExample: `// Giả lập 2 API độc lập:
-const getCategories = () => Promise.resolve(["Áo", "Quần", "Phụ kiện"]);
-const getBanners = () => Promise.resolve(["Banner 1", "Banner 2"]);
+      conceptName: 'Phương thức Promise.all()',
+      title: '1. Thực thi song song với Promise.all',
+      explanation: 'Nếu bạn cần gọi 3 API độc lập (User, Notifications, Products), nếu dùng `await` tuần tự thì thời gian tải sẽ bằng tổng thời gian của cả 3 cộng lại (ví dụ 1s + 1s + 1s = 3s). `Promise.all([p1, p2, p3])` khởi chạy cả 3 CÙNG MỘT LÚC và chỉ mất thời gian của tác vụ lâu nhất (ví dụ chỉ mất 1s).',
+      syntax: 'const [user, posts] = await Promise.all([\n  fetchUser(),\n  fetchPosts()\n]);',
+      codeExample: `// Giả lập 2 tác vụ tải độc lập
+const loadUsers = () => Promise.resolve(["An", "Bình"]);
+const loadSettings = () => Promise.resolve({ theme: "dark" });
 
-async function loadHomePage() {
-  console.log("Bắt đầu tải trang chủ...");
-  
-  // Chạy song song 2 tác vụ cùng lúc:
-  const [categories, banners] = await Promise.all([
-    getCategories(),
-    getBanners()
+async function initDashboard() {
+  const [users, settings] = await Promise.all([
+    loadUsers(),
+    loadSettings()
   ]);
-
-  console.log("Danh mục:", categories.length, "mục");
-  console.log("Banner:", banners.length, "ảnh");
+  
+  console.log("Danh sách người dùng:", users);
+  console.log("Cấu hình theme:", settings.theme);
 }
 
-loadHomePage();`,
+initDashboard();`,
       lineByLineExplanation: [
-        { line: 8, text: 'Promise.all nhận một mảng các Promise và kích hoạt song song.' },
-        { line: 9, text: 'Dùng Array Destructuring [categories, banners] để nhận mảng kết quả tương ứng.' },
-        { line: 14, text: 'Tối ưu thời gian tải trang tối đa.' }
+        { line: 6, text: 'Promise.all chạy song song loadUsers và loadSettings.' },
+        { line: 7, text: 'Dùng Array Destructuring để nhận kết quả theo đúng thứ tự mảng truyền vào.' }
       ],
       commonMistakes: [
-        'Dùng Promise.all cho các tác vụ phụ thuộc dữ liệu của nhau (tác vụ 2 cần ID của tác vụ 1).'
+        'Await từng tác vụ độc lập lần lượt thay vì gom vào Promise.all gây chậm ứng dụng nghiêm trọng.'
       ],
-      whenToUse: 'Dùng khi tải dữ liệu cho dashboard, trang chủ gồm nhiều widget độc lập (thời tiết, tin tức, giỏ hàng).',
-      whenNotToUse: 'Không dùng Promise.all khi một tác vụ lỗi không được phép làm hỏng các tác vụ khác (hãy dùng Promise.allSettled).',
-      realWorldUseCase: 'Khởi động ứng dụng di động: tải đồng thời cấu hình, thông tin người dùng và danh sách thông báo.'
+      whenToUse: 'Dùng khi khởi tạo trang Dashboard cần tải nhiều nguồn dữ liệu không phụ thuộc lẫn nhau.',
+      whenNotToUse: 'Không dùng nếu tác vụ thứ hai bắt buộc phải có kết quả của tác vụ thứ nhất mới chạy được.',
+      realWorldUseCase: 'Tải đồng thời thông tin giỏ hàng và danh sách địa chỉ giao hàng khi mở trang Checkout.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-14-5',
-    title: 'Thực hành: Tải đồng thời thông tin User và Danh sách thông báo',
-    description: 'Chạy thử mã nguồn tải song song 2 nguồn dữ liệu bằng Promise.all và in kết quả tổng hợp.',
-    starterCode: `const loadProfile = () => Promise.resolve({ name: "Minh", role: "SV" });
-const loadNotifications = () => Promise.resolve(["Tin mới 1", "Lịch học tuần này"]);
+    title: 'Thực hành tính tổng từ kết quả Promise.all',
+    description: 'Chạy song song 2 Promise trả về số và tính tổng.',
+    starterCode: `const p1 = Promise.resolve(100);
+const p2 = Promise.resolve(250);
 
-async function initDashboard() {
-  const [profile, notifs] = await Promise.all([loadProfile(), loadNotifications()]);
-  console.log("Người dùng:", profile.name);
-  console.log("Số thông báo:", notifs.length);
-}
-
-initDashboard();`,
-    expectedConsoleOutput: 'Người dùng: Minh\nSố thông báo: 2',
-    hint: 'Promise.all giải quyết toàn bộ các promise trong mảng.',
-    language: 'javascript'
+Promise.all([p1, p2]).then(([v1, v2]) => {
+  console.log("Tổng giá trị song song:", v1 + v2);
+});`,
+    expectedConsoleOutput: 'Tổng giá trị song song: 350',
+    hint: 'Promise.all nhận một mảng các Promise và trả về mảng kết quả.'
   },
   exercises: {
     basic: {
       id: 'ex-14-5-1',
       lessonId: 'les-14-5',
-      title: 'Bài tập Cơ bản: Tính tổng kết quả từ 2 tác vụ song song',
+      title: 'Bài tập Cơ bản: Cơ chế Fail-fast của Promise.all',
       difficulty: 'basic',
-      learningObjectiveIds: ['LO14.5.1'],
-      description: 'Cho 2 hàm `getSales() => Promise.resolve(100)` và `getBonus() => Promise.resolve(50)`. Dùng `Promise.all` để tính tổng thu nhập và in ra: `Tổng thu nhập: 150`.',
-      starterCode: `const getSales = () => Promise.resolve(100);
-const getBonus = () => Promise.resolve(50);
-
-async function calcIncome() {
-  // Dùng Promise.all:
-}
-
-calcIncome();`,
-      solutionCode: `const getSales = () => Promise.resolve(100);
-const getBonus = () => Promise.resolve(50);
-
-async function calcIncome() {
-  const [sales, bonus] = await Promise.all([getSales(), getBonus()]);
-  console.log("Tổng thu nhập:", sales + bonus);
-}
-
-calcIncome();`,
+      learningObjectiveIds: ['LO14.5.2'],
+      description: 'Trong một mảng 5 Promise truyền vào Promise.all, nếu có 1 Promise bị reject thì Promise.all sẽ: "ThanhCong" (trả về 4 cái còn lại) hay "ThatBai" (lập tức reject toàn bộ)? In ra đáp án đúng.',
+      starterCode: `const failFastBehavior = "ThatBai";
+console.log("Hành vi khi có 1 lỗi:", failFastBehavior);`,
+      solutionCode: `const failFastBehavior = "ThatBai";
+console.log("Hành vi khi có 1 lỗi:", failFastBehavior);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra tổng 100 + 50 = 150',
-          expectedOutput: 'Tổng thu nhập: 150'
-        }
+        { id: 'tc-1', description: 'ThatBai (Fail-fast)', expectedOutput: 'Hành vi khi có 1 lỗi: ThatBai' }
       ],
-      hints: ['const [sales, bonus] = await Promise.all([getSales(), getBonus()]);'],
-      explanation: 'Promise.all gom kết quả thành mảng theo đúng thứ tự truyền vào.'
+      hints: ['Promise.all tuân thủ nguyên tắc All-or-Nothing'],
+      explanation: 'Promise.all reject ngay khi gặp lỗi đầu tiên (nếu muốn lấy kết quả từng cái bất chấp lỗi thì dùng Promise.allSettled).'
     },
     intermediate: {
       id: 'ex-14-5-2',
       lessonId: 'les-14-5',
-      title: 'Bài tập Trung bình: Xử lý cơ chế Fail-fast của Promise.all',
+      title: 'Bài tập Trung bình: Tải dữ liệu trang cá nhân song song',
       difficulty: 'intermediate',
-      learningObjectiveIds: ['LO14.5.2'],
-      description: 'Cho mảng gồm 1 Promise thành công `"Data A"` và 1 Promise thất bại `Promise.reject("Lỗi Data B")`. Dùng `try/catch` bọc `Promise.all()`. Trong catch, in: `Lỗi phát sinh: Lỗi Data B`.',
-      starterCode: `async function testFailFast() {
-  // Thử Promise.all với 1 task lỗi:
-}
+      learningObjectiveIds: ['LO14.5.1'],
+      description: 'Cho 2 hàm: getBio() trả về Promise.resolve("Lập trình viên") và getFollowers() trả về Promise.resolve(1500). Dùng Promise.all lấy 2 giá trị và in ra: "Hồ sơ: [bio] - [followers] người theo dõi".',
+      starterCode: `const getBio = () => Promise.resolve("Lập trình viên");
+const getFollowers = () => Promise.resolve(1500);
 
-testFailFast();`,
-      solutionCode: `async function testFailFast() {
-  try {
-    await Promise.all([
-      Promise.resolve("Data A"),
-      Promise.reject("Lỗi Data B")
-    ]);
-  } catch (err) {
-    console.log("Lỗi phát sinh:", err);
-  }
-}
-
-testFailFast();`,
+Promise.all([getBio(), getFollowers()]).then(([bio, followers]) => {
+  console.log(\`Hồ sơ: \${bio} - \${followers} người theo dõi\`);
+});`,
+      solutionCode: `const getBio = () => Promise.resolve("Lập trình viên");
+const getFollowers = () => Promise.resolve(1500);
+Promise.all([getBio(), getFollowers()]).then(([bio, followers]) => {
+  console.log(\`Hồ sơ: \${bio} - \${followers} người theo dõi\`);
+});`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra catch bắt đúng lỗi của tác vụ hỏng',
-          expectedOutput: 'Lỗi phát sinh: Lỗi Data B'
-        }
+        { id: 'tc-1', description: 'In hồ sơ song song', expectedOutput: 'Hồ sơ: Lập trình viên - 1500 người theo dõi' }
       ],
-      hints: ['Promise.all dừng ngay lập tức khi gặp reject đầu tiên'],
-      explanation: 'Đặc tính Fail-Fast giúp ứng dụng không tốn thời gian chờ các tác vụ còn lại nếu một điều kiện tiên quyết đã hỏng.'
+      hints: ['Promise.all([getBio(), getFollowers()])'],
+      explanation: 'Chạy song song giúp rút ngắn thời gian phản hồi trang tới mức tối đa.'
     },
     challenge: {
       id: 'ex-14-5-3',
       lessonId: 'les-14-5',
-      title: 'Bài tập Thử thách: Ứng dụng Promise.allSettled an toàn',
+      title: 'Bài tập Thử thách: So sánh thời gian chạy Tuần tự vs Song song',
       difficulty: 'challenge',
-      learningObjectiveIds: ['LO14.5.2'],
-      description: 'Dùng `Promise.allSettled([Promise.resolve("OK"), Promise.reject("Fail")])`. Lọc và đếm số lượng tác vụ có `status === "fulfilled"`. In ra: `Số tác vụ thành công: 1/2`.',
-      starterCode: `async function checkAllSettled() {
-  // Cài đặt Promise.allSettled và đếm tác vụ thành công:
-}
+      learningObjectiveIds: ['LO14.5.1'],
+      description: 'Nếu có 3 tác vụ tốn lần lượt 200ms, 300ms, 150ms. Nếu chạy tuần tự (Sequential) mất tổng cộng bao nhiêu ms? Nếu chạy song song bằng Promise.all mất bao nhiêu ms? In ra: "Tuần tự: [sum]ms - Song song: [max]ms".',
+      starterCode: `const taskTimes = [200, 300, 150];
 
-checkAllSettled();`,
-      solutionCode: `async function checkAllSettled() {
-  const results = await Promise.allSettled([
-    Promise.resolve("OK"),
-    Promise.reject("Fail")
-  ]);
-  const successCount = results.filter(r => r.status === "fulfilled").length;
-  console.log(\`Số tác vụ thành công: \${successCount}/\${results.length}\`);
-}
+const seqTime = taskTimes.reduce((a, b) => a + b, 0);
+const parallelTime = Math.max(...taskTimes);
 
-checkAllSettled();`,
+console.log(\`Tuần tự: \${seqTime}ms - Song song: \${parallelTime}ms\`);`,
+      solutionCode: `const taskTimes = [200, 300, 150];
+const seqTime = taskTimes.reduce((a, b) => a + b, 0);
+const parallelTime = Math.max(...taskTimes);
+console.log(\`Tuần tự: \${seqTime}ms - Song song: \${parallelTime}ms\`);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra đếm đúng 1/2 tác vụ fulfilled',
-          expectedOutput: 'Số tác vụ thành công: 1/2'
-        }
+        { id: 'tc-1', description: 'Tuần tự 650ms, Song song 300ms', expectedOutput: 'Tuần tự: 650ms - Song song: 300ms' }
       ],
-      hints: ['results.filter(r => r.status === "fulfilled").length'],
-      explanation: 'Promise.allSettled luôn chờ mọi promise kết thúc và trả về object {status, value/reason}.'
+      hints: ['Tuần tự = Tổng, Song song = Max'],
+      explanation: 'Promise.all giúp tiết kiệm hơn 50% thời gian chờ đợi đối với các tác vụ độc lập.'
     }
   },
   quiz: {
     id: 'quiz-14-5',
     lessonId: 'les-14-5',
-    title: 'Trắc nghiệm: Promise Utility Methods',
+    title: 'Trắc nghiệm Promise.all',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-14-5-1',
-        lessonId: 'les-14-5',
-        learningObjectiveId: 'LO14.5.2',
-        type: 'multiple_choice',
-        difficulty: 'medium',
-        prompt: 'Nếu một trong các Promise truyền vào Promise.all() bị Rejected, hành vi của Promise.all sẽ là gì?',
-        options: [
-          { id: 'a', text: 'Bỏ qua promise lỗi và trả về các promise thành công còn lại' },
-          { id: 'b', text: 'Lập tức chuyển sang Rejected ngay (Fail-Fast) với lý do lỗi của promise đó' },
-          { id: 'c', text: 'Chờ tất cả xong rồi mới ném lỗi' },
-          { id: 'd', text: 'Tự động thử lại tác vụ bị lỗi' }
-        ],
-        correctAnswer: 'b',
-        explanation: 'Promise.all có cơ chế Fail-fast: chỉ cần một promise lỗi là toàn bộ Promise.all bị reject ngay.',
-        relatedLessonId: 'les-14-5'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'Promise.all() chạy song song các tác vụ độc lập, tối ưu hóa thời gian thực thi.',
-    'Promise.all có cơ chế Fail-fast: 1 lỗi thì toàn bộ mảng reject.',
-    'Promise.allSettled() là giải pháp thay thế an toàn khi muốn lấy kết quả của từng tác vụ dù có lỗi.'
+    'Promise.all() chạy song song các tác vụ độc lập, rút ngắn thời gian tải.',
+    'Cơ chế Fail-fast: lập tức reject nếu có bất kỳ tác vụ nào bị lỗi.'
   ],
-  suggestedBookmarks: [
-    'So sánh Promise.all vs Promise.allSettled vs Promise.race vs Promise.any',
-    'Chiến lược tối ưu hóa Network Waterfall trong ứng dụng Web'
-  ]
+  suggestedBookmarks: ['Tối ưu hiệu năng với Promise.all', 'Cơ chế Fail-fast']
 };
 
 export const JS_MODULE_14_LESSONS: Lesson[] = [

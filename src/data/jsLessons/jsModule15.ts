@@ -1,7 +1,7 @@
 import { Lesson } from '../../types';
 
 // ==========================================
-// MODULE 15: FETCH API & LÀM VIỆC VỚI DỮ LIỆU
+// MODULE 15: FETCH API VÀ LÀM VIỆC VỚI DỮ LIỆU
 // ==========================================
 
 export const LESSON_15_1: Lesson = {
@@ -13,26 +13,23 @@ export const LESSON_15_1: Lesson = {
   order: 1,
   durationMinutes: 45,
   difficulty: 'Cơ bản',
-  prerequisites: [
-    'Hiểu mô hình Web Client - Server',
-    'Biết về Object và Array trong JavaScript'
-  ],
+  prerequisites: ['Hiểu giao thức Internet căn bản', 'Đã học Object trong JavaScript'],
   learningObjectives: [
     {
       id: 'LO15.1.1',
       code: 'LO15.1.1',
-      title: 'Hiểu giao thức HTTP và các phương thức RESTful',
-      description: 'Nắm vững vai trò của các HTTP Method: GET (đọc), POST (tạo), PUT/PATCH (sửa), DELETE (xóa) và mã trạng thái HTTP (200, 201, 404, 500).',
+      title: 'Mô hình Client-Server và các phương thức HTTP (HTTP Methods)',
+      description: 'Hiểu vai trò của GET (Lấy), POST (Tạo mới), PUT (Cập nhật), DELETE (Xóa).',
       bloomLevel: 'Understand',
       masteryPercentage: 92
     },
     {
       id: 'LO15.1.2',
       code: 'LO15.1.2',
-      title: 'Làm chủ định dạng JSON trong truyền tải dữ liệu',
-      description: 'Phân biệt JavaScript Object với chuỗi JSON; sử dụng JSON.stringify() và JSON.parse().',
-      bloomLevel: 'Apply',
-      masteryPercentage: 95
+      title: 'Định dạng JSON và các mã trạng thái HTTP Status Codes',
+      description: 'Làm chủ các dải mã 200 (Thành công), 400/401/404 (Lỗi client), 500 (Lỗi server).',
+      bloomLevel: 'Understand',
+      masteryPercentage: 90
     }
   ],
   sections: [
@@ -40,184 +37,121 @@ export const LESSON_15_1: Lesson = {
       id: 'sec-15-1-1',
       lessonId: 'les-15-1',
       order: 1,
-      conceptName: 'Mô hình Client-Server & Định dạng JSON',
-      title: '1. Giao tiếp mạng Web & Định dạng dữ liệu chuẩn JSON',
-      explanation: 'Khi trình duyệt (Client) muốn dữ liệu, nó gửi một HTTP Request đến máy chủ (Server). Server xử lý và trả về HTTP Response. Dữ liệu trao đổi phổ biến nhất ngày nay là JSON (JavaScript Object Notation) - định dạng văn bản nhẹ, độc lập với ngôn ngữ lập trình. Trong chuỗi JSON, tất cả key và chuỗi string đều bắt buộc phải đặt trong dấu ngoặc kép ("").',
-      syntax: '// Object -> JSON String: JSON.stringify(obj)\n// JSON String -> Object: JSON.parse(str)',
-      codeExample: `// 1. Đối tượng JavaScript thông thường
-const userObject = {
-  id: 101,
-  fullName: "Trần Quang Minh",
-  isEnrolled: true,
-  courses: ["JavaScript", "HTML/CSS"]
-};
+      conceptName: 'Mô hình Client-Server và chuẩn JSON',
+      title: '1. Giao tiếp Client - Server qua giao thức HTTP',
+      explanation: 'Trong kiến trúc web: `Client` (Trình duyệt của người dùng) gửi một yêu cầu (`HTTP Request`) tới `Server` (Máy chủ backend). Server xử lý và gửi lại phản hồi (`HTTP Response`). Định dạng dữ liệu trao đổi phổ biến nhất là `JSON` (JavaScript Object Notation) - định dạng văn bản nhẹ, độc lập với mọi ngôn ngữ lập trình.',
+      syntax: 'GET /api/products HTTP/1.1\nHost: api.example.com\nAccept: application/json',
+      codeExample: `// Minh họa đối tượng JSON
+const jsonString = '{"id": 101, "title": "Bàn phím cơ", "price": 850000}';
 
-// 2. Chuyển thành chuỗi JSON để gửi qua mạng
-const jsonString = JSON.stringify(userObject);
-console.log("Chuỗi JSON gửi qua mạng:");
-console.log(jsonString);
-
-// 3. Phân tích chuỗi JSON nhận từ server thành Object
-const parsedObject = JSON.parse(jsonString);
-console.log("Tên sinh viên sau khi parse:", parsedObject.fullName);`,
+// Chuyển chuỗi JSON thành JavaScript Object
+const productObj = JSON.parse(jsonString);
+console.log("Tên sản phẩm:", productObj.title);
+console.log("Giá:", productObj.price, "VND");`,
       lineByLineExplanation: [
-        { line: 2, text: 'userObject tồn tại trong bộ nhớ RAM của chương trình.' },
-        { line: 10, text: 'JSON.stringify chuyển object thành chuỗi văn bản (serialization) để gửi qua mạng.' },
-        { line: 15, text: 'JSON.parse đọc chuỗi văn bản và tái tạo lại đối tượng JavaScript (deserialization).' }
+        { line: 2, text: 'Chuỗi JSON tuân thủ quy tắc khóa key luôn nằm trong dấu ngoặc kép ("").' },
+        { line: 5, text: 'JSON.parse() biên dịch chuỗi JSON thành đối tượng JS có thể thao tác được.' }
       ],
       commonMistakes: [
-        'Dùng dấu nháy đơn (\') trong file JSON (chuẩn JSON bắt buộc phải dùng dấu nháy kép "").'
+        'Nhầm lẫn giữa JSON (chuỗi text) và JS Object (đối tượng trong bộ nhớ RAM).'
       ],
-      whenToUse: 'Dùng JSON cho mọi API trao đổi dữ liệu giữa Frontend (React/Vue/JS) và Backend (Node.js/Java/PHP).',
-      whenNotToUse: 'JSON không lưu trữ được các hàm (functions), Symbol hay giá trị undefined.',
-      realWorldUseCase: 'Tất cả các REST API và GraphQL hiện đại đều trao đổi payload dạng JSON.'
+      whenToUse: 'Dùng khi giao tiếp giữa Frontend React/Vue/JS thuần và Backend API (NodeJS, Java, C#, Python).',
+      whenNotToUse: 'Không truyền các kiểu dữ liệu không hỗ trợ trong JSON (như Function, Symbol, undefined).',
+      realWorldUseCase: 'Trao đổi dữ liệu người dùng đăng nhập giữa Frontend và Microservices.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-15-1',
-    title: 'Thực hành: Chuyển đổi JSON Payload cho đơn hàng',
-    description: 'Chạy thử đoạn mã chuyển đổi một hóa đơn mua sắm thành chuỗi JSON và kiểm tra kiểu dữ liệu sau khi parse.',
-    starterCode: `const order = {
-  orderId: "HD-992",
-  total: 450000,
-  status: "PAID"
-};
+    title: 'Thực hành đọc mã trạng thái HTTP phổ biến',
+    description: 'Kiểm tra mã trạng thái 200 biểu thị thành công.',
+    starterCode: `const statusCode = 200;
+const statusText = statusCode === 200 ? "Thành công (OK)" : "Lỗi";
 
-const jsonPayload = JSON.stringify(order);
-console.log("Kiểu dữ liệu chuỗi JSON:", typeof jsonPayload);
-
-const parsedData = JSON.parse(jsonPayload);
-console.log("Mã đơn hàng:", parsedData.orderId);
-console.log("Tổng tiền:", parsedData.total, "VNĐ");`,
-    expectedConsoleOutput: 'Kiểu dữ liệu chuỗi JSON: string\nMã đơn hàng: HD-992\nTổng tiền: 450000 VNĐ',
-    hint: 'JSON.stringify trả về string, JSON.parse trả về object.',
-    language: 'javascript'
+console.log("Trạng thái phản hồi:", statusText);`,
+    expectedConsoleOutput: 'Trạng thái phản hồi: Thành công (OK)',
+    hint: '200 OK là mã trạng thái chuẩn khi request thành công.'
   },
   exercises: {
     basic: {
       id: 'ex-15-1-1',
       lessonId: 'les-15-1',
-      title: 'Bài tập Cơ bản: Chuyển mảng thành chuỗi JSON',
+      title: 'Bài tập Cơ bản: Ý nghĩa của mã trạng thái 404',
       difficulty: 'basic',
       learningObjectiveIds: ['LO15.1.2'],
-      description: 'Cho mảng `tags = ["frontend", "javascript", "es6"]`. Dùng `JSON.stringify` chuyển mảng thành chuỗi và in ra: `Chuỗi JSON: [jsonStr]`.',
-      starterCode: `const tags = ["frontend", "javascript", "es6"];
-
-// Chuyển tags thành chuỗi JSON:
-const jsonStr = "";
-
-console.log("Chuỗi JSON:", jsonStr);`,
-      solutionCode: `const tags = ["frontend", "javascript", "es6"];
-const jsonStr = JSON.stringify(tags);
-console.log("Chuỗi JSON:", jsonStr);`,
+      description: 'Mã phản hồi HTTP 404 có ý nghĩa là gì: "KhongTimThay" (Not Found) hay "LoiMayChu" (Internal Server Error)? In ra đáp án đúng.',
+      starterCode: `const meaning404 = "KhongTimThay";
+console.log("Ý nghĩa mã 404:", meaning404);`,
+      solutionCode: `const meaning404 = "KhongTimThay";
+console.log("Ý nghĩa mã 404:", meaning404);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra chuỗi JSON mảng đúng định dạng',
-          expectedOutput: 'Chuỗi JSON: ["frontend","javascript","es6"]'
-        }
+        { id: 'tc-1', description: '404 Not Found', expectedOutput: 'Ý nghĩa mã 404: KhongTimThay' }
       ],
-      hints: ['const jsonStr = JSON.stringify(tags);'],
-      explanation: 'JSON.stringify hỗ trợ chuyển đổi cả mảng lẫn đối tượng.'
+      hints: ['404 Not Found biểu thị tài nguyên không tồn tại'],
+      explanation: '404 Not Found là mã lỗi HTTP phổ biến nhất khi đường dẫn URL không khớp với bất kỳ tài nguyên nào trên server.'
     },
     intermediate: {
       id: 'ex-15-1-2',
       lessonId: 'les-15-1',
-      title: 'Bài tập Trung bình: Parse an toàn với khối try/catch',
+      title: 'Bài tập Trung bình: Lựa chọn phương thức HTTP phù hợp',
       difficulty: 'intermediate',
-      learningObjectiveIds: ['LO15.1.2'],
-      description: 'Cho chuỗi JSON lỗi: `const invalidJson = "{ bad json }";`. Viết hàm `safeParse(str)` dùng `try/catch`. Nếu parse lỗi, in: `Lỗi phân tích JSON: Chuỗi không hợp lệ` và trả về `null`.',
-      starterCode: `const invalidJson = "{ bad json }";
-
-function safeParse(str) {
-  // Bọc JSON.parse trong try/catch:
-}
-
-safeParse(invalidJson);`,
-      solutionCode: `const invalidJson = "{ bad json }";
-
-function safeParse(str) {
-  try {
-    return JSON.parse(str);
-  } catch (err) {
-    console.log("Lỗi phân tích JSON: Chuỗi không hợp lệ");
-    return null;
-  }
-}
-
-safeParse(invalidJson);`,
+      learningObjectiveIds: ['LO15.1.1'],
+      description: 'Khi muốn XÓA một bài viết khỏi hệ thống cơ sở dữ liệu, theo chuẩn RESTful API ta nên sử dụng phương thức HTTP nào: "GET", "POST", hay "DELETE"? In ra tên phương thức.',
+      starterCode: `const methodForDelete = "DELETE";
+console.log("Phương thức HTTP dùng để xóa:", methodForDelete);`,
+      solutionCode: `const methodForDelete = "DELETE";
+console.log("Phương thức HTTP dùng để xóa:", methodForDelete);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra bắt đúng SyntaxError khi parse chuỗi hỏng',
-          expectedOutput: 'Lỗi phân tích JSON: Chuỗi không hợp lệ'
-        }
+        { id: 'tc-1', description: 'Phương thức DELETE', expectedOutput: 'Phương thức HTTP dùng để xóa: DELETE' }
       ],
-      hints: ['try { return JSON.parse(str); } catch (err) { ... }'],
-      explanation: 'JSON.parse sẽ ném SyntaxError nếu chuỗi đầu vào không đúng định dạng chuẩn.'
+      hints: ['Chuẩn RESTful API quy định phương thức DELETE cho hành động xóa'],
+      explanation: 'GET: Đọc; POST: Tạo mới; PUT/PATCH: Sửa; DELETE: Xóa.'
     },
     challenge: {
       id: 'ex-15-1-3',
       lessonId: 'les-15-1',
-      title: 'Bài tập Thử thách: Định dạng JSON có thụt lề (Pretty-print JSON)',
+      title: 'Bài tập Thử thách: Kiểm tra tính hợp lệ của chuỗi JSON',
       difficulty: 'challenge',
       learningObjectiveIds: ['LO15.1.2'],
-      description: 'Hàm `JSON.stringify(val, replacer, space)` có tham số thứ 3 để tạo thụt lề đẹp mắt. Cho object `user = { name: "An", role: "Dev" }`. Hãy stringify với `space = 2` và in chuỗi ra Console.',
-      starterCode: `const user = { name: "An", role: "Dev" };
+      description: 'Viết hàm isValidJson(str) trả về true nếu chuỗi là JSON hợp lệ (parse thành công không ném lỗi), ngược lại trả về false. Chạy thử với \'{"status": "ok"}\'.',
+      starterCode: `function isValidJson(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-// Stringify với space = 2:
-const prettyJson = "";
-
-console.log(prettyJson);`,
-      solutionCode: `const user = { name: "An", role: "Dev" };
-const prettyJson = JSON.stringify(user, null, 2);
-console.log(prettyJson);`,
+console.log("Chuỗi JSON hợp lệ?", isValidJson('{"status": "ok"}'));`,
+      solutionCode: `function isValidJson(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch {
+    return false;
+  }
+}
+console.log("Chuỗi JSON hợp lệ?", isValidJson('{"status": "ok"}'));`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra định dạng JSON có thụt lề 2 khoảng trắng',
-          expectedOutput: '{\n  "name": "An",\n  "role": "Dev"\n}'
-        }
+        { id: 'tc-1', description: 'JSON hợp lệ trả về true', expectedOutput: 'Chuỗi JSON hợp lệ? true' }
       ],
-      hints: ['JSON.stringify(user, null, 2)'],
-      explanation: 'Tham số space trong JSON.stringify giúp in dữ liệu đẹp mắt khi debug hoặc ghi log.'
+      hints: ['Dùng try...catch bọc quanh JSON.parse()'],
+      explanation: 'Bọc JSON.parse trong try/catch là cách chuẩn nhất để tránh ứng dụng bị crash khi nhận chuỗi lỗi từ server.'
     }
   },
   quiz: {
     id: 'quiz-15-1',
     lessonId: 'les-15-1',
-    title: 'Trắc nghiệm: HTTP & JSON',
+    title: 'Trắc nghiệm Client-Server & JSON',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-15-1-1',
-        lessonId: 'les-15-1',
-        learningObjectiveId: 'LO15.1.2',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Đặc điểm nào sau đây là BẮT BUỘC trong định dạng chuẩn của JSON?',
-        options: [
-          { id: 'a', text: 'Tất cả các key thuộc tính phải được bao quanh bởi dấu nháy kép (" ")' },
-          { id: 'b', text: 'Có thể sử dụng dấu nháy đơn (\' \') thoải mái' },
-          { id: 'c', text: 'Có thể lưu trữ các hàm function()' },
-          { id: 'd', text: 'Không được phép chứa mảng dữ liệu' }
-        ],
-        correctAnswer: 'a',
-        explanation: 'Chuẩn JSON RFC bắt buộc mọi key và giá trị dạng chuỗi phải nằm trong dấu nháy kép.',
-        relatedLessonId: 'les-15-1'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'Mô hình Client-Server giao tiếp thông qua HTTP Request và Response.',
-    'JSON là chuẩn truyền tải dữ liệu phổ biến nhất trên Internet.',
-    'Dùng JSON.stringify() để đóng gói và JSON.parse() để giải mã dữ liệu.'
+    'Client gửi Request, Server trả về Response kèm HTTP Status Code.',
+    'JSON là chuẩn trao đổi dữ liệu gọn nhẹ phổ biến nhất trên Internet.'
   ],
-  suggestedBookmarks: [
-    'Mã trạng thái HTTP Status Codes: 200 OK, 201 Created, 400, 401, 404, 500',
-    'Các phương thức HTTP RESTful chuẩn: GET, POST, PUT, PATCH, DELETE'
-  ]
+  suggestedBookmarks: ['Mã trạng thái HTTP', 'RESTful API Methods']
 };
 
 export const LESSON_15_2: Lesson = {
@@ -229,24 +163,21 @@ export const LESSON_15_2: Lesson = {
   order: 2,
   durationMinutes: 55,
   difficulty: 'Trung bình',
-  prerequisites: [
-    'Hiểu async/await ở Module 14',
-    'Biết về định dạng JSON ở Bài 15.1'
-  ],
+  prerequisites: ['Đã học Promise, async/await và HTTP Status'],
   learningObjectives: [
     {
       id: 'LO15.2.1',
       code: 'LO15.2.1',
-      title: 'Sử dụng fetch() để gọi API mạng với phương thức GET',
-      description: 'Làm chủ cú pháp fetch(url) mặc định là GET và giải mã dữ liệu qua response.json().',
+      title: 'Gửi HTTP GET Request bằng Fetch API',
+      description: 'Sử dụng fetch(url) và giải nén dữ liệu qua response.json().',
       bloomLevel: 'Apply',
-      masteryPercentage: 92
+      masteryPercentage: 90
     },
     {
       id: 'LO15.2.2',
       code: 'LO15.2.2',
-      title: 'Kiểm tra thuộc tính response.ok và response.status',
-      description: 'Hiểu rõ fetch chỉ reject khi có lỗi mạng (offline), còn lỗi HTTP 404 hay 500 vẫn xem là resolved cần kiểm tra qua response.ok.',
+      title: 'Kiểm tra thuộc tính response.ok (HTTP status 200-299)',
+      description: 'Xử lý tình huống fetch không tự động ném lỗi khi gặp mã 404 hay 500.',
       bloomLevel: 'Analyze',
       masteryPercentage: 88
     }
@@ -256,233 +187,147 @@ export const LESSON_15_2: Lesson = {
       id: 'sec-15-2-1',
       lessonId: 'les-15-2',
       order: 1,
-      conceptName: 'Fetch API GET Request',
-      title: '1. Cú pháp chuẩn gọi GET API với fetch()',
-      explanation: 'Hàm toàn cục `fetch(url)` của trình duyệt gửi yêu cầu mạng và trả về một Promise chứa đối tượng `Response`. Để trích xuất nội dung JSON, bạn cần gọi `await response.json()`. Điểm mấu chốt: fetch KHÔNG ném lỗi khi gặp mã HTTP 404 hoặc 500; bạn bắt buộc phải kiểm tra cờ `if (!response.ok)` để chủ động ném lỗi!',
-      syntax: 'const response = await fetch(url);\nif (!response.ok) throw new Error("HTTP Error " + response.status);\nconst data = await response.json();',
-      codeExample: `// Giả lập hàm fetch gọi API người dùng
-async function loadUserData(userId) {
-  try {
-    // Mô phỏng cấu trúc gọi API chuẩn:
-    const mockResponse = {
-      ok: true,
-      status: 200,
-      json: async () => ({ id: userId, name: "Nguyễn Thu Hà", email: "ha@fpt.edu.vn" })
-    };
+      conceptName: 'Fetch API và response.json()',
+      title: '1. Quy trình 2 bước khi dùng fetch() lấy dữ liệu',
+      explanation: '`fetch(url)` là hàm có sẵn trong trình duyệt để gửi HTTP request và mặc định sử dụng phương thức `GET`. Quy trình giải nén gồm 2 bước: (1) `const response = await fetch(url)` trả về Response Object (chứa header, status code); (2) `const data = await response.json()` giải nén phần thân (Body) thành JavaScript Object.',
+      syntax: 'const res = await fetch("https://api.example.com/items");\nif (!res.ok) throw new Error("Lỗi HTTP: " + res.status);\nconst data = await res.json();',
+      codeExample: `// Giả lập hàm fetch và đọc response.ok
+async function getCourseList() {
+  const fakeResponse = {
+    ok: true,
+    status: 200,
+    json: async () => [
+      { id: 1, title: "HTML5/CSS3 cơ bản" },
+      { id: 2, title: "Lập trình JavaScript nâng cao" }
+    ]
+  };
 
-    if (!mockResponse.ok) {
-      throw new Error("Không thể tải dữ liệu: " + mockResponse.status);
-    }
-
-    const user = await mockResponse.json();
-    console.log("Tên người dùng:", user.name);
-    console.log("Email liên hệ:", user.email);
-  } catch (error) {
-    console.log("Lỗi:", error.message);
+  if (!fakeResponse.ok) {
+    throw new Error(\`Lỗi máy chủ: \${fakeResponse.status}\`);
   }
+
+  const courses = await fakeResponse.json();
+  console.log("Số lượng khóa học tải về:", courses.length);
+  console.log("Khóa học 1:", courses[0].title);
 }
 
-loadUserData(10);`,
+getCourseList();`,
       lineByLineExplanation: [
-        { line: 5, text: 'Đối tượng Response chứa cờ ok (status 200-299) và phương thức json().' },
-        { line: 11, text: 'Luôn kiểm tra !response.ok để phát hiện lỗi 404/500 từ máy chủ.' },
-        { line: 15, text: 'await response.json() giải mã payload từ chuỗi JSON thành JavaScript Object.' }
+        { line: 11, text: 'Luôn kiểm tra !response.ok trước khi đọc dữ liệu.' },
+        { line: 15, text: 'await response.json() giải mã phần thân JSON thành mảng JavaScript.' }
       ],
       commonMistakes: [
-        'Nghĩ rằng fetch() sẽ tự động nhảy vào khối catch khi máy chủ trả về mã 404 Not Found (thực tế phải tự kiểm tra response.ok).'
+        'Tưởng rằng fetch() sẽ tự động nhảy vào khối catch khi gặp mã 404 hoặc 500 (fetch chỉ reject khi có sự cố mạng đứt cáp hoặc DNS).'
       ],
-      whenToUse: 'Dùng fetch(url) để tải dữ liệu danh sách bài viết, thông tin người dùng, bảng xếp hạng.',
-      whenNotToUse: 'Không quên await response.json() vì giải mã JSON cũng là một tác vụ bất đồng bộ.',
-      realWorldUseCase: 'Gọi các Public REST API như JSONPlaceholder, GitHub API, Weather API trong các ứng dụng web.'
+      whenToUse: 'Dùng để tải danh sách sản phẩm, tin tức, thông tin thời tiết hiển thị lên trang.',
+      whenNotToUse: 'Không dùng fetch nếu dữ liệu đã được lưu trữ cục bộ trong localStorage.',
+      realWorldUseCase: 'Tải danh sách bài giảng từ hệ thống đào tạo FPT Polytechnic.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-15-2',
-    title: 'Thực hành: Lấy danh sách sản phẩm và duyệt mảng',
-    description: 'Chạy thử hàm lấy danh mục sản phẩm từ server giả lập và in danh sách tên sản phẩm.',
-    starterCode: `async function fetchProducts() {
-  const fakeApiResponse = {
-    ok: true,
-    status: 200,
-    json: async () => [
-      { id: 1, title: "Laptop Asus", price: 15000000 },
-      { id: 2, title: "Chuột không dây", price: 350000 }
-    ]
-  };
+    title: 'Thực hành kiểm tra cờ response.ok',
+    description: 'Kiểm tra nếu response.ok = true thì in ra dữ liệu đã tải thành công.',
+    starterCode: `const mockResponse = { ok: true, status: 200 };
 
-  const products = await fakeApiResponse.json();
-  console.log("Số sản phẩm nhận được:", products.length);
-  products.forEach(p => {
-    console.log("- " + p.title + ": " + p.price + " VNĐ");
-  });
-}
-
-fetchProducts();`,
-    expectedConsoleOutput: 'Số sản phẩm nhận được: 2\n- Laptop Asus: 15000000 VNĐ\n- Chuột không dây: 350000 VNĐ',
-    hint: 'Duyệt mảng products bằng forEach sau khi parse json().',
-    language: 'javascript'
+if (mockResponse.ok) {
+  console.log("Dữ liệu tải về thành công (200 OK)");
+} else {
+  console.log("Lỗi tải dữ liệu");
+}`,
+    expectedConsoleOutput: 'Dữ liệu tải về thành công (200 OK)',
+    hint: 'response.ok có giá trị true khi status nằm trong khoảng 200-299.'
   },
   exercises: {
     basic: {
       id: 'ex-15-2-1',
       lessonId: 'les-15-2',
-      title: 'Bài tập Cơ bản: Lấy dữ liệu và kiểm tra cờ response.ok',
+      title: 'Bài tập Cơ bản: Phương thức HTTP mặc định của hàm fetch()',
       difficulty: 'basic',
-      learningObjectiveIds: ['LO15.2.2'],
-      description: 'Cho đối tượng response giả lập: `const res = { ok: true, status: 200, json: async () => ({ city: "Đà Nẵng" }) };`. Viết hàm `getCity()` trích xuất city và in ra: `Thành phố: Đà Nẵng`.',
-      starterCode: `const res = { ok: true, status: 200, json: async () => ({ city: "Đà Nẵng" }) };
-
-async function getCity() {
-  // Lấy dữ liệu từ res:
-}
-
-getCity();`,
-      solutionCode: `const res = { ok: true, status: 200, json: async () => ({ city: "Đà Nẵng" }) };
-
-async function getCity() {
-  if (res.ok) {
-    const data = await res.json();
-    console.log("Thành phố:", data.city);
-  }
-}
-
-getCity();`,
+      learningObjectiveIds: ['LO15.2.1'],
+      description: 'Khi gọi fetch("https://api.example.com") mà không truyền thêm object cấu hình, hàm fetch mặc định sử dụng phương thức HTTP nào: "GET" hay "POST"? In tên phương thức.',
+      starterCode: `const defaultMethod = "GET";
+console.log("Phương thức mặc định:", defaultMethod);`,
+      solutionCode: `const defaultMethod = "GET";
+console.log("Phương thức mặc định:", defaultMethod);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in đúng thành phố',
-          expectedOutput: 'Thành phố: Đà Nẵng'
-        }
+        { id: 'tc-1', description: 'Mặc định là GET', expectedOutput: 'Phương thức mặc định: GET' }
       ],
-      hints: ['const data = await res.json(); console.log("Thành phố:", data.city);'],
-      explanation: 'Luôn gọi await res.json() để nhận dữ liệu đối tượng.'
+      hints: ['fetch mặc định luôn là GET request'],
+      explanation: 'Không cần cấu hình method nếu chỉ gửi request lấy dữ liệu GET.'
     },
     intermediate: {
       id: 'ex-15-2-2',
       lessonId: 'les-15-2',
-      title: 'Bài tập Trung bình: Xử lý lỗi HTTP 404 chủ động',
+      title: 'Bài tập Trung bình: Viết khối ném lỗi khi response.ok thất bại',
       difficulty: 'intermediate',
       learningObjectiveIds: ['LO15.2.2'],
-      description: 'Cho response giả lập báo lỗi: `const errorRes = { ok: false, status: 404 };`. Viết hàm `fetchDetail()` kiểm tra `if (!errorRes.ok)` và ném `new Error("Không tìm thấy bài viết (404)")`. Bắt lỗi trong catch và in: `Bắt lỗi: Không tìm thấy bài viết (404)`.',
-      starterCode: `const errorRes = { ok: false, status: 404 };
+      description: 'Cho đối tượng res = { ok: false, status: 404 }. Viết logic kiểm tra: nếu !res.ok thì in ra "Phát hiện lỗi HTTP: 404".',
+      starterCode: `const res = { ok: false, status: 404 };
 
-async function fetchDetail() {
-  // Viết try/catch kiểm tra response.ok:
-}
-
-fetchDetail();`,
-      solutionCode: `const errorRes = { ok: false, status: 404 };
-
-async function fetchDetail() {
-  try {
-    if (!errorRes.ok) {
-      throw new Error("Không tìm thấy bài viết (404)");
-    }
-  } catch (err) {
-    console.log("Bắt lỗi:", err.message);
-  }
-}
-
-fetchDetail();`,
+if (!res.ok) {
+  console.log(\`Phát hiện lỗi HTTP: \${res.status}\`);
+}`,
+      solutionCode: `const res = { ok: false, status: 404 };
+if (!res.ok) {
+  console.log(\`Phát hiện lỗi HTTP: \${res.status}\`);
+}`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra bắt đúng thông điệp lỗi 404',
-          expectedOutput: 'Bắt lỗi: Không tìm thấy bài viết (404)'
-        }
+        { id: 'tc-1', description: 'Bắt lỗi 404', expectedOutput: 'Phát hiện lỗi HTTP: 404' }
       ],
-      hints: ['if (!errorRes.ok) throw new Error(...)'],
-      explanation: 'Quy chuẩn xử lý lỗi mạng bắt buộc phải kiểm tra cờ response.ok.'
+      hints: ['Kiểm tra if (!res.ok)'],
+      explanation: 'Thuộc tính response.ok là lá chắn bắt buộc phải kiểm tra trong mọi hàm fetch.'
     },
     challenge: {
       id: 'ex-15-2-3',
       lessonId: 'les-15-2',
-      title: 'Bài tập Thử thách: Xây dựng hàm getApiWrapper dùng chung',
+      title: 'Bài tập Thử thách: Hàm tải dữ liệu an toàn bọc trong try/catch',
       difficulty: 'challenge',
       learningObjectiveIds: ['LO15.2.1', 'LO15.2.2'],
-      description: 'Tạo hàm tiện ích `fetchApi(fetcher)`. Hàm này nhận một hàm trả về response, kiểm tra `response.ok`, parse json và trả về dữ liệu. Nếu lỗi ném exception. Gọi với hàm giả lập trả về `{ score: 9.5 }` và in: `Điểm số: 9.5`.',
-      starterCode: `const mockApi = () => Promise.resolve({
-  ok: true,
-  status: 200,
-  json: () => Promise.resolve({ score: 9.5 })
-});
-
-async function fetchApi(fetcher) {
-  // Cài đặt hàm bọc tiện ích:
-}
-
-async function run() {
-  const result = await fetchApi(mockApi);
-  console.log("Điểm số:", result.score);
-}
-
-run();`,
-      solutionCode: `const mockApi = () => Promise.resolve({
-  ok: true,
-  status: 200,
-  json: () => Promise.resolve({ score: 9.5 })
-});
-
-async function fetchApi(fetcher) {
-  const response = await fetcher();
-  if (!response.ok) {
-    throw new Error("HTTP Error " + response.status);
+      description: 'Viết hàm async safeFetch(url). Giả lập nếu url === "valid" trả về { success: true }, ngược lại ném lỗi "Đường dẫn không tồn tại". In kết quả khi gọi với "valid".',
+      starterCode: `async function safeFetch(url) {
+  try {
+    if (url !== "valid") throw new Error("Đường dẫn không tồn tại");
+    return { success: true };
+  } catch (e: any) {
+    return { error: e.message };
   }
-  return await response.json();
 }
 
-async function run() {
-  const result = await fetchApi(mockApi);
-  console.log("Điểm số:", result.score);
+safeFetch("valid").then(data => {
+  console.log("Kết quả tải:", data);
+});`,
+      solutionCode: `async function safeFetch(url) {
+  try {
+    if (url !== "valid") throw new Error("Đường dẫn không tồn tại");
+    return { success: true };
+  } catch (e: any) {
+    return { error: e.message };
+  }
 }
-
-run();`,
+safeFetch("valid").then(data => {
+  console.log("Kết quả tải:", data);
+});`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra hàm bọc trả về kết quả điểm số',
-          expectedOutput: 'Điểm số: 9.5'
-        }
+        { id: 'tc-1', description: 'Tải thành công', expectedOutput: 'Kết quả tải: { success: true }' }
       ],
-      hints: ['await fetcher() rồi kiểm tra response.ok'],
-      explanation: 'Xây dựng API Client Helper là bước chuẩn mực trong mọi dự án frontend chuyên nghiệp.'
+      hints: ['Bọc try/catch trả về dữ liệu an toàn'],
+      explanation: 'Mô hình bọc fetch an toàn giúp ứng dụng không bị văng unhandled promise rejection.'
     }
   },
   quiz: {
     id: 'quiz-15-2',
     lessonId: 'les-15-2',
-    title: 'Trắc nghiệm: Fetch GET',
+    title: 'Trắc nghiệm fetch GET',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-15-2-1',
-        lessonId: 'les-15-2',
-        learningObjectiveId: 'LO15.2.2',
-        type: 'multiple_choice',
-        difficulty: 'medium',
-        prompt: 'Nếu máy chủ phản hồi mã lỗi HTTP 404 (Not Found), Promise trả về từ fetch() sẽ có trạng thái gì?',
-        options: [
-          { id: 'a', text: 'Chuyển sang Rejected và rơi vào khối catch()' },
-          { id: 'b', text: 'Vẫn là Fulfilled, bạn phải tự kiểm tra thuộc tính response.ok' },
-          { id: 'c', text: 'Tự động gọi lại lần 2' },
-          { id: 'd', text: 'Trả về giá trị null' }
-        ],
-        correctAnswer: 'b',
-        explanation: 'fetch() chỉ reject khi có lỗi mạng vật lý (mất mạng, DNS lỗi). Các mã HTTP 4xx và 5xx vẫn là Fulfilled.',
-        relatedLessonId: 'les-15-2'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'Hàm fetch(url) thực hiện HTTP GET mặc định và trả về Response Promise.',
-    'Bắt buộc kiểm tra cờ response.ok (hoặc response.status) để xử lý lỗi HTTP.',
-    'Dùng await response.json() để phân giải dữ liệu trả về.'
+    'fetch(url) gửi GET request và giải nén dữ liệu qua await response.json().',
+    'Luôn kiểm tra if (!response.ok) để bắt các mã lỗi 404, 500.'
   ],
-  suggestedBookmarks: [
-    'Các phương thức giải mã của Response: json(), text(), blob(), arrayBuffer()',
-    'Cấu hình Query Parameters trên URL bằng URLSearchParams'
-  ]
+  suggestedBookmarks: ['Quy trình fetch() 2 bước', 'Cờ response.ok']
 };
 
 export const LESSON_15_3: Lesson = {
@@ -494,15 +339,12 @@ export const LESSON_15_3: Lesson = {
   order: 3,
   durationMinutes: 55,
   difficulty: 'Trung bình',
-  prerequisites: [
-    'Đã học Bài 15.2 về fetch() GET',
-    'Biết cách dùng JSON.stringify'
-  ],
+  prerequisites: ['Đã học Fetch GET và JSON.stringify'],
   learningObjectives: [
     {
       id: 'LO15.3.1',
       code: 'LO15.3.1',
-      title: 'Cấu hình Request Options trong fetch()',
+      title: 'Cấu hình tham số gửi HTTP POST Request',
       description: 'Thiết lập method: "POST", headers: { "Content-Type": "application/json" } và body: JSON.stringify(data).',
       bloomLevel: 'Apply',
       masteryPercentage: 92
@@ -510,8 +352,8 @@ export const LESSON_15_3: Lesson = {
     {
       id: 'LO15.3.2',
       code: 'LO15.3.2',
-      title: 'Xử lý phản hồi tạo mới dữ liệu (HTTP 201 Created)',
-      description: 'Nhận đối tượng vừa được tạo kèm ID từ máy chủ và cập nhật vào giao diện người dùng.',
+      title: 'Xử lý phản hồi tạo mới dữ liệu từ Server (201 Created)',
+      description: 'Nhận bản ghi kèm ID tự sinh từ phía máy chủ.',
       bloomLevel: 'Apply',
       masteryPercentage: 88
     }
@@ -521,231 +363,136 @@ export const LESSON_15_3: Lesson = {
       id: 'sec-15-3-1',
       lessonId: 'les-15-3',
       order: 1,
-      conceptName: 'Gửi dữ liệu với fetch() POST',
-      title: '1. Cấu hình gửi dữ liệu POST qua fetch()',
-      explanation: 'Để gửi dữ liệu (tạo mới tài khoản, gửi đơn hàng, lưu bài viết), ta truyền tham số thứ hai là đối tượng cấu hình `RequestInit` vào hàm `fetch(url, options)`. Có 3 thuộc tính quan trọng: 1) `method: "POST"`, 2) `headers: { "Content-Type": "application/json" }` thông báo định dạng dữ liệu, 3) `body: JSON.stringify(payload)` chứa dữ liệu đã được chuỗi hóa.',
-      syntax: 'const res = await fetch(url, {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify(payload)\n});',
-      codeExample: `// Giả lập hàm POST gửi dữ liệu người dùng
-async function registerUser(newUserData) {
-  // Cấu hình request chuẩn:
-  const requestOptions = {
+      conceptName: 'Cấu hình fetch POST với Content-Type',
+      title: '1. Cấu hình gửi dữ liệu JSON lên Server với POST',
+      explanation: 'Để gửi dữ liệu lên server bằng `fetch()`, ta truyền tham số thứ hai là một object cấu hình gồm 3 thuộc tính bắt buộc: (1) `method: "POST"`; (2) `headers: { "Content-Type": "application/json" }` (báo cho server biết định dạng dữ liệu là JSON); (3) `body: JSON.stringify(payload)` (chuyển JS object thành chuỗi JSON).',
+      syntax: 'await fetch(url, {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify(data)\n});',
+      codeExample: `// Giả lập hàm gửi bài tập sinh viên lên hệ thống
+async function submitAssignment(assignmentData: any) {
+  const options = {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(newUserData)
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(assignmentData)
   };
 
-  console.log("Đang gửi dữ liệu:", requestOptions.body);
-
-  // Giả lập máy chủ phản hồi mã 201 Created:
-  const mockServerResponse = {
-    ok: true,
-    status: 201,
-    json: async () => ({ id: 999, ...newUserData, createdAt: "2026-09-27" })
-  };
-
-  const createdUser = await mockServerResponse.json();
-  console.log("Tạo thành công ID:", createdUser.id);
-  console.log("Tên người dùng:", createdUser.name);
+  console.log("Cấu hình Header:", options.headers["Content-Type"]);
+  console.log("Phần thân Body gửi đi:", options.body);
+  
+  // Giả lập Server phản hồi mã 201 Created
+  return { status: 201, id: 999, message: "Đã nộp bài thành công" };
 }
 
-registerUser({ name: "Lê Hoàng Nam", role: "Học viên" });`,
+submitAssignment({ studentId: "PS12345", lessonId: "les-15-3", score: 100 });`,
       lineByLineExplanation: [
-        { line: 4, text: 'method: "POST" chỉ định hành động tạo mới dữ liệu trên máy chủ.' },
-        { line: 5, text: 'Header Content-Type: application/json là bắt buộc để server hiểu body là JSON.' },
-        { line: 8, text: 'body bắt buộc phải là chuỗi (string) qua JSON.stringify().' }
+        { line: 4, text: 'Khai báo method là POST.' },
+        { line: 5, text: 'Header báo định dạng application/json để backend parse được dữ liệu.' },
+        { line: 6, text: 'Chuyển dữ liệu sang chuỗi JSON bằng JSON.stringify.' }
       ],
       commonMistakes: [
-        'Truyền trực tiếp object vào body mà quên gọi JSON.stringify() khiến máy chủ nhận chuỗi "[object Object]" và báo lỗi.'
+        'Truyền trực tiếp JavaScript Object vào body mà quên dùng JSON.stringify() -> gửi chuỗi "[object Object]" lên server gây lỗi 400 Bad Request.'
       ],
-      whenToUse: 'Dùng POST khi gửi form đăng ký, tạo đơn hàng, đăng tải bài viết mới, gửi đánh giá.',
-      whenNotToUse: 'Không dùng POST để chỉ đọc dữ liệu hiển thị (hãy dùng GET để có thể lưu cache trình duyệt).',
-      realWorldUseCase: 'Hành động người dùng nhấn nút "Đăng ký khóa học" hoặc "Gửi tin nhắn chat".'
+      whenToUse: 'Dùng khi gửi form đăng ký, tạo sản phẩm mới, gửi bài thi, thanh toán đơn hàng.',
+      whenNotToUse: 'Không dùng POST nếu chỉ muốn lấy dữ liệu để xem (hãy dùng GET).',
+      realWorldUseCase: 'Gửi bình luận mới vào bài viết hoặc nộp bài tập về nhà lên hệ thống LMS.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-15-3',
-    title: 'Thực hành: Gửi bình luận mới lên máy chủ',
-    description: 'Chạy thử hàm tạo bình luận gửi payload gồm author và content, nhận lại commentId từ server.',
-    starterCode: `async function postComment(author, text) {
-  const payload = { author, text };
-  
-  // Mô phỏng server nhận và trả về comment kèm ID:
-  const fakeServer = {
-    ok: true,
-    status: 201,
-    json: async () => ({
-      commentId: "CMT-" + Math.floor(Math.random() * 1000),
-      ...payload
-    })
-  };
+    title: 'Thực hành tạo Body JSON cho request POST',
+    description: 'Chuyển đổi đối tượng dữ liệu thành chuỗi JSON sẵn sàng cho body.',
+    starterCode: `const newPost = { title: "Học JS Nâng cao", author: "FPT Poly" };
+const bodyString = JSON.stringify(newPost);
 
-  const savedComment = await fakeServer.json();
-  console.log("Trạng thái: Đã lưu bình luận");
-  console.log("Mã bình luận:", savedComment.commentId);
-  console.log("Nội dung:", savedComment.text);
-}
-
-postComment("Học viên An", "Bài giảng rất chi tiết và dễ hiểu!");`,
-    expectedConsoleOutput: 'Trạng thái: Đã lưu bình luận\nNội dung: Bài giảng rất chi tiết và dễ hiểu!',
-    hint: 'Kiểm tra cấu hình payload và nhận kết quả từ json().',
-    language: 'javascript'
+console.log("Body JSON chuẩn:", bodyString);`,
+    expectedConsoleOutput: 'Body JSON chuẩn: {"title":"Học JS Nâng cao","author":"FPT Poly"}',
+    hint: 'JSON.stringify(newPost).'
   },
   exercises: {
     basic: {
       id: 'ex-15-3-1',
       lessonId: 'les-15-3',
-      title: 'Bài tập Cơ bản: Khởi tạo đối tượng Request Options chuẩn',
+      title: 'Bài tập Cơ bản: Header bắt buộc khi gửi dữ liệu JSON',
       difficulty: 'basic',
       learningObjectiveIds: ['LO15.3.1'],
-      description: 'Tạo hàm `createPostOptions(data)` trả về object cấu hình có: `method: "POST"`, `headers: { "Content-Type": "application/json" }`, và `body: JSON.stringify(data)`. Tạo options với `{ score: 10 }` và in ra thuộc tính method: `Phương thức: POST`.',
-      starterCode: `function createPostOptions(data) {
-  // Trả về object options:
-}
-
-const opts = createPostOptions({ score: 10 });
-console.log("Phương thức:", opts.method);`,
-      solutionCode: `function createPostOptions(data) {
-  return {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  };
-}
-
-const opts = createPostOptions({ score: 10 });
-console.log("Phương thức:", opts.method);`,
+      description: 'Khi gửi chuỗi JSON trong body của fetch POST, giá trị của header "Content-Type" cần đặt là gì: "text/plain" hay "application/json"? In ra giá trị đúng.',
+      starterCode: `const correctContentType = "application/json";
+console.log("Content-Type đúng:", correctContentType);`,
+      solutionCode: `const correctContentType = "application/json";
+console.log("Content-Type đúng:", correctContentType);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra cấu hình đúng method POST',
-          expectedOutput: 'Phương thức: POST'
-        }
+        { id: 'tc-1', description: 'application/json', expectedOutput: 'Content-Type đúng: application/json' }
       ],
-      hints: ['return { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }'],
-      explanation: 'Cấu hình đầy đủ 3 thành phần method, headers và body.'
+      hints: ['application/json báo cho server giải nén body dạng JSON'],
+      explanation: 'Thiếu Content-Type: application/json khiến đa số backend (như Express bodyParser) không thể nhận diện dữ liệu trong req.body.'
     },
     intermediate: {
       id: 'ex-15-3-2',
       lessonId: 'les-15-3',
-      title: 'Bài tập Trung bình: Gửi dữ liệu tạo sản phẩm mới',
+      title: 'Bài tập Trung bình: Viết hàm tạo Payload gửi đi chuẩn chỉnh',
       difficulty: 'intermediate',
-      learningObjectiveIds: ['LO15.3.2'],
-      description: 'Cho hàm máy chủ giả lập `fakePostApi(options)` nhận options và trả về `{ ok: true, status: 201, json: async () => ({ id: 45, ...JSON.parse(options.body) }) }`. Gửi sản phẩm `{ title: "Bàn phím cơ", price: 850 }` và in ra: `Sản phẩm tạo mới: Bàn phím cơ - Giá: 850`.',
-      starterCode: `const fakePostApi = options => Promise.resolve({
-  ok: true,
-  status: 201,
-  json: async () => ({ id: 45, ...JSON.parse(options.body) })
-});
-
-async function createProduct() {
-  // Gửi POST tới fakePostApi:
-}
-
-createProduct();`,
-      solutionCode: `const fakePostApi = options => Promise.resolve({
-  ok: true,
-  status: 201,
-  json: async () => ({ id: 45, ...JSON.parse(options.body) })
-});
-
-async function createProduct() {
-  const options = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title: "Bàn phím cơ", price: 850 })
-  };
-  const response = await fakePostApi(options);
-  const data = await response.json();
-  console.log(\`Sản phẩm tạo mới: \${data.title} - Giá: \${data.price}\`);
-}
-
-createProduct();`,
-      testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in đúng sản phẩm tạo mới',
-          expectedOutput: 'Sản phẩm tạo mới: Bàn phím cơ - Giá: 850'
-        }
-      ],
-      hints: ['const response = await fakePostApi(options); const data = await response.json();'],
-      explanation: 'Máy chủ phản hồi mã 201 cùng object chứa ID mới tạo.'
-    },
-    challenge: {
-      id: 'ex-15-3-3',
-      lessonId: 'les-15-3',
-      title: 'Bài tập Thử thách: Kiểm tra Header Authorization kèm Token',
-      difficulty: 'challenge',
       learningObjectiveIds: ['LO15.3.1'],
-      description: 'Khi gọi API bảo mật, cần gửi kèm token xác thực. Viết hàm `createAuthPostOptions(data, token)` trả về options có thêm header `"Authorization": "Bearer " + token`. Kiểm tra với token `"SECRET_KEY_99"` và in ra: `Header Auth: Bearer SECRET_KEY_99`.',
-      starterCode: `function createAuthPostOptions(data, token) {
-  // Trả về options gồm Content-Type và Authorization:
-}
-
-const opts = createAuthPostOptions({ task: "Clean" }, "SECRET_KEY_99");
-console.log("Header Auth:", opts.headers["Authorization"]);`,
-      solutionCode: `function createAuthPostOptions(data, token) {
+      description: 'Viết hàm createPostOptions(data) trả về đối tượng cấu hình có method: "POST", headers tương ứng và body được chuyển đổi bằng JSON.stringify. Chạy thử với { name: "An" } và in options.method.',
+      starterCode: `function createPostOptions(data) {
   return {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + token
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   };
 }
 
-const opts = createAuthPostOptions({ task: "Clean" }, "SECRET_KEY_99");
-console.log("Header Auth:", opts.headers["Authorization"]);`,
+const opts = createPostOptions({ name: "An" });
+console.log("Phương thức:", opts.method);`,
+      solutionCode: `function createPostOptions(data) {
+  return {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  };
+}
+const opts = createPostOptions({ name: "An" });
+console.log("Phương thức:", opts.method);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra Bearer token được đính kèm đúng chuẩn',
-          expectedOutput: 'Header Auth: Bearer SECRET_KEY_99'
-        }
+        { id: 'tc-1', description: 'Phương thức POST', expectedOutput: 'Phương thức: POST' }
       ],
-      hints: ['"Authorization": "Bearer " + token'],
-      explanation: 'Chuẩn Bearer Token trong Header là tiêu chuẩn xác thực người dùng trong các REST API hiện đại.'
+      hints: ['Trả về object gồm method, headers, body'],
+      explanation: 'Cấu trúc chuẩn của HTTP POST Request bằng Fetch API.'
+    },
+    challenge: {
+      id: 'ex-15-3-3',
+      lessonId: 'les-15-3',
+      title: 'Bài tập Thử thách: Xử lý mã phản hồi tạo mới thành công 201 Created',
+      difficulty: 'challenge',
+      learningObjectiveIds: ['LO15.3.2'],
+      description: 'Khi server phản hồi mã 201 Created, in ra: "Tạo thành công ID: [id]". Cho phản hồi giả lập res = { status: 201, data: { id: 789 } }. Viết code kiểm tra và in thông báo.',
+      starterCode: `const res = { status: 201, data: { id: 789 } };
+
+if (res.status === 201) {
+  console.log(\`Tạo thành công ID: \${res.data.id}\`);
+}`,
+      solutionCode: `const res = { status: 201, data: { id: 789 } };
+if (res.status === 201) {
+  console.log(\`Tạo thành công ID: \${res.data.id}\`);
+}`,
+      testCases: [
+        { id: 'tc-1', description: 'Xử lý mã 201', expectedOutput: 'Tạo thành công ID: 789' }
+      ],
+      hints: ['res.status === 201'],
+      explanation: 'Mã 201 Created biểu thị một bản ghi mới vừa được tạo thành công trong cơ sở dữ liệu.'
     }
   },
   quiz: {
     id: 'quiz-15-3',
     lessonId: 'les-15-3',
-    title: 'Trắc nghiệm: Fetch POST',
+    title: 'Trắc nghiệm fetch POST',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-15-3-1',
-        lessonId: 'les-15-3',
-        learningObjectiveId: 'LO15.3.1',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Header nào bắt buộc phải có khi gửi chuỗi JSON trong body của yêu cầu fetch() POST?',
-        options: [
-          { id: 'a', text: '"Content-Type": "application/json"' },
-          { id: 'b', text: '"Accept": "text/html"' },
-          { id: 'c', text: '"Method": "POST"' },
-          { id: 'd', text: '"Cache-Control": "no-cache"' }
-        ],
-        correctAnswer: 'a',
-        explanation: 'Header Content-Type: application/json báo cho server biết dữ liệu gửi lên là JSON để parse.',
-        relatedLessonId: 'les-15-3'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'fetch(url, options) nhận cấu hình method: "POST", headers và body.',
-    'Bắt buộc dùng JSON.stringify() để chuyển object thành chuỗi trước khi gán vào body.',
-    'Các API có xác thực thường yêu cầu gửi thêm Header Authorization: Bearer <token>.'
+    'POST request yêu cầu thiết lập method, headers (application/json) và body.',
+    'Luôn dùng JSON.stringify() để chuyển đổi đối tượng sang chuỗi JSON khi gửi.'
   ],
-  suggestedBookmarks: [
-    'Phân biệt PUT (thay thế toàn bộ) vs PATCH (cập nhật một phần)',
-    'Phương thức DELETE và cách gửi tham số ID trên URL'
-  ]
+  suggestedBookmarks: ['Cấu hình fetch() POST', 'Content-Type: application/json']
 };
 
 export const LESSON_15_4: Lesson = {
@@ -757,25 +504,22 @@ export const LESSON_15_4: Lesson = {
   order: 4,
   durationMinutes: 50,
   difficulty: 'Trung bình',
-  prerequisites: [
-    'Đã học Bài 15.2 và 15.3',
-    'Hiểu DOM cơ bản hoặc biến trạng thái State'
-  ],
+  prerequisites: ['Đã học Fetch GET/POST và async/await'],
   learningObjectives: [
     {
       id: 'LO15.4.1',
       code: 'LO15.4.1',
-      title: 'Quản lý 3 trạng thái giao diện: Loading, Error, Success',
-      description: 'Làm chủ mẫu thiết kế giao diện chuẩn mực khi gọi API để người dùng không cảm thấy ứng dụng bị đơ.',
+      title: 'Quản lý 3 trạng thái của một Request (Idle/Loading, Success, Error)',
+      description: 'Hiển thị Skeleton/Spinner khi đang tải và thông báo lỗi thân thiện khi gặp sự cố.',
       bloomLevel: 'Apply',
-      masteryPercentage: 92
+      masteryPercentage: 90
     },
     {
       id: 'LO15.4.2',
       code: 'LO15.4.2',
-      title: 'Hủy yêu cầu mạng khi quá thời gian chờ (Timeout with AbortController)',
-      description: 'Sử dụng AbortController để tự động hủy fetch() nếu server không phản hồi sau số giây quy định.',
-      bloomLevel: 'Apply',
+      title: 'Kỹ thuật Hủy bỏ Request (Abort Controller)',
+      description: 'Sử dụng AbortController để hủy bỏ request khi người dùng chuyển trang hoặc timeout.',
+      bloomLevel: 'Analyze',
       masteryPercentage: 86
     }
   ],
@@ -784,232 +528,153 @@ export const LESSON_15_4: Lesson = {
       id: 'sec-15-4-1',
       lessonId: 'les-15-4',
       order: 1,
-      conceptName: 'Mô hình 3 trạng thái API UI State',
-      title: '1. Quản lý trạng thái: Loading, Success & Error',
-      explanation: 'Mọi thao tác gọi API trên giao diện người dùng phải luôn trải qua 3 giai đoạn: 1) Khởi động -> bật cờ isLoading = true, hiển thị Spinner hoặc Skeleton; 2) Thành công -> lưu data, gán error = null; 3) Thất bại -> gán errorMessage để hiển thị banner đỏ. Cuối cùng trong khối `finally` -> tắt cờ isLoading = false.',
-      syntax: 'let isLoading = true;\ntry {\n  const data = await fetchApi();\n} catch (err) {\n  showError(err);\n} finally {\n  isLoading = false;\n}',
-      codeExample: `// Mô phỏng quản lý trạng thái tải trang
-const uiState = {
+      conceptName: 'Quản lý trạng thái và AbortController',
+      title: '1. Vòng đời chuẩn của một yêu cầu API trên giao diện',
+      explanation: 'Một ứng dụng web chuẩn doanh nghiệp không bao giờ để màn hình đơ vô cảm khi tải dữ liệu. Luôn áp dụng mô hình 3 trạng thái: (1) `Loading`: Bật icon quay spinner; (2) `Success`: Hiển thị dữ liệu; (3) `Error`: Hiển thị thông điệp lỗi và nút "Thử lại" (Retry). Sử dụng `AbortController` để tự động ngắt kết nối nếu mạng quá chậm (Timeout).',
+      syntax: 'const controller = new AbortController();\nfetch(url, { signal: controller.signal });\n// Hủy request:\ncontroller.abort();',
+      codeExample: `// Giả lập trạng thái tải UI State
+let state = {
   isLoading: false,
   data: null,
   error: null
 };
 
-async function loadDataWithState(shouldFail = false) {
-  // 1. Bật trạng thái Loading
-  uiState.isLoading = true;
-  uiState.error = null;
-  console.log("Trạng thái: Đang tải dữ liệu (Loading: true)...");
+async function loadProducts() {
+  state.isLoading = true;
+  state.error = null;
+  console.log("Trạng thái:", state.isLoading ? "Đang tải dữ liệu..." : "Nghỉ");
 
   try {
-    if (shouldFail) {
-      throw new Error("Lỗi kết nối máy chủ 500");
-    }
-    uiState.data = ["Bài viết 1", "Bài viết 2"];
-    console.log("Trạng thái: Tải thành công! Dữ liệu:", uiState.data);
-  } catch (err) {
-    uiState.error = err.message;
-    console.log("Trạng thái: Có lỗi xảy ra!", uiState.error);
+    // Giả lập tải thành công
+    state.data = ["iPhone 16", "MacBook Pro"];
+    console.log("Dữ liệu nhận được:", state.data);
+  } catch (err: any) {
+    state.error = err.message;
   } finally {
-    // 2. Luôn tắt Loading dù thành công hay thất bại
-    uiState.isLoading = false;
-    console.log("Trạng thái kết thúc: Loading =", uiState.isLoading);
+    state.isLoading = false;
+    console.log("Trạng thái:", state.isLoading ? "Đang tải..." : "Hoàn tất!");
   }
 }
 
-loadDataWithState(false);`,
+loadProducts();`,
       lineByLineExplanation: [
-        { line: 9, text: 'Bật isLoading = true ngay trước khi gửi request để hiển thị spinner.' },
-        { line: 15, text: 'Khi thành công, gán data vào state.' },
-        { line: 18, text: 'Nếu có lỗi, lưu error message để render thông báo thân thiện cho user.' },
-        { line: 21, text: 'Khối finally đảm bảo spinner luôn tắt, tránh tình trạng spinner xoay vĩnh viễn.' }
+        { line: 9, text: 'Bật isLoading = true trước khi bắt đầu gửi request.' },
+        { line: 18, text: 'Khối finally đảm bảo isLoading = false dù thành công hay thất bại.' }
       ],
       commonMistakes: [
-        'Tắt cờ isLoading ở trong khối try mà quên khối catch, dẫn đến khi gặp lỗi spinner xoay hoài không dừng.'
+        'Quên tắt trạng thái Loading khi gặp lỗi, khiến vòng xoay spinner quay mãi mãi (Infinite Loading).'
       ],
-      whenToUse: 'Bắt buộc áp dụng cho mọi chức năng gọi dữ liệu trong ứng dụng Web chuyên nghiệp.',
-      whenNotToUse: 'Tránh thông báo lỗi kỹ thuật khó hiểu (như "Failed to fetch") trực tiếp cho người dùng cuối.',
-      realWorldUseCase: 'Thư viện React Query (TanStack Query) và Redux Toolkit đều xoay quanh 3 trạng thái này (pending, fulfilled, rejected).'
+      whenToUse: 'Bắt buộc áp dụng cho mọi màn hình tải dữ liệu trong ứng dụng thực tế.',
+      whenNotToUse: 'Không cần nếu dữ liệu trả về tức thì từ bộ nhớ cache RAM.',
+      realWorldUseCase: 'Hiển thị bộ khung xám Skeleton Loading khi người dùng lướt bảng tin Facebook/Shopee.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-15-4',
-    title: 'Thực hành: Mô phỏng xử lý lỗi mạng thân thiện với người dùng',
-    description: 'Chạy thử hàm gọi dữ liệu khi xảy ra lỗi. Hệ thống bật loading, bắt lỗi và tắt loading an toàn trong finally.',
-    starterCode: `async function fetchDataSimulation() {
-  let loading = true;
-  console.log("1. Bật Spinner loading...");
-  
-  try {
-    // Giả lập lỗi mất mạng:
-    throw new Error("Không có kết nối Internet.");
-  } catch (err) {
-    console.log("2. Hiển thị thông báo:", err.message);
-  } finally {
-    loading = false;
-    console.log("3. Tắt Spinner loading (loading =", loading, ")");
+    title: 'Thực hành mô phỏng cơ chế thử lại (Retry Mechanism)',
+    description: 'Tự động thử gọi lại request nếu lần đầu thất bại.',
+    starterCode: `let attempts = 0;
+function tryFetch() {
+  attempts++;
+  console.log(\`Thử kết nối lần \${attempts}...\`);
+  if (attempts >= 2) {
+    console.log("Kết nối thành công ở lần thử thứ 2!");
   }
 }
 
-fetchDataSimulation();`,
-    expectedConsoleOutput: '1. Bật Spinner loading...\n2. Hiển thị thông báo: Không có kết nối Internet.\n3. Tắt Spinner loading (loading = false )',
-    hint: 'Khối finally luôn giải phóng cờ loading.',
-    language: 'javascript'
+tryFetch();
+tryFetch();`,
+    expectedConsoleOutput: 'Thử kết nối lần 1...\nThử kết nối lần 2...\nKết nối thành công ở lần thử thứ 2!',
+    hint: 'Cơ chế Retry nâng cao trải nghiệm khi mạng chập chờn.'
   },
   exercises: {
     basic: {
       id: 'ex-15-4-1',
       lessonId: 'les-15-4',
-      title: 'Bài tập Cơ bản: Đảm bảo tắt cờ Loading trong finally',
+      title: 'Bài tập Cơ bản: Khối lệnh đảm bảo tắt cờ Loading',
       difficulty: 'basic',
       learningObjectiveIds: ['LO15.4.1'],
-      description: 'Viết hàm `fetchStateDemo()` có biến `let isLoading = false;`. Khi bắt đầu gán `isLoading = true` và in `Loading: true`. Trong khối `finally`, gán `isLoading = false` và in `Loading: false`.',
-      starterCode: `async function fetchStateDemo() {
-  let isLoading = false;
-  // Cài đặt try/finally:
-}
-
-fetchStateDemo();`,
-      solutionCode: `async function fetchStateDemo() {
-  let isLoading = false;
-  try {
-    isLoading = true;
-    console.log("Loading:", isLoading);
-  } finally {
-    isLoading = false;
-    console.log("Loading:", isLoading);
-  }
-}
-
-fetchStateDemo();`,
+      description: 'Trong cấu trúc try...catch...finally, khối lệnh nào luôn luôn được thực thi dù request thành công hay gặp lỗi mạng: "try", "catch" hay "finally"? In tên khối lệnh.',
+      starterCode: `const reliableBlock = "finally";
+console.log("Khối lệnh luôn thực thi:", reliableBlock);`,
+      solutionCode: `const reliableBlock = "finally";
+console.log("Khối lệnh luôn thực thi:", reliableBlock);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in Loading: true rồi Loading: false',
-          expectedOutput: 'Loading: true\nLoading: false'
-        }
+        { id: 'tc-1', description: 'Khối finally', expectedOutput: 'Khối lệnh luôn thực thi: finally' }
       ],
-      hints: ['Đặt câu lệnh đổi cờ tắt trong khối finally'],
-      explanation: 'finally luôn chạy giúp giao diện không bị kẹt ở trạng thái loading.'
+      hints: ['finally luôn chạy ở bước cuối cùng'],
+      explanation: 'Đặt lệnh tắt trạng thái Loading (isLoading = false) trong khối finally giúp ngăn chặn hoàn toàn lỗi treo giao diện.'
     },
     intermediate: {
       id: 'ex-15-4-2',
       lessonId: 'les-15-4',
-      title: 'Bài tập Trung bình: Chuyển đổi mã lỗi kỹ thuật sang tiếng Việt thân thiện',
+      title: 'Bài tập Trung bình: Hiển thị thông báo lỗi thân thiện thay vì mã kỹ thuật',
       difficulty: 'intermediate',
       learningObjectiveIds: ['LO15.4.1'],
-      description: 'Tạo hàm `getFriendlyErrorMessage(status)`. Nếu status = 404 trả về `"Không tìm thấy tài nguyên yêu cầu"`; nếu 401 trả về `"Vui lòng đăng nhập lại"`; còn lại trả về `"Hệ thống đang bận"`. Kiểm tra với status 404 và in ra: `Thông báo: Không tìm thấy tài nguyên yêu cầu`.',
+      description: 'Viết hàm getFriendlyErrorMessage(status) trả về thông điệp thân thiện: nếu status === 404 trả về "Không tìm thấy dữ liệu yêu cầu", nếu status === 500 trả về "Máy chủ đang bảo trì, vui lòng thử lại sau". Chạy thử với 500 và in kết quả.',
       starterCode: `function getFriendlyErrorMessage(status) {
-  // Chuyển đổi status sang thông báo thân thiện:
+  if (status === 404) return "Không tìm thấy dữ liệu yêu cầu";
+  if (status === 500) return "Máy chủ đang bảo trì, vui lòng thử lại sau";
+  return "Có lỗi xảy ra";
 }
 
-console.log("Thông báo:", getFriendlyErrorMessage(404));`,
+console.log(getFriendlyErrorMessage(500));`,
       solutionCode: `function getFriendlyErrorMessage(status) {
-  switch (status) {
-    case 404:
-      return "Không tìm thấy tài nguyên yêu cầu";
-    case 401:
-      return "Vui lòng đăng nhập lại";
-    default:
-      return "Hệ thống đang bận";
-  }
+  if (status === 404) return "Không tìm thấy dữ liệu yêu cầu";
+  if (status === 500) return "Máy chủ đang bảo trì, vui lòng thử lại sau";
+  return "Có lỗi xảy ra";
 }
-
-console.log("Thông báo:", getFriendlyErrorMessage(404));`,
+console.log(getFriendlyErrorMessage(500));`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra chuyển mã 404 sang câu tiếng Việt',
-          expectedOutput: 'Thông báo: Không tìm thấy tài nguyên yêu cầu'
-        }
+        { id: 'tc-1', description: 'Thông báo lỗi 500', expectedOutput: 'Máy chủ đang bảo trì, vui lòng thử lại sau' }
       ],
-      hints: ['Dùng switch (status)'],
-      explanation: 'Trải nghiệm người dùng tốt đòi hỏi thông báo lỗi phải rõ ràng, dễ hiểu.'
+      hints: ['status === 500'],
+      explanation: 'Dịch mã lỗi kỹ thuật thành ngôn ngữ dễ hiểu giúp người dùng cảm thấy yên tâm và biết cách xử lý tiếp theo.'
     },
     challenge: {
       id: 'ex-15-4-3',
       lessonId: 'les-15-4',
-      title: 'Bài tập Thử thách: Hủy request bằng AbortController',
+      title: 'Bài tập Thử thách: Khởi tạo AbortController hủy request',
       difficulty: 'challenge',
       learningObjectiveIds: ['LO15.4.2'],
-      description: 'Sử dụng `const controller = new AbortController();`. Gọi `controller.abort()` để hủy request. Bắt lỗi trong catch và kiểm tra `if (err.name === "AbortError")` in ra: `Yêu cầu mạng đã bị hủy do timeout`.',
-      starterCode: `function simulateAbort() {
-  const controller = new AbortController();
-  // Giả lập ném lỗi AbortError khi controller.abort():
-  try {
-    controller.abort();
-    const error = new Error("The user aborted a request.");
-    error.name = "AbortError";
-    throw error;
-  } catch (err) {
-    if (err.name === "AbortError") {
-      console.log("Yêu cầu mạng đã bị hủy do timeout");
-    }
+      description: 'Trong trình duyệt, const controller = new AbortController(). Thuộc tính signal của controller được truyền vào fetch. Khi gọi controller.abort(), thuộc tính controller.signal.aborted chuyển thành true. Mô phỏng kiểm tra cờ aborted và in ra: "Yêu cầu mạng đã bị hủy: [true/false]".',
+      starterCode: `const mockController = {
+  signal: { aborted: false },
+  abort() {
+    this.signal.aborted = true;
   }
-}
+};
 
-simulateAbort();`,
-      solutionCode: `function simulateAbort() {
-  const controller = new AbortController();
-  try {
-    controller.abort();
-    const error = new Error("The user aborted a request.");
-    error.name = "AbortError";
-    throw error;
-  } catch (err) {
-    if (err.name === "AbortError") {
-      console.log("Yêu cầu mạng đã bị hủy do timeout");
-    }
+mockController.abort();
+console.log("Yêu cầu mạng đã bị hủy:", mockController.signal.aborted);`,
+      solutionCode: `const mockController = {
+  signal: { aborted: false },
+  abort() {
+    this.signal.aborted = true;
   }
-}
-
-simulateAbort();`,
+};
+mockController.abort();
+console.log("Yêu cầu mạng đã bị hủy:", mockController.signal.aborted);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra bắt đúng AbortError',
-          expectedOutput: 'Yêu cầu mạng đã bị hủy do timeout'
-        }
+        { id: 'tc-1', description: 'Đã hủy thành công', expectedOutput: 'Yêu cầu mạng đã bị hủy: true' }
       ],
-      hints: ['Kiểm tra err.name === "AbortError"'],
-      explanation: 'AbortController là chuẩn W3C để hủy bỏ các tác vụ fetch() đang treo.'
+      hints: ['controller.abort() chuyển cờ aborted thành true'],
+      explanation: 'AbortController là vũ khí tiêu chuẩn để hủy bỏ các request lỗi thời khi người dùng chuyển trang nhanh hoặc gõ tìm kiếm liên tục.'
     }
   },
   quiz: {
     id: 'quiz-15-4',
     lessonId: 'les-15-4',
-    title: 'Trắc nghiệm: UI State & Error Handling',
+    title: 'Trắc nghiệm Loading & Error Handling',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-15-4-1',
-        lessonId: 'les-15-4',
-        learningObjectiveId: 'LO15.4.1',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Khối lệnh nào là nơi lý tưởng nhất để tắt cờ hiệu loading (isLoading = false) sau khi gọi API?',
-        options: [
-          { id: 'a', text: 'Khối finally' },
-          { id: 'b', text: 'Chỉ trong khối try' },
-          { id: 'c', text: 'Chỉ trong khối catch' },
-          { id: 'd', text: 'Bên ngoài hàm async' }
-        ],
-        correctAnswer: 'a',
-        explanation: 'Khối finally luôn được thực thi dù thành công hay có lỗi, đảm bảo cờ loading luôn được dọn dẹp.',
-        relatedLessonId: 'les-15-4'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'Luôn quản lý trọn vẹn 3 trạng thái: Loading, Success, Error khi làm việc với API.',
-    'Dùng khối finally để tắt spinner tải dữ liệu một cách an toàn.',
-    'Sử dụng AbortController để giới hạn thời gian chờ (Timeout) và hủy request treo.'
+    'Luôn quản lý 3 trạng thái: Loading, Success, Error trong vòng đời gọi API.',
+    'Dùng finally để tắt spinner loading và AbortController để ngắt kết nối khi cần.'
   ],
-  suggestedBookmarks: [
-    'Kỹ thuật Skeleton Screen thay thế Spinner truyền thống',
-    'Thiết lập Timeout tự động cho fetch() bằng AbortSignal.timeout()'
-  ]
+  suggestedBookmarks: ['3 trạng thái API UI', 'AbortController hủy request']
 };
 
 export const JS_MODULE_15_LESSONS: Lesson[] = [

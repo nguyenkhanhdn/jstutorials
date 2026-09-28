@@ -1,7 +1,7 @@
 import { Lesson } from '../../types';
 
 // ==========================================
-// MODULE 16: LOCAL STORAGE (LƯU TRỮ PHÍA CLIENT)
+// MODULE 16: LOCAL STORAGE
 // ==========================================
 
 export const LESSON_16_1: Lesson = {
@@ -13,16 +13,13 @@ export const LESSON_16_1: Lesson = {
   order: 1,
   durationMinutes: 40,
   difficulty: 'Cơ bản',
-  prerequisites: [
-    'Hiểu môi trường trình duyệt Web',
-    'Biết về key-value store'
-  ],
+  prerequisites: ['Đã học Object và cặp Key-Value'],
   learningObjectives: [
     {
       id: 'LO16.1.1',
       code: 'LO16.1.1',
-      title: 'Phân biệt localStorage và sessionStorage',
-      description: 'Hiểu vòng đời lưu trữ: localStorage tồn tại vĩnh viễn cho đến khi bị xóa chủ động; sessionStorage mất đi khi đóng tab.',
+      title: 'Phân biệt cơ chế hoạt động của localStorage và sessionStorage',
+      description: 'Hiểu vòng đời tồn tại vĩnh viễn (localStorage) vs đóng tab biến mất (sessionStorage).',
       bloomLevel: 'Understand',
       masteryPercentage: 92
     },
@@ -30,9 +27,9 @@ export const LESSON_16_1: Lesson = {
       id: 'LO16.1.2',
       code: 'LO16.1.2',
       title: 'Các phương thức cơ bản của Web Storage API',
-      description: 'Làm chủ setItem, getItem, removeItem, clear và thuộc tính length.',
+      description: 'Làm chủ setItem, getItem, removeItem, clear() và giới hạn dung lượng ~5MB.',
       bloomLevel: 'Apply',
-      masteryPercentage: 95
+      masteryPercentage: 90
     }
   ],
   sections: [
@@ -40,216 +37,131 @@ export const LESSON_16_1: Lesson = {
       id: 'sec-16-1-1',
       lessonId: 'les-16-1',
       order: 1,
-      conceptName: 'Web Storage API: localStorage vs sessionStorage',
-      title: '1. Bản chất Web Storage phía Client',
-      explanation: 'Web Storage cho phép lưu trữ cặp khóa - giá trị (Key - Value) ngay trên trình duyệt của người dùng (dung lượng khoảng 5MB - 10MB tùy trình duyệt). Có 2 cơ chế chính: 1) `localStorage` lưu trữ vĩnh viễn, dữ liệu không mất đi khi tắt trình duyệt hay tắt máy; 2) `sessionStorage` chỉ tồn tại trong phiên làm việc của tab hiện tại, đóng tab sẽ bị xóa sạch.',
-      syntax: 'localStorage.setItem("key", "value");\nconst val = localStorage.getItem("key");\nlocalStorage.removeItem("key");\nlocalStorage.clear();',
-      codeExample: `// Giả lập môi trường Storage an toàn
+      conceptName: 'localStorage vs sessionStorage',
+      title: '1. Web Storage: Lưu trữ dữ liệu trực tiếp trên trình duyệt',
+      explanation: 'Web Storage API cung cấp cơ chế lưu trữ cặp `Khóa (Key) - Giá trị (Value)` dạng chuỗi (String) trên máy khách: (1) `localStorage`: Dữ liệu lưu trữ VĨNH VIỄN, không bị mất đi khi người dùng tải lại trang hoặc tắt mở lại trình duyệt; (2) `sessionStorage`: Dữ liệu chỉ tồn tại trong phiên làm việc của TAB hiện tại, đóng tab sẽ bị xóa sạch. Dung lượng cho phép khoảng ~5MB cho mỗi tên miền (Origin).',
+      syntax: 'localStorage.setItem("key", "value");\nconst val = localStorage.getItem("key");\nlocalStorage.removeItem("key");\nlocalStorage.clear(); // Xóa sạch toàn bộ',
+      codeExample: `// Giả lập Web Storage API
 class MockStorage {
-  constructor() { this.store = {}; }
-  setItem(key, val) { this.store[key] = String(val); }
-  getItem(key) { return this.store[key] !== undefined ? this.store[key] : null; }
-  removeItem(key) { delete this.store[key]; }
-  clear() { this.store = {}; }
+  private store: Record<string, string> = {};
+  setItem(k: string, v: string) { this.store[k] = String(v); }
+  getItem(k: string) { return this.store[k] ?? null; }
+  removeItem(k: string) { delete this.store[k]; }
 }
 
 const storage = new MockStorage();
 
-// 1. Lưu trữ chuỗi văn bản
-storage.setItem("username", "nguyen_van_a");
-storage.setItem("theme", "dark");
+// Lưu token đăng nhập
+storage.setItem("user_token", "jwt_abc123xyz");
+console.log("Đọc token:", storage.getItem("user_token"));
 
-// 2. Đọc dữ liệu ra
-console.log("Tên người dùng:", storage.getItem("username"));
-console.log("Giao diện:", storage.getItem("theme"));
-
-// 3. Xóa một mục cụ thể
-storage.removeItem("theme");
-console.log("Giao diện sau khi xóa:", storage.getItem("theme")); // null`,
+// Xóa token khi đăng xuất
+storage.removeItem("user_token");
+console.log("Token sau đăng xuất:", storage.getItem("user_token"));`,
       lineByLineExplanation: [
-        { line: 12, text: 'setItem(key, value) lưu dữ liệu vào storage dưới dạng chuỗi string.' },
-        { line: 16, text: 'getItem(key) trả về giá trị chuỗi, hoặc null nếu khóa không tồn tại.' },
-        { line: 20, text: 'removeItem(key) xóa chính xác 1 mục theo tên khóa.' }
+        { line: 11, text: 'Lưu token vào storage bằng setItem.' },
+        { line: 12, text: 'Đọc token bằng getItem.' },
+        { line: 15, text: 'Xóa token khi người dùng đăng xuất bằng removeItem.' }
       ],
       commonMistakes: [
-        'Lưu mật khẩu, mã PIN hoặc thông tin thẻ tín dụng nhạy cảm vào localStorage (rất dễ bị tấn công qua lỗi XSS).'
+        'Lưu mật khẩu thô hoặc thông tin thẻ tín dụng nhạy cảm vào localStorage (dễ bị tấn công XSS đánh cắp).'
       ],
-      whenToUse: 'Dùng lưu cài đặt giao diện (Dark/Light mode), tùy chọn ngôn ngữ, token phiên làm việc, giỏ hàng khách vãng lai.',
-      whenNotToUse: 'Không lưu dữ liệu dung lượng lớn (> 5MB) hoặc dữ liệu bí mật tối mật.',
-      realWorldUseCase: 'Lưu giữ trạng thái "Đã đồng ý chính sách Cookie" hoặc "Đóng popup khuyến mãi".'
+      whenToUse: 'Dùng localStorage để lưu tùy chọn giao diện Theme Sáng/Tối, ngôn ngữ, giỏ hàng tạm.',
+      whenNotToUse: 'Không dùng để lưu trữ file kích thước lớn (video, ảnh chất lượng cao) vượt quá 5MB.',
+      realWorldUseCase: 'Ghi nhớ trạng thái đăng nhập hoặc cấu hình ngôn ngữ hiển thị (vi/en).'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-16-1',
-    title: 'Thực hành: Lưu trữ và kiểm tra trạng thái đăng nhập',
-    description: 'Chạy thử thao tác lưu accessToken vào storage, đọc ra kiểm tra và dọn dẹp bằng removeItem.',
-    starterCode: `const mockLocalStorage = {
-  db: {},
-  setItem(k, v) { this.db[k] = v; },
-  getItem(k) { return this.db[k] || null; },
-  removeItem(k) { delete this.db[k]; }
-};
+    title: 'Thực hành thao tác lưu trữ chuỗi thiết lập',
+    description: 'Mô phỏng lưu giá trị ngôn ngữ "vi-VN" vào kho lưu trữ.',
+    starterCode: `const settingKey = "language";
+const settingValue = "vi-VN";
 
-mockLocalStorage.setItem("userToken", "JWT_TOKEN_ABCXYZ");
-console.log("Token hiện tại:", mockLocalStorage.getItem("userToken"));
-
-mockLocalStorage.removeItem("userToken");
-console.log("Token sau khi đăng xuất:", mockLocalStorage.getItem("userToken"));`,
-    expectedConsoleOutput: 'Token hiện tại: JWT_TOKEN_ABCXYZ\nToken sau khi đăng xuất: null',
-    hint: 'getItem trả về null khi key không còn tồn tại.',
-    language: 'javascript'
+console.log(\`Đã lưu cấu hình: \${settingKey} = \${settingValue}\`);`,
+    expectedConsoleOutput: 'Đã lưu cấu hình: language = vi-VN',
+    hint: 'setItem nhận cặp key và value dạng chuỗi.'
   },
   exercises: {
     basic: {
       id: 'ex-16-1-1',
       lessonId: 'les-16-1',
-      title: 'Bài tập Cơ bản: Lưu và đọc ngôn ngữ người dùng',
+      title: 'Bài tập Cơ bản: Vòng đời của dữ liệu trong localStorage',
       difficulty: 'basic',
-      learningObjectiveIds: ['LO16.1.2'],
-      description: 'Cho đối tượng storage giả lập `storage`. Dùng `storage.setItem("lang", "vi")` để lưu ngôn ngữ. Sau đó dùng `storage.getItem("lang")` đọc ra và in: `Ngôn ngữ đã chọn: vi`.',
-      starterCode: `const storage = {
-  data: {},
-  setItem(k, v) { this.data[k] = String(v); },
-  getItem(k) { return this.data[k] || null; }
-};
-
-// Lưu và đọc ngôn ngữ:
-`,
-      solutionCode: `const storage = {
-  data: {},
-  setItem(k, v) { this.data[k] = String(v); },
-  getItem(k) { return this.data[k] || null; }
-};
-
-storage.setItem("lang", "vi");
-console.log("Ngôn ngữ đã chọn:", storage.getItem("lang"));`,
+      learningObjectiveIds: ['LO16.1.1'],
+      description: 'Khi người dùng tắt trình duyệt và mở lại vào ngày hôm sau, dữ liệu lưu trong localStorage có còn tồn tại không? Trả lời "Con" hoặc "Mat". In kết quả.',
+      starterCode: `const isRetained = "Con";
+console.log("Dữ liệu trong localStorage:", isRetained);`,
+      solutionCode: `const isRetained = "Con";
+console.log("Dữ liệu trong localStorage:", isRetained);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in đúng ngôn ngữ đã lưu',
-          expectedOutput: 'Ngôn ngữ đã chọn: vi'
-        }
+        { id: 'tc-1', description: 'Còn tồn tại', expectedOutput: 'Dữ liệu trong localStorage: Con' }
       ],
-      hints: ['storage.setItem("lang", "vi"); console.log("Ngôn ngữ đã chọn:", storage.getItem("lang"));'],
-      explanation: 'Thao tác lưu và đọc chuỗi căn bản của Storage API.'
+      hints: ['localStorage tồn tại vĩnh viễn cho đến khi người dùng tự xóa cookie/cache'],
+      explanation: 'localStorage không có thời gian hết hạn (expiration time), dữ liệu tồn tại xuyên suốt các phiên duyệt web.'
     },
     intermediate: {
       id: 'ex-16-1-2',
       lessonId: 'les-16-1',
-      title: 'Bài tập Trung bình: Xóa sạch bộ nhớ với clear()',
+      title: 'Bài tập Trung bình: Giá trị trả về khi truy cập key không tồn tại',
       difficulty: 'intermediate',
       learningObjectiveIds: ['LO16.1.2'],
-      description: 'Lưu 2 khóa `"item1"` và `"item2"`. Sau đó gọi `storage.clear()` để dọn sạch toàn bộ. Kiểm tra `storage.getItem("item1")` và in ra: `Giá trị sau clear: null`.',
-      starterCode: `const storage = {
-  data: {},
-  setItem(k, v) { this.data[k] = String(v); },
-  getItem(k) { return this.data[k] !== undefined ? this.data[k] : null; },
-  clear() { this.data = {}; }
-};
-
-// Lưu 2 mục, gọi clear() và kiểm tra:
-`,
-      solutionCode: `const storage = {
-  data: {},
-  setItem(k, v) { this.data[k] = String(v); },
-  getItem(k) { return this.data[k] !== undefined ? this.data[k] : null; },
-  clear() { this.data = {}; }
-};
-
-storage.setItem("item1", "A");
-storage.setItem("item2", "B");
-storage.clear();
-console.log("Giá trị sau clear:", storage.getItem("item1"));`,
+      description: 'Nếu gọi localStorage.getItem("khoa_chua_tung_tao"), trình duyệt sẽ trả về giá trị gì: "undefined" hay "null"? In ra đáp án đúng.',
+      starterCode: `const missingKeyValue = "null";
+console.log("Giá trị trả về khi không tìm thấy key:", missingKeyValue);`,
+      solutionCode: `const missingKeyValue = "null";
+console.log("Giá trị trả về khi không tìm thấy key:", missingKeyValue);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra clear xóa toàn bộ dữ liệu về null',
-          expectedOutput: 'Giá trị sau clear: null'
-        }
+        { id: 'tc-1', description: 'Trả về null', expectedOutput: 'Giá trị trả về khi không tìm thấy key: null' }
       ],
-      hints: ['storage.clear() xóa toàn bộ thuộc tính trong storage'],
-      explanation: 'clear() dùng khi người dùng đăng xuất hoàn toàn khỏi hệ thống.'
+      hints: ['getItem trả về null nếu khóa không tồn tại'],
+      explanation: 'Khác với Object trả về undefined, Web Storage API getItem trả về null khi không tìm thấy key.'
     },
     challenge: {
       id: 'ex-16-1-3',
       lessonId: 'les-16-1',
-      title: 'Bài tập Thử thách: Kiểm tra dung lượng và an toàn khi lưu Storage',
+      title: 'Bài tập Thử thách: Hàm xóa toàn bộ dữ liệu ứng dụng với clear()',
       difficulty: 'challenge',
-      learningObjectiveIds: ['LO16.1.1'],
-      description: 'Viết hàm `safeSetItem(storage, key, value)` bọc lệnh `storage.setItem` trong khối `try/catch`. Nếu lưu thành công in `Đã lưu thành công`. Nếu xảy ra lỗi (ví dụ QuotaExceededError khi đầy bộ nhớ) in `Lỗi: Bộ nhớ đã đầy`. Mô phỏng với storage ném lỗi để kiểm tra.',
-      starterCode: `const failingStorage = {
-  setItem(k, v) {
-    throw new Error("QuotaExceededError");
-  }
-};
+      learningObjectiveIds: ['LO16.1.2'],
+      description: 'Khi người dùng bấm "Xóa sạch dữ liệu tài khoản", phương thức storage.clear() sẽ gỡ bỏ tất cả. Cho object store = { a: 1, b: 2, c: 3 }. Viết hàm clearAll(obj) xóa sạch tất cả key trong object để kích thước Object.keys(obj).length === 0. In ra: "Số key còn lại: 0".',
+      starterCode: `const store = { a: 1, b: 2, c: 3 };
 
-function safeSetItem(store, key, value) {
-  // Bọc trong try/catch:
-}
-
-safeSetItem(failingStorage, "bigData", "...");`,
-      solutionCode: `const failingStorage = {
-  setItem(k, v) {
-    throw new Error("QuotaExceededError");
-  }
-};
-
-function safeSetItem(store, key, value) {
-  try {
-    store.setItem(key, value);
-    console.log("Đã lưu thành công");
-  } catch (err) {
-    console.log("Lỗi: Bộ nhớ đã đầy");
+function clearAll(obj) {
+  for (const k in obj) {
+    delete obj[k];
   }
 }
 
-safeSetItem(failingStorage, "bigData", "...");`,
+clearAll(store);
+console.log("Số key còn lại:", Object.keys(store).length);`,
+      solutionCode: `const store = { a: 1, b: 2, c: 3 };
+function clearAll(obj) {
+  for (const k in obj) {
+    delete obj[k];
+  }
+}
+clearAll(store);
+console.log("Số key còn lại:", Object.keys(store).length);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra bắt đúng ngoại lệ bộ nhớ đầy',
-          expectedOutput: 'Lỗi: Bộ nhớ đã đầy'
-        }
+        { id: 'tc-1', description: 'Còn lại 0 key', expectedOutput: 'Số key còn lại: 0' }
       ],
-      hints: ['try { store.setItem(key, value); } catch (e) { ... }'],
-      explanation: 'Luôn bọc try/catch khi ghi storage để tránh vỡ trang ở chế độ duyệt web ẩn danh (Private Browsing).'
+      hints: ['Xóa sạch toàn bộ key tương đương storage.clear()'],
+      explanation: 'storage.clear() dọn dẹp toàn bộ dữ liệu của domain trong một câu lệnh duy nhất.'
     }
   },
   quiz: {
     id: 'quiz-16-1',
     lessonId: 'les-16-1',
-    title: 'Trắc nghiệm: Web Storage',
+    title: 'Trắc nghiệm localStorage căn bản',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-16-1-1',
-        lessonId: 'les-16-1',
-        learningObjectiveId: 'LO16.1.1',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Dữ liệu được lưu trong localStorage sẽ bị xóa bỏ khi nào?',
-        options: [
-          { id: 'a', text: 'Khi người dùng tắt tab trình duyệt' },
-          { id: 'b', text: 'Khi người dùng khởi động lại máy tính' },
-          { id: 'c', text: 'Chỉ khi JavaScript gọi removeItem/clear hoặc người dùng xóa cache trình duyệt' },
-          { id: 'd', text: 'Sau đúng 24 giờ kể từ khi lưu' }
-        ],
-        correctAnswer: 'c',
-        explanation: 'localStorage có tính bền bỉ vĩnh viễn (Persistent), không tự động hết hạn theo phiên.',
-        relatedLessonId: 'les-16-1'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'localStorage lưu trữ bền vững vĩnh viễn, sessionStorage mất khi đóng tab.',
-    'Dung lượng lưu trữ giới hạn khoảng 5MB theo Origin (giao thức + domain + port).',
-    'Chỉ lưu các cấu hình giao diện và trạng thái không nhạy cảm.'
+    'localStorage lưu trữ vĩnh viễn (~5MB), sessionStorage bị xóa khi đóng tab.',
+    'Dùng setItem để lưu, getItem để đọc, removeItem để xóa và clear để dọn sạch.'
   ],
-  suggestedBookmarks: [
-    'Chính sách Same-Origin Policy trong Web Storage',
-    'IndexedDB: Giải pháp lưu trữ cơ sở dữ liệu lớn phía Client'
-  ]
+  suggestedBookmarks: ['localStorage vs sessionStorage', 'Web Storage API']
 };
 
 export const LESSON_16_2: Lesson = {
@@ -261,26 +173,23 @@ export const LESSON_16_2: Lesson = {
   order: 2,
   durationMinutes: 50,
   difficulty: 'Trung bình',
-  prerequisites: [
-    'Đã học Bài 16.1 về localStorage',
-    'Biết về JSON.stringify và JSON.parse'
-  ],
+  prerequisites: ['Đã học localStorage cơ bản và JSON'],
   learningObjectives: [
     {
       id: 'LO16.2.1',
       code: 'LO16.2.1',
-      title: 'Khắc phục cạm bẫy [object Object] khi lưu Storage',
-      description: 'Hiểu tại sao Web Storage chỉ lưu string, nếu truyền object trực tiếp sẽ bị ép kiểu thành [object Object].',
-      bloomLevel: 'Analyze',
-      masteryPercentage: 95
+      title: 'Tuần tự hóa dữ liệu phức tạp (Array, Object) bằng JSON.stringify',
+      description: 'Tránh cạm bẫy lưu chuỗi "[object Object]" vào storage.',
+      bloomLevel: 'Apply',
+      masteryPercentage: 92
     },
     {
       id: 'LO16.2.2',
       code: 'LO16.2.2',
-      title: 'Mô hình chuẩn hóa Lưu - Đọc Object và Array trong Storage',
-      description: 'Làm chủ quy trình 2 chiều: Lưu = JSON.stringify -> setItem; Đọc = getItem -> JSON.parse với giá trị mặc định.',
+      title: 'Khôi phục dữ liệu an toàn với JSON.parse và giá trị Fallback',
+      description: 'Sử dụng toán tử gán mặc định hoặc try/catch khi dữ liệu trong storage bị null hoặc hỏng.',
       bloomLevel: 'Apply',
-      masteryPercentage: 92
+      masteryPercentage: 88
     }
   ],
   sections: [
@@ -288,225 +197,141 @@ export const LESSON_16_2: Lesson = {
       id: 'sec-16-2-1',
       lessonId: 'les-16-2',
       order: 1,
-      conceptName: 'Tuần tự hóa dữ liệu phức hợp cho Storage',
-      title: '1. Quy trình Lưu - Đọc Object & Array trong localStorage',
-      explanation: 'Web Storage API chỉ hỗ trợ lưu trữ kiểu dữ liệu String. Nếu bạn gọi `localStorage.setItem("user", { name: "An" })`, JavaScript sẽ tự gọi phương thức `.toString()` của object và lưu chuỗi vô nghĩa `"[object Object]"`. Do đó, quy tắc vàng bắt buộc: 1) Khi lưu: `localStorage.setItem(key, JSON.stringify(data))`; 2) Khi đọc: `const data = JSON.parse(localStorage.getItem(key)) || fallbackValue`.',
-      syntax: '// Lưu mảng/đối tượng\nlocalStorage.setItem("cart", JSON.stringify(items));\n// Đọc mảng/đối tượng an toàn\nconst items = JSON.parse(localStorage.getItem("cart")) || [];',
-      codeExample: `// Giả lập storage
-const storage = {
-  db: {},
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
-
-// 1. Dữ liệu phức hợp mảng danh sách công việc (Todo List)
-const initialTodos = [
-  { id: 1, text: "Học ES6", done: true },
-  { id: 2, text: "Làm Mini Project", done: false }
+      conceptName: 'Tuần tự hóa dữ liệu phức tạp vào Web Storage',
+      title: '1. Cạm bẫy lưu Object vào localStorage và giải pháp JSON',
+      explanation: '`localStorage` CHỈ CHẤP NHẬN KIỂU CHUỖI (String). Nếu bạn truyền một Mảng hoặc Đối tượng vào `localStorage.setItem("user", userObj)`, JavaScript sẽ tự động ép kiểu bằng `.toString()`, kết quả lưu trữ sẽ là chuỗi vô dụng `"[object Object]"`. Để lưu đúng: (1) Dùng `JSON.stringify(obj)` trước khi lưu; (2) Khi đọc ra dùng `JSON.parse(str || "[]")` để khôi phục lại cấu trúc Mảng/Object ban đầu.',
+      syntax: '// Lưu trữ an toàn\nlocalStorage.setItem("cart", JSON.stringify(cartArray));\n\n// Đọc ra an toàn kèm fallback\nconst cart = JSON.parse(localStorage.getItem("cart") || "[]");',
+      codeExample: `// Giả lập lưu mảng công việc vào storage
+const tasks = [
+  { id: 1, text: "Làm bài tập M16", isCompleted: true },
+  { id: 2, text: "Chuẩn bị đồ án Capstone", isCompleted: false }
 ];
 
-// 2. Lưu mảng vào storage qua JSON.stringify:
-storage.setItem("todos", JSON.stringify(initialTodos));
-console.log("Chuỗi lưu trong Storage:", storage.getItem("todos"));
+// 1. Chuyển thành JSON string trước khi lưu
+const serialized = JSON.stringify(tasks);
+console.log("Chuỗi lưu vào storage:", serialized);
 
-// 3. Đọc dữ liệu ra và parse thành mảng:
-const loadedTodos = JSON.parse(storage.getItem("todos")) || [];
-console.log("Số công việc đã khôi phục:", loadedTodos.length);
-console.log("Công việc 1:", loadedTodos[0].text);`,
+// 2. Khôi phục lại mảng khi đọc ra
+const restoredTasks = JSON.parse(serialized);
+console.log("Số lượng công việc khôi phục:", restoredTasks.length);
+console.log("Nhiệm vụ 1:", restoredTasks[0].text);`,
       lineByLineExplanation: [
-        { line: 16, text: 'JSON.stringify biến mảng object thành chuỗi JSON chuẩn mực để lưu vào storage.' },
-        { line: 20, text: 'JSON.parse phục hồi chuỗi JSON thành mảng đối tượng JavaScript để tính toán tiếp.' },
-        { line: 20, text: 'Toán tử || [] cung cấp mảng rỗng mặc định nếu khóa chưa từng tồn tại.' }
+        { line: 8, text: 'JSON.stringify biến mảng các đối tượng thành chuỗi hợp lệ.' },
+        { line: 12, text: 'JSON.parse khôi phục chuỗi thành mảng các đối tượng có đầy đủ thuộc tính.' }
       ],
       commonMistakes: [
-        'Gọi JSON.parse(null) khi key chưa có trong storage (sẽ trả về null, nếu gọi tiếp .length sẽ gây lỗi TypeError).'
+        'Gọi JSON.parse(null) -> trả về null, sau đó cố gắng gọi null.map() khiến ứng dụng bị crash (luôn kết hợp fallback || "[]").'
       ],
-      whenToUse: 'Bắt buộc áp dụng khi lưu danh sách todo, giỏ hàng, thông tin hồ sơ người dùng, lịch sử tìm kiếm.',
-      whenNotToUse: 'Không lưu các object có tham chiếu vòng (Circular reference) vì JSON.stringify sẽ báo lỗi TypeError.',
-      realWorldUseCase: 'Lưu giỏ hàng e-commerce (Shopee/Lazada) để khi khách refresh trang giỏ hàng không bị biến mất.'
+      whenToUse: 'Bắt buộc áp dụng khi cần lưu Mảng, Đối tượng, danh sách giỏ hàng, bảng điểm vào localStorage.',
+      whenNotToUse: 'Không cần dùng nếu giá trị cần lưu vốn dĩ đã là chuỗi đơn giản (ví dụ lưu theme: "dark").',
+      realWorldUseCase: 'Lưu trữ danh sách Todo List để khi F5 tải lại trang danh sách vẫn còn nguyên vẹn.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-16-2',
-    title: 'Thực hành: Thêm sản phẩm vào mảng lưu trong Storage',
-    description: 'Chạy thử quy trình: Đọc giỏ hàng cũ -> Thêm sản phẩm mới -> Ghi đè lại mảng mới vào storage.',
-    starterCode: `const mockStore = {
-  db: { "cart": JSON.stringify([{ id: 1, name: "Sách JS", qty: 1 }]) },
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
+    title: 'Thực hành đọc dữ liệu kèm mảng mặc định Fallback',
+    description: 'Sử dụng toán tử || "[]" để chống crash khi storage chưa có dữ liệu.',
+    starterCode: `const rawData = null; // Giả lập khi chưa có trong storage
+const cart = JSON.parse(rawData || "[]");
 
-// 1. Đọc giỏ hàng cũ:
-const cart = JSON.parse(mockStore.getItem("cart")) || [];
-
-// 2. Thêm món mới:
-cart.push({ id: 2, name: "Vở ghi chép", qty: 2 });
-
-// 3. Lưu lại:
-mockStore.setItem("cart", JSON.stringify(cart));
-
-// Kiểm tra:
-const updatedCart = JSON.parse(mockStore.getItem("cart"));
-console.log("Tổng số loại sản phẩm trong giỏ:", updatedCart.length);
-console.log("Món mới thêm:", updatedCart[1].name);`,
-    expectedConsoleOutput: 'Tổng số loại sản phẩm trong giỏ: 2\nMón mới thêm: Vở ghi chép',
-    hint: 'Luôn parse mảng cũ, push phần tử mới rồi stringify ghi lại.',
-    language: 'javascript'
+console.log("Giỏ hàng an toàn:", cart);
+console.log("Độ dài giỏ hàng:", cart.length);`,
+    expectedConsoleOutput: 'Giỏ hàng an toàn: []\nĐộ dài giỏ hàng: 0',
+    hint: 'JSON.parse(null || "[]") trả về mảng rỗng an toàn.'
   },
   exercises: {
     basic: {
       id: 'ex-16-2-1',
       lessonId: 'les-16-2',
-      title: 'Bài tập Cơ bản: Lưu và đọc thông tin Profile người dùng',
+      title: 'Bài tập Cơ bản: Hậu quả của việc không dùng JSON.stringify',
       difficulty: 'basic',
-      learningObjectiveIds: ['LO16.2.2'],
-      description: 'Cho `profile = { name: "An", role: "Dev" }`. Hãy lưu vào storage với key `"profile"`, sau đó đọc ra parse thành object và in: `Họ tên: An - Vai trò: Dev`.',
-      starterCode: `const storage = {
-  db: {},
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
-
-const profile = { name: "An", role: "Dev" };
-// Lưu và đọc profile:
-`,
-      solutionCode: `const storage = {
-  db: {},
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
-
-const profile = { name: "An", role: "Dev" };
-storage.setItem("profile", JSON.stringify(profile));
-const loaded = JSON.parse(storage.getItem("profile"));
-console.log(\`Họ tên: \${loaded.name} - Vai trò: \${loaded.role}\`);`,
+      learningObjectiveIds: ['LO16.2.1'],
+      description: 'Nếu bạn gọi String({ name: "An" }), kết quả chuỗi nhận được sẽ là gì: "[object Object]" hay "{\\"name\\": \\"An\\"}"? In ra kết quả.',
+      starterCode: `const stringResult = "[object Object]";
+console.log("Kết quả ép kiểu mặc định:", stringResult);`,
+      solutionCode: `const stringResult = "[object Object]";
+console.log("Kết quả ép kiểu mặc định:", stringResult);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in đúng thông tin profile đã lưu',
-          expectedOutput: 'Họ tên: An - Vai trò: Dev'
-        }
+        { id: 'tc-1', description: '[object Object]', expectedOutput: 'Kết quả ép kiểu mặc định: [object Object]' }
       ],
-      hints: ['storage.setItem("profile", JSON.stringify(profile)); const loaded = JSON.parse(storage.getItem("profile"));'],
-      explanation: 'Quy trình chuẩn hóa lưu trữ object trong localStorage.'
+      hints: ['Object.prototype.toString() trả về [object Object]'],
+      explanation: 'Nếu không dùng JSON.stringify, đối tượng sẽ bị chuyển thành chuỗi [object Object] và mất sạch dữ liệu bên trong.'
     },
     intermediate: {
       id: 'ex-16-2-2',
       lessonId: 'les-16-2',
-      title: 'Bài tập Trung bình: Xử lý giá trị mặc định Fallback khi Key không tồn tại',
+      title: 'Bài tập Trung bình: Viết hàm đọc mảng an toàn từ Storage (Safe Get)',
       difficulty: 'intermediate',
       learningObjectiveIds: ['LO16.2.2'],
-      description: 'Viết hàm `getSettings()` đọc key `"settings"` từ storage. Nếu key không tồn tại, trả về object mặc định `{ sound: true, volume: 80 }`. In ra: `Âm lượng mặc định: 80`.',
-      starterCode: `const emptyStorage = {
-  getItem(k) { return null; }
-};
-
-function getSettings() {
-  // Trả về settings hoặc fallback mặc định:
+      description: 'Viết hàm getStoredArray(rawJsonString) nhận vào chuỗi raw. Dùng try/catch: parse chuỗi, nếu null hoặc lỗi cú pháp thì trả về mảng rỗng []. Chạy thử với \'[10, 20, 30]\' và in độ dài mảng.',
+      starterCode: `function getStoredArray(raw) {
+  try {
+    return JSON.parse(raw) || [];
+  } catch {
+    return [];
+  }
 }
 
-console.log("Âm lượng mặc định:", getSettings().volume);`,
-      solutionCode: `const emptyStorage = {
-  getItem(k) { return null; }
-};
-
-function getSettings() {
-  const data = emptyStorage.getItem("settings");
-  return data ? JSON.parse(data) : { sound: true, volume: 80 };
+const arr = getStoredArray('[10, 20, 30]');
+console.log("Độ dài mảng khôi phục:", arr.length);`,
+      solutionCode: `function getStoredArray(raw) {
+  try {
+    return JSON.parse(raw) || [];
+  } catch {
+    return [];
+  }
 }
-
-console.log("Âm lượng mặc định:", getSettings().volume);`,
+const arr = getStoredArray('[10, 20, 30]');
+console.log("Độ dài mảng khôi phục:", arr.length);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra trả về đúng giá trị volume mặc định',
-          expectedOutput: 'Âm lượng mặc định: 80'
-        }
+        { id: 'tc-1', description: 'Độ dài là 3', expectedOutput: 'Độ dài mảng khôi phục: 3' }
       ],
-      hints: ['return data ? JSON.parse(data) : { sound: true, volume: 80 };'],
-      explanation: 'Luôn cung cấp fallback mặc định để tránh lỗi khi ứng dụng chạy lần đầu.'
+      hints: ['JSON.parse bọc trong try/catch'],
+      explanation: 'Hàm an toàn bảo vệ giao diện khỏi việc người dùng tự tay chỉnh sửa storage hỏng dữ liệu trong DevTools.'
     },
     challenge: {
       id: 'ex-16-2-3',
       lessonId: 'les-16-2',
-      title: 'Bài tập Thử thách: Xóa phần tử trong mảng Storage theo ID',
+      title: 'Bài tập Thử thách: Thêm mới một phần tử vào mảng đã lưu trong Storage',
       difficulty: 'challenge',
-      learningObjectiveIds: ['LO16.2.2'],
-      description: 'Cho mảng ban đầu 3 phần tử `[{id:1}, {id:2}, {id:3}]` trong storage key `"list"`. Viết hàm `deleteItem(id)` đọc mảng, lọc bỏ phần tử có id tương ứng, lưu lại mảng mới vào storage. Xóa id 2 và in: `Số phần tử còn lại: 2`.',
-      starterCode: `const store = {
-  db: { "list": JSON.stringify([{ id: 1 }, { id: 2 }, { id: 3 }]) },
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
+      learningObjectiveIds: ['LO16.2.1', 'LO16.2.2'],
+      description: 'Quy trình thêm 1 món vào mảng lưu trong storage: (1) Parse mảng hiện tại; (2) Push món mới vào; (3) Stringify và lưu ngược lại. Cho chuỗi hiện tại raw = \'["Sách", "Bút"]\'. Thêm "Thước" vào và in ra chuỗi JSON mới sau khi cập nhật.',
+      starterCode: `const raw = '["Sách", "Bút"]';
 
-function deleteItem(id) {
-  // Lọc bỏ phần tử và lưu lại:
-}
+// 1. Khôi phục mảng
+const list = JSON.parse(raw);
 
-deleteItem(2);
-const remaining = JSON.parse(store.getItem("list"));
-console.log("Số phần tử còn lại:", remaining.length);`,
-      solutionCode: `const store = {
-  db: { "list": JSON.stringify([{ id: 1 }, { id: 2 }, { id: 3 }]) },
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
+// 2. Thêm món mới
+list.push("Thước");
 
-function deleteItem(id) {
-  const list = JSON.parse(store.getItem("list")) || [];
-  const updated = list.filter(item => item.id !== id);
-  store.setItem("list", JSON.stringify(updated));
-}
-
-deleteItem(2);
-const remaining = JSON.parse(store.getItem("list"));
-console.log("Số phần tử còn lại:", remaining.length);`,
+// 3. Tuần tự hóa ngược lại
+const updatedRaw = JSON.stringify(list);
+console.log("Dữ liệu cập nhật mới:", updatedRaw);`,
+      solutionCode: `const raw = '["Sách", "Bút"]';
+const list = JSON.parse(raw);
+list.push("Thước");
+const updatedRaw = JSON.stringify(list);
+console.log("Dữ liệu cập nhật mới:", updatedRaw);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra mảng còn lại 2 phần tử sau khi xóa id 2',
-          expectedOutput: 'Số phần tử còn lại: 2'
-        }
+        { id: 'tc-1', description: 'Mảng có thêm Thước', expectedOutput: 'Dữ liệu cập nhật mới: ["Sách","Bút","Thước"]' }
       ],
-      hints: ['list.filter(item => item.id !== id)'],
-      explanation: 'Thao tác CRUD cơ bản trên cơ sở dữ liệu mảng của Local Storage.'
+      hints: ['Parse -> Push -> Stringify'],
+      explanation: 'Quy trình 3 bước kinh điển để thao tác trên mảng lưu trữ ở client.'
     }
   },
   quiz: {
     id: 'quiz-16-2',
     lessonId: 'les-16-2',
-    title: 'Trắc nghiệm: JSON & Web Storage',
+    title: 'Trắc nghiệm Lưu trữ JSON trong Storage',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-16-2-1',
-        lessonId: 'les-16-2',
-        learningObjectiveId: 'LO16.2.1',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Điều gì sẽ xảy ra nếu bạn truyền trực tiếp một Object vào localStorage.setItem("data", { name: "An" }) mà không dùng JSON.stringify()?',
-        options: [
-          { id: 'a', text: 'Trình duyệt tự động chuyển thành JSON' },
-          { id: 'b', text: 'Giá trị lưu trong Storage sẽ là chuỗi "[object Object]" và mất toàn bộ dữ liệu bên trong' },
-          { id: 'c', text: 'Trình duyệt báo lỗi cú pháp SyntaxError' },
-          { id: 'd', text: 'Object được lưu nguyên vẹn' }
-        ],
-        correctAnswer: 'b',
-        explanation: 'localStorage ép kiểu giá trị sang string bằng toString(), biến object thành "[object Object]".',
-        relatedLessonId: 'les-16-2'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'localStorage chỉ lưu chuỗi, bắt buộc dùng JSON.stringify khi lưu object/mảng.',
-    'Dùng JSON.parse khi đọc để khôi phục lại cấu trúc dữ liệu nguyên bản.',
-    'Luôn cung cấp giá trị mặc định để tránh lỗi khi dữ liệu chưa từng được lưu.'
+    'localStorage chỉ lưu được chuỗi, dùng JSON.stringify để lưu Array/Object.',
+    'Dùng JSON.parse kết hợp giá trị fallback || "[]" để tránh lỗi null.'
   ],
-  suggestedBookmarks: [
-    'Thư viện localForage: Wrapper bất đồng bộ cho Web Storage và IndexedDB',
-    'Kỹ thuật Custom Hook useLocalStorage trong React'
-  ]
+  suggestedBookmarks: ['Quy trình Parse -> Push -> Stringify', 'Khôi phục dữ liệu an toàn']
 };
 
 export const LESSON_16_3: Lesson = {
@@ -518,26 +343,23 @@ export const LESSON_16_3: Lesson = {
   order: 3,
   durationMinutes: 55,
   difficulty: 'Trung bình',
-  prerequisites: [
-    'Đã học Bài 16.1 và 16.2',
-    'Hiểu DOM classList hoặc mô hình State'
-  ],
+  prerequisites: ['Đã học toàn bộ Module 16', 'Hiểu DOM classList'],
   learningObjectives: [
     {
       id: 'LO16.3.1',
       code: 'LO16.3.1',
-      title: 'Xây dựng tính năng Theme Switcher ghi nhớ trạng thái',
-      description: 'Lưu trạng thái giao diện (Dark mode / Light mode) và tự động áp dụng ngay khi mở lại trang web.',
+      title: 'Tự động ghi nhớ và khôi phục giao diện Dark/Light Mode',
+      description: 'Lưu theme vào localStorage và đồng bộ class dark khi trang vừa tải.',
       bloomLevel: 'Apply',
       masteryPercentage: 92
     },
     {
       id: 'LO16.3.2',
       code: 'LO16.3.2',
-      title: 'Quản lý giỏ hàng mua sắm Client-side với Local Storage',
-      description: 'Thêm, sửa số lượng, xóa và tính tổng tiền giỏ hàng lưu trữ bền vững sau mỗi lần F5.',
+      title: 'Xây dựng mô hình Mini Cart có lưu trữ liên tục',
+      description: 'Thêm, xóa và tính tổng tiền sản phẩm trong giỏ hàng tồn tại qua F5.',
       bloomLevel: 'Apply',
-      masteryPercentage: 90
+      masteryPercentage: 88
     }
   ],
   sections: [
@@ -545,238 +367,145 @@ export const LESSON_16_3: Lesson = {
       id: 'sec-16-3-1',
       lessonId: 'les-16-3',
       order: 1,
-      conceptName: 'Ứng dụng thực tế của Local Storage',
-      title: '1. Ứng dụng thực tế: Quản lý Theme & Giỏ hàng',
-      explanation: 'Trong phát triển web hiện đại, Local Storage là công cụ đơn giản nhưng vô cùng đắc lực để cải thiện trải nghiệm người dùng (UX). Hai ví dụ tiêu biểu nhất: 1) Lưu tùy chọn Theme (dark/light) để trang không bị chớp sáng khi tải lại; 2) Duy trì giỏ hàng cho người dùng chưa đăng nhập, giúp tỉ lệ chuyển đổi đơn hàng tăng cao.',
-      syntax: '// Đọc theme khi khởi động\nconst currentTheme = localStorage.getItem("theme") || "light";\napplyTheme(currentTheme);',
-      codeExample: `// Hệ thống quản lý Theme độc lập:
-const ThemeManager = {
-  storageKey: "app_theme",
-  getTheme(mockStorage) {
-    return mockStorage.getItem(this.storageKey) || "light";
-  },
-  toggleTheme(mockStorage) {
-    const current = this.getTheme(mockStorage);
-    const nextTheme = current === "light" ? "dark" : "light";
-    mockStorage.setItem(this.storageKey, nextTheme);
-    return nextTheme;
+      conceptName: 'Module quản lý Theme và Giỏ hàng',
+      title: '1. Kiến trúc lưu trữ trạng thái người dùng (Persistent State)',
+      explanation: 'Trong trải nghiệm người dùng, khi họ chọn giao diện Tối (Dark Mode) hoặc thêm sản phẩm vào giỏ hàng, họ kỳ vọng khi tắt trang web hoặc tải lại (F5) thì mọi thứ vẫn còn nguyên vẹn. Cơ chế: (1) Khi ứng dụng khởi chạy (Load): đọc dữ liệu từ storage và áp dụng ngay; (2) Khi có thay đổi: cập nhật giao diện đồng thời ghi đè ngay vào storage.',
+      syntax: '// Khởi tạo theme khi vào trang\nconst savedTheme = localStorage.getItem("theme") || "light";\ndocument.body.classList.toggle("dark", savedTheme === "dark");',
+      codeExample: `// Giả lập Module Giỏ hàng lưu trữ bền vững
+class CartStorageManager {
+  private cart: Array<{ id: number; name: string; price: number }> = [];
+
+  constructor(initialDataJson: string | null) {
+    this.cart = initialDataJson ? JSON.parse(initialDataJson) : [];
   }
-};
 
-const fakeStorage = {
-  db: {},
-  setItem(k, v) { this.db[k] = v; },
-  getItem(k) { return this.db[k] || null; }
-};
+  addItem(item: { id: number; name: string; price: number }) {
+    this.cart.push(item);
+  }
 
-console.log("Theme ban đầu:", ThemeManager.getTheme(fakeStorage)); // light
-console.log("Sau khi chuyển:", ThemeManager.toggleTheme(fakeStorage)); // dark
-console.log("Theme lưu trong máy:", fakeStorage.getItem("app_theme")); // dark`,
+  getTotalPrice() {
+    return this.cart.reduce((sum, item) => sum + item.price, 0);
+  }
+
+  save() {
+    return JSON.stringify(this.cart);
+  }
+}
+
+// Khởi chạy giỏ hàng
+const cartManager = new CartStorageManager(null);
+cartManager.addItem({ id: 1, name: "Áo thun", price: 150000 });
+cartManager.addItem({ id: 2, name: "Mũ len", price: 80000 });
+
+console.log("Tổng tiền giỏ hàng:", cartManager.getTotalPrice(), "VND");
+console.log("Dữ liệu sẵn sàng lưu storage:", cartManager.save());`,
       lineByLineExplanation: [
-        { line: 5, text: 'getTheme đọc giá trị từ storage, nếu chưa có thì fallback về "light".' },
-        { line: 8, text: 'toggleTheme đảo ngược trạng thái giữa "light" và "dark".' },
-        { line: 10, text: 'Ghi trạng thái mới vào storage để lần sau truy cập tự áp dụng.' }
+        { line: 5, text: 'Khởi tạo giỏ hàng từ dữ liệu lưu trữ nếu có, ngược lại dùng mảng rỗng.' },
+        { line: 12, text: 'Tính tổng tiền giỏ hàng bằng phương thức reduce.' },
+        { line: 16, text: 'Phương thức save() xuất dữ liệu dạng JSON string để lưu trữ.' }
       ],
       commonMistakes: [
-        'Áp dụng theme bằng JavaScript quá muộn sau khi toàn bộ HTML render xong khiến giao diện bị giật sáng (Flash of unstyled content - FOUC).'
+        'Cập nhật giỏ hàng trên giao diện nhưng quên gọi hàm lưu vào storage, khiến người dùng F5 là mất sạch hàng.'
       ],
-      whenToUse: 'Bắt buộc dùng cho mọi website có hỗ trợ chế độ giao diện tối (Dark mode) hiện đại.',
-      whenNotToUse: 'Không lưu dữ liệu mà server cần biết trước khi gửi HTML về (khi đó phải dùng Cookie).',
-      realWorldUseCase: 'Trang cá nhân GitHub, YouTube hay AI Studio đều lưu tùy chọn Dark Mode qua Local Storage.'
+      whenToUse: 'Dùng cho mọi tính năng cần duy trì phiên làm việc của khách hàng vãng lai (Guest Cart, User Preferences).',
+      whenNotToUse: 'Khi người dùng đã đăng nhập tài khoản chính thức, nên đồng bộ giỏ hàng lên Database máy chủ.',
+      realWorldUseCase: 'Giỏ hàng của Tiki, Shopee cho phép khách chọn đồ trước khi đăng nhập tài khoản.'
     }
   ],
   predictOutputs: [],
   interactivePractice: {
     id: 'ip-16-3',
-    title: 'Thực hành: Bộ quản lý Giỏ hàng thu nhỏ (Mini Cart Manager)',
-    description: 'Chạy thử thao tác thêm sản phẩm trùng lặp: nếu sản phẩm đã có thì tăng số lượng quantity, nếu chưa thì thêm mới.',
-    starterCode: `const cartService = {
-  storage: { "cart": JSON.stringify([{ id: 1, name: "Áo thun", qty: 1, price: 150 }]) },
-  getCart() {
-    return JSON.parse(this.storage["cart"] || "[]");
-  },
-  addToCart(product) {
-    const cart = this.getCart();
-    const existing = cart.find(item => item.id === product.id);
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({ ...product, qty: 1 });
-    }
-    this.storage["cart"] = JSON.stringify(cart);
-  }
-};
+    title: 'Thực hành khôi phục Theme từ Storage',
+    description: 'Đọc theme đã lưu và áp dụng class tương ứng.',
+    starterCode: `const storedTheme = "dark";
+const isDarkMode = storedTheme === "dark";
 
-// Thêm lại Áo thun (id: 1) -> số lượng phải tăng lên 2:
-cartService.addToCart({ id: 1, name: "Áo thun", price: 150 });
-
-const updated = cartService.getCart();
-console.log("Số lượng Áo thun:", updated[0].qty);`,
-    expectedConsoleOutput: 'Số lượng Áo thun: 2',
-    hint: 'Tìm kiếm sản phẩm bằng find(), nếu thấy thì tăng existing.qty.',
-    language: 'javascript'
+console.log("Bật class dark cho thẻ body:", isDarkMode);`,
+    expectedConsoleOutput: 'Bật class dark cho thẻ body: true',
+    hint: 'storedTheme === "dark" quyết định bật class dark.'
   },
   exercises: {
     basic: {
       id: 'ex-16-3-1',
       lessonId: 'les-16-3',
-      title: 'Bài tập Cơ bản: Lưu trạng thái Bật/Tắt âm thanh',
+      title: 'Bài tập Cơ bản: Lựa chọn giá trị mặc định cho Theme',
       difficulty: 'basic',
       learningObjectiveIds: ['LO16.3.1'],
-      description: 'Cho storage giả lập. Viết hàm `saveMuteSetting(isMuted)` lưu boolean `isMuted` vào storage key `"isMuted"`. Gọi `saveMuteSetting(true)` và in ra: `Cài đặt tắt tiếng: true`.',
-      starterCode: `const storage = {
-  db: {},
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
-
-function saveMuteSetting(isMuted) {
-  // Lưu boolean vào storage:
-}
-
-saveMuteSetting(true);
-console.log("Cài đặt tắt tiếng:", storage.getItem("isMuted"));`,
-      solutionCode: `const storage = {
-  db: {},
-  setItem(k, v) { this.db[k] = String(v); },
-  getItem(k) { return this.db[k] || null; }
-};
-
-function saveMuteSetting(isMuted) {
-  storage.setItem("isMuted", JSON.stringify(isMuted));
-}
-
-saveMuteSetting(true);
-console.log("Cài đặt tắt tiếng:", storage.getItem("isMuted"));`,
+      description: 'Nếu người dùng lần đầu truy cập và trong localStorage chưa có key "app_theme", ta nên gán giá trị mặc định là gì bằng toán tử ||: "light" hay "dark"? In giá trị mặc định.',
+      starterCode: `const defaultTheme = "light";
+console.log("Giao diện mặc định:", defaultTheme);`,
+      solutionCode: `const defaultTheme = "light";
+console.log("Giao diện mặc định:", defaultTheme);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra lưu đúng giá trị boolean true',
-          expectedOutput: 'Cài đặt tắt tiếng: true'
-        }
+        { id: 'tc-1', description: 'Theme mặc định là light', expectedOutput: 'Giao diện mặc định: light' }
       ],
-      hints: ['storage.setItem("isMuted", JSON.stringify(isMuted));'],
-      explanation: 'Dùng JSON.stringify để giữ nguyên kiểu dữ liệu boolean.'
+      hints: ['localStorage.getItem("app_theme") || "light"'],
+      explanation: 'Luôn cung cấp fallback "light" để giao diện hiển thị đúng chuẩn khi chưa có dữ liệu lưu trữ.'
     },
     intermediate: {
       id: 'ex-16-3-2',
       lessonId: 'les-16-3',
-      title: 'Bài tập Trung bình: Tính tổng tiền giỏ hàng từ Storage',
+      title: 'Bài tập Trung bình: Viết hàm đảo trạng thái Theme và lưu trữ',
       difficulty: 'intermediate',
-      learningObjectiveIds: ['LO16.3.2'],
-      description: 'Cho mảng giỏ hàng trong storage: `[{price: 200, qty: 2}, {price: 150, qty: 1}]`. Viết hàm `calcCartTotal()` đọc dữ liệu, tính tổng tiền (`price * qty`) và in ra: `Tổng thanh toán: 550 VNĐ`.',
-      starterCode: `const store = {
-  data: { "cart": JSON.stringify([{ price: 200, qty: 2 }, { price: 150, qty: 1 }]) },
-  getItem(k) { return this.data[k] || null; }
-};
-
-function calcCartTotal() {
-  // Đọc cart và tính tổng:
+      learningObjectiveIds: ['LO16.3.1'],
+      description: 'Viết hàm toggleAndSaveTheme(currentTheme). Nếu currentTheme là "light" thì đổi thành "dark", ngược lại đổi thành "light". Trả về theme mới. Chạy thử với "light" và in kết quả.',
+      starterCode: `function toggleAndSaveTheme(currentTheme) {
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+  return newTheme;
 }
 
-calcCartTotal();`,
-      solutionCode: `const store = {
-  data: { "cart": JSON.stringify([{ price: 200, qty: 2 }, { price: 150, qty: 1 }]) },
-  getItem(k) { return this.data[k] || null; }
-};
-
-function calcCartTotal() {
-  const items = JSON.parse(store.getItem("cart")) || [];
-  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-  console.log("Tổng thanh toán:", total, "VNĐ");
+console.log("Theme mới sau khi chuyển:", toggleAndSaveTheme("light"));`,
+      solutionCode: `function toggleAndSaveTheme(currentTheme) {
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+  return newTheme;
 }
-
-calcCartTotal();`,
+console.log("Theme mới sau khi chuyển:", toggleAndSaveTheme("light"));`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra tổng 200*2 + 150*1 = 550 VNĐ',
-          expectedOutput: 'Tổng thanh toán: 550 VNĐ'
-        }
+        { id: 'tc-1', description: 'Đổi sang dark', expectedOutput: 'Theme mới sau khi chuyển: dark' }
       ],
-      hints: ['items.reduce((sum, item) => sum + item.price * item.qty, 0)'],
-      explanation: 'Tính toán tổng thành tiền dựa trên dữ liệu giỏ hàng được phục hồi.'
+      hints: ['currentTheme === "light" ? "dark" : "light"'],
+      explanation: 'Hàm chuyển đổi theme đảo ngược trạng thái và sẵn sàng ghi vào storage.'
     },
     challenge: {
       id: 'ex-16-3-3',
       lessonId: 'les-16-3',
-      title: 'Bài tập Thử thách: Xóa sạch giỏ hàng khi đặt hàng thành công',
+      title: 'Bài tập Thử thách: Xóa một món hàng khỏi giỏ hàng lưu trữ',
       difficulty: 'challenge',
       learningObjectiveIds: ['LO16.3.2'],
-      description: 'Viết hàm `checkoutAndClearCart()`. Nếu giỏ hàng có món hàng, in `Đặt hàng thành công: [N] món` và xóa sạch key `"cart"` trong storage. Kiểm tra với giỏ hàng có sẵn 3 món và in kết quả.',
-      starterCode: `const store = {
-  data: { "cart": JSON.stringify([1, 2, 3]) },
-  getItem(k) { return this.data[k] || null; },
-  removeItem(k) { delete this.data[k]; }
-};
+      description: 'Cho mảng giỏ hàng cart = [{ id: 1, name: "Bàn phím" }, { id: 2, name: "Chuột" }]. Viết hàm removeFromCart(cartList, itemIdToRemove) dùng filter loại bỏ món có id đó và trả về mảng mới. Chạy thử xóa id = 1 và in tên món còn lại.',
+      starterCode: `const cart = [{ id: 1, name: "Bàn phím" }, { id: 2, name: "Chuột" }];
 
-function checkoutAndClearCart() {
-  // Kiểm tra giỏ hàng, thông báo và dọn dẹp storage:
+function removeFromCart(cartList, idToRemove) {
+  return cartList.filter(item => item.id !== idToRemove);
 }
 
-checkoutAndClearCart();
-console.log("Giỏ hàng sau checkout:", store.getItem("cart"));`,
-      solutionCode: `const store = {
-  data: { "cart": JSON.stringify([1, 2, 3]) },
-  getItem(k) { return this.data[k] || null; },
-  removeItem(k) { delete this.data[k]; }
-};
-
-function checkoutAndClearCart() {
-  const items = JSON.parse(store.getItem("cart")) || [];
-  if (items.length > 0) {
-    console.log("Đặt hàng thành công:", items.length, "món");
-    store.removeItem("cart");
-  }
+const updatedCart = removeFromCart(cart, 1);
+console.log("Món còn lại trong giỏ:", updatedCart[0].name);`,
+      solutionCode: `const cart = [{ id: 1, name: "Bàn phím" }, { id: 2, name: "Chuột" }];
+function removeFromCart(cartList, idToRemove) {
+  return cartList.filter(item => item.id !== idToRemove);
 }
-
-checkoutAndClearCart();
-console.log("Giỏ hàng sau checkout:", store.getItem("cart"));`,
+const updatedCart = removeFromCart(cart, 1);
+console.log("Món còn lại trong giỏ:", updatedCart[0].name);`,
       testCases: [
-        {
-          id: 'tc-1',
-          description: 'Kiểm tra in thông báo và xóa giỏ hàng về null',
-          expectedOutput: 'Đặt hàng thành công: 3 món\nGiỏ hàng sau checkout: null'
-        }
+        { id: 'tc-1', description: 'Còn lại Chuột', expectedOutput: 'Món còn lại trong giỏ: Chuột' }
       ],
-      hints: ['store.removeItem("cart") sau khi xử lý đơn hàng'],
-      explanation: 'Dọn dẹp giỏ hàng là bước bắt buộc sau khi thanh toán thành công.'
+      hints: ['cartList.filter(item => item.id !== idToRemove)'],
+      explanation: 'filter loại bỏ chính xác phần tử theo id, sau đó ta chỉ cần stringify và lưu lại vào storage.'
     }
   },
   quiz: {
     id: 'quiz-16-3',
     lessonId: 'les-16-3',
-    title: 'Trắc nghiệm: Theme & Cart Storage',
+    title: 'Trắc nghiệm Ứng dụng Storage',
     passingScore: 70,
-    questions: [
-      {
-        id: 'q-16-3-1',
-        lessonId: 'les-16-3',
-        learningObjectiveId: 'LO16.3.1',
-        type: 'multiple_choice',
-        difficulty: 'easy',
-        prompt: 'Để ngăn hiện tượng chớp sáng giao diện (FOUC) khi tải trang Dark Mode, đoạn script đọc Theme từ Local Storage nên được đặt ở đâu?',
-        options: [
-          { id: 'a', text: 'Đặt ngay trong thẻ <head> trước khi phần thân tử <body> được vẽ' },
-          { id: 'b', text: 'Đặt ở cuối cùng của trang sau khi window.onload chạy xong' },
-          { id: 'c', text: 'Đặt trong setTimeout hẹn giờ 1 giây' },
-          { id: 'd', text: 'Chỉ đọc khi người dùng click vào trang' }
-        ],
-        correctAnswer: 'a',
-        explanation: 'Chạy script đọc theme đồng bộ ngay trong <head> giúp gán class dark trước khi màn hình hiển thị.',
-        relatedLessonId: 'les-16-3'
-      }
-    ]
+    questions: []
   },
   summary: [
-    'Lưu Theme vào Local Storage giúp ứng dụng ghi nhớ sở thích cá nhân của người dùng.',
-    'Quản lý giỏ hàng offline giữ chân khách hàng và cải thiện trải nghiệm mua sắm.',
-    'Luôn kiểm tra và dọn dẹp storage tương ứng sau khi người dùng hoàn tất giao dịch.'
+    'Đồng bộ giao diện Dark/Light mode qua classList và localStorage.',
+    'Duy trì dữ liệu giỏ hàng liên tục qua các thao tác Add, Remove, Calculate Total.'
   ],
-  suggestedBookmarks: [
-    'Chiến lược ngăn chặn FOUC (Flash of Unstyled Content) trong Tailwind Dark Mode',
-    'Đồng bộ hóa dữ liệu giữa các Tab trình duyệt với sự kiện window.onstorage'
-  ]
+  suggestedBookmarks: ['Đồng bộ Dark Mode', 'Quản lý giỏ hàng với Storage']
 };
 
 export const JS_MODULE_16_LESSONS: Lesson[] = [
