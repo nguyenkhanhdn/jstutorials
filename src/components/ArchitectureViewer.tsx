@@ -38,7 +38,7 @@ export const ArchitectureViewer: React.FC = () => {
               <span className="text-xs text-slate-500">Dành cho Hội đồng Khoa & Giảng viên</span>
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-              Tài liệu Kiến trúc & Đặc tả Hệ thống Học liệu số JavaScript
+              Tài liệu Kiến trúc & Đặc tả Hệ thống Học liệu số Web (HTML, CSS & JavaScript)
             </h1>
             <p className="text-xs text-slate-500 mt-1">
               Bản đặc tả chi tiết 12 phần theo đúng tiêu chuẩn kiểm định giáo dục nghề nghiệp và khoa học nhận thức.
