@@ -41,46 +41,97 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [cssDisplayMode, setCssDisplayMode] = useState<'topics' | 'modules'>('topics');
   
+  // Auto-collapse other tracks mode (True by default to keep workspace organized)
+  const [autoCollapseOthers, setAutoCollapseOthers] = useState<boolean>(true);
+
+  // Active track derived from currentLessonId
+  const activeTrack: CurriculumTrack = useMemo(() => {
+    if (currentLessonId.startsWith('les-html')) return 'html';
+    if (currentLessonId.startsWith('les-css') || currentLessonId.startsWith('topic-')) return 'css';
+    return 'javascript';
+  }, [currentLessonId]);
+
   // Track open state for 3 big sections
   const [openTracks, setOpenTracks] = useState<Record<CurriculumTrack, boolean>>({
-    html: true,
-    css: false,
-    javascript: false
+    html: activeTrack === 'html',
+    css: activeTrack === 'css',
+    javascript: activeTrack === 'javascript'
   });
 
-  // Auto-expand track and module when current lesson changes
+  // Track open state for individual modules within tracks (for multi-lesson modules)
+  const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+
+  // Auto-collapse other tracks and focus current module when current lesson changes
   React.useEffect(() => {
-    if (currentLessonId.startsWith('les-html')) {
-      setOpenTracks(prev => ({ ...prev, html: true }));
-    } else if (currentLessonId.startsWith('les-css')) {
-      setOpenTracks(prev => ({ ...prev, css: true }));
+    if (autoCollapseOthers) {
+      // Collapse other tracks when learning a topic (e.g., studying JS closes HTML and CSS)
+      setOpenTracks({
+        html: activeTrack === 'html',
+        css: activeTrack === 'css',
+        javascript: activeTrack === 'javascript'
+      });
     } else {
-      setOpenTracks(prev => ({ ...prev, javascript: true }));
+      // Ensure active track is open without closing others if autoCollapse is turned off
+      setOpenTracks(prev => ({ ...prev, [activeTrack]: true }));
     }
 
-    // Auto open the module containing this lesson
+    // Auto open only the module containing this lesson and collapse others
     const foundMod = [...HTML_MODULES, ...CSS_MODULES, ...JS_MODULES].find(m =>
       m.lessons.some(l => l.id === currentLessonId)
     );
     if (foundMod) {
-      setOpenModules(prev => ({ ...prev, [foundMod.id]: true }));
+      if (autoCollapseOthers) {
+        setOpenModules({ [foundMod.id]: true });
+      } else {
+        setOpenModules(prev => ({ ...prev, [foundMod.id]: true }));
+      }
     }
-  }, [currentLessonId]);
-
-  // Track open state for individual modules within tracks (for multi-lesson modules)
-  const [openModules, setOpenModules] = useState<Record<string, boolean>>({
-    'mod-html-1': true,
-    'mod-css-1': true,
-    'mod-1': true,
-    'mod-2': true
-  });
+  }, [currentLessonId, activeTrack, autoCollapseOthers]);
 
   const toggleTrack = (track: CurriculumTrack) => {
-    setOpenTracks(prev => ({ ...prev, [track]: !prev[track] }));
+    if (autoCollapseOthers) {
+      // If clicking the already open track, collapse it
+      if (openTracks[track]) {
+        setOpenTracks(prev => ({ ...prev, [track]: false }));
+      } else {
+        // If clicking a closed track, open it and collapse other tracks
+        setOpenTracks({
+          html: track === 'html',
+          css: track === 'css',
+          javascript: track === 'javascript'
+        });
+      }
+    } else {
+      setOpenTracks(prev => ({ ...prev, [track]: !prev[track] }));
+    }
   };
 
   const toggleModule = (moduleId: string) => {
     setOpenModules(prev => ({ ...prev, [moduleId]: !prev[moduleId] }));
+  };
+
+  const handleCollapseAll = () => {
+    setOpenTracks({
+      html: false,
+      css: false,
+      javascript: false
+    });
+    setOpenModules({});
+  };
+
+  const handleFocusCurrent = () => {
+    setOpenTracks({
+      html: activeTrack === 'html',
+      css: activeTrack === 'css',
+      javascript: activeTrack === 'javascript'
+    });
+
+    const foundMod = [...HTML_MODULES, ...CSS_MODULES, ...JS_MODULES].find(m =>
+      m.lessons.some(l => l.id === currentLessonId)
+    );
+    if (foundMod) {
+      setOpenModules({ [foundMod.id]: true });
+    }
   };
 
   // Filter modules based on search
@@ -173,6 +224,40 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
             </button>
           )}
         </div>
+
+        {/* Space Organization & Focus Controls */}
+        <div className="flex items-center justify-between pt-2.5 px-0.5 text-[11px]">
+          <button
+            onClick={() => setAutoCollapseOthers(prev => !prev)}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-lg font-bold transition-all ${
+              autoCollapseOthers
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs hover:bg-indigo-100/70'
+                : 'bg-slate-100 text-slate-500 hover:text-slate-700 border border-transparent'
+            }`}
+            title={autoCollapseOthers ? "Đang bật tự động thu gọn các chủ đề khác khi học một chủ đề" : "Bấm để bật tự động thu gọn các chủ đề khác"}
+          >
+            <Sparkles className={`w-3 h-3 ${autoCollapseOthers ? 'text-indigo-600' : 'text-slate-400'}`} />
+            <span>Tự đóng chủ đề khác: {autoCollapseOthers ? 'Bật' : 'Tắt'}</span>
+          </button>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleFocusCurrent}
+              className="text-slate-500 hover:text-indigo-600 font-semibold px-1.5 py-0.5 rounded hover:bg-slate-100 transition-colors"
+              title="Mở chủ đề đang học và đóng các chủ đề khác"
+            >
+              Tập trung
+            </button>
+            <span className="text-slate-300">•</span>
+            <button
+              onClick={handleCollapseAll}
+              className="text-slate-500 hover:text-indigo-600 font-semibold px-1.5 py-0.5 rounded hover:bg-slate-100 transition-colors"
+              title="Thu gọn tất cả các chủ đề"
+            >
+              Đóng hết
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Navigation Scroll Area */}
@@ -184,20 +269,35 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
         <div className="pt-1">
           <button
             onClick={() => toggleTrack('html')}
-            className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-orange-50/80 transition-colors group text-left"
+            className={`w-full flex items-center justify-between p-2 rounded-xl transition-all group text-left ${
+              activeTrack === 'html'
+                ? 'bg-orange-50/70 border border-orange-200/80 shadow-2xs'
+                : 'hover:bg-orange-50/50 border border-transparent'
+            }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                 <Code2 className="w-4 h-4" />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-extrabold text-sm text-slate-900 group-hover:text-orange-950">
                     1. HTML Tutorials
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">
-                    12 Chủ đề
-                  </span>
+                  {activeTrack === 'html' ? (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-orange-500 text-white shadow-xs">
+                      🎯 Đang học
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">
+                      12 Chủ đề
+                    </span>
+                  )}
+                  {!openTracks.html && (
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      (Đã thu gọn)
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-slate-500">Cấu trúc, Thẻ, Form, Bảng, Semantic</p>
               </div>
@@ -253,20 +353,35 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
         <div className="pt-3">
           <button
             onClick={() => toggleTrack('css')}
-            className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-blue-50/80 transition-colors group text-left"
+            className={`w-full flex items-center justify-between p-2 rounded-xl transition-all group text-left ${
+              activeTrack === 'css'
+                ? 'bg-blue-50/70 border border-blue-200/80 shadow-2xs'
+                : 'hover:bg-blue-50/50 border border-transparent'
+            }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                 <Palette className="w-4 h-4" />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-extrabold text-sm text-slate-900 group-hover:text-blue-950">
                     2. CSS Định kiểu & Giao diện
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                    34 Chủ đề
-                  </span>
+                  {activeTrack === 'css' ? (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-blue-600 text-white shadow-xs">
+                      🎯 Đang học
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                      34 Chủ đề
+                    </span>
+                  )}
+                  {!openTracks.css && (
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      (Đã thu gọn)
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-slate-500">Box Model, Flexbox, Grid, Animation, RWD</p>
               </div>
@@ -405,20 +520,35 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
         <div className="pt-3">
           <button
             onClick={() => toggleTrack('javascript')}
-            className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-amber-50/80 transition-colors group text-left"
+            className={`w-full flex items-center justify-between p-2 rounded-xl transition-all group text-left ${
+              activeTrack === 'javascript'
+                ? 'bg-amber-50/80 border border-amber-300/80 shadow-2xs'
+                : 'hover:bg-amber-50/50 border border-transparent'
+            }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                 <Terminal className="w-4 h-4" />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-extrabold text-sm text-slate-900 group-hover:text-amber-950">
                     3. JavaScript Thực chiến
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                    17 Modules
-                  </span>
+                  {activeTrack === 'javascript' ? (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 shadow-xs">
+                      🎯 Đang học
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      17 Modules
+                    </span>
+                  )}
+                  {!openTracks.javascript && (
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      (Đã thu gọn)
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-slate-500">DOM, Event, Async, Fetch, Mini Projects</p>
               </div>

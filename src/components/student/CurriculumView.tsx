@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -30,12 +30,31 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
   initialTrack = 'html'
 }) => {
   const [selectedTrack, setSelectedTrack] = useState<CurriculumTrack | 'all'>(initialTrack);
-  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
-    'mod-html-1': true,
-    'mod-html-2': true,
-    'mod-1': true,
-    'mod-2': true
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>(() => {
+    const initExp: Record<string, boolean> = {};
+    if (initialTrack === 'html') {
+      initExp['mod-html-1'] = true;
+    } else if (initialTrack === 'css') {
+      initExp['mod-css-1'] = true;
+    } else {
+      initExp['mod-1'] = true;
+    }
+    return initExp;
   });
+
+  // Sync selected track when initialTrack prop changes (e.g. user learning JS opens Curriculum view)
+  useEffect(() => {
+    if (initialTrack) {
+      setSelectedTrack(initialTrack);
+      if (initialTrack === 'html') {
+        setExpandedModules({ 'mod-html-1': true });
+      } else if (initialTrack === 'css') {
+        setExpandedModules({ 'mod-css-1': true });
+      } else {
+        setExpandedModules({ 'mod-1': true });
+      }
+    }
+  }, [initialTrack]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMode, setFilterMode] = useState<'all' | 'in_progress' | 'completed'>('all');
 

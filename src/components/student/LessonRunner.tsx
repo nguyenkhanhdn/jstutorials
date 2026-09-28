@@ -20,10 +20,10 @@ import {
   ListFilter
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { Lesson, Question, SelfAssessmentLevel } from '../../types';
+import { Lesson, Question, SelfAssessmentLevel, CurriculumTrack } from '../../types';
 import { CodeSandbox } from './CodeSandbox';
 import { evaluateTestCases, TestResult } from '../../services/codeRunner';
-import { CURRICULUM_MODULES } from '../../data/curriculumData';
+import { CURRICULUM_MODULES, HTML_MODULES, CSS_MODULES, JS_MODULES } from '../../data/curriculumData';
 
 interface LessonRunnerProps {
   lesson: Lesson;
@@ -49,6 +49,13 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
   type TabType = 'theory' | 'predict' | 'practice' | 'exercises' | 'quiz' | 'self_assess';
   const [activeTab, setActiveTab] = useState<TabType>('theory');
   const [showLessonSelector, setShowLessonSelector] = useState(false);
+  const currentTrack: CurriculumTrack = lesson.track === 'html' ? 'html' : lesson.track === 'css' ? 'css' : 'javascript';
+  const [selectorTrack, setSelectorTrack] = useState<CurriculumTrack>(currentTrack);
+
+  // Sync selector track with active lesson track
+  useEffect(() => {
+    setSelectorTrack(lesson.track === 'html' ? 'html' : lesson.track === 'css' ? 'css' : 'javascript');
+  }, [lesson.id, lesson.track]);
 
   // Predict Output states
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
@@ -223,34 +230,85 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
               </button>
 
               {showLessonSelector && (
-                <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-2xl border border-slate-200 shadow-xl z-50 p-2 space-y-2">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
-                    Danh mục bài học toàn khóa (17 Modules)
-                  </div>
-                  {CURRICULUM_MODULES.map(mod => (
-                    <div key={mod.id} className="space-y-1">
-                      <div className="text-xs font-black text-slate-700 px-2 pt-1 border-t border-slate-100">
-                        M{mod.number}. {mod.title}
-                      </div>
-                      {mod.lessons.map(l => (
-                        <button
-                          key={l.id}
-                          onClick={() => {
-                            setShowLessonSelector(false);
-                            onSelectLesson(l.id);
-                          }}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors ${
-                            l.id === lesson.id
-                              ? 'bg-indigo-50 font-bold text-indigo-700'
-                              : 'text-slate-600 hover:bg-slate-50'
-                          }`}
-                        >
-                          <span className="truncate pr-2">{l.title}</span>
-                          <span className="text-xs text-slate-400 shrink-0">{l.durationMinutes}p</span>
-                        </button>
-                      ))}
+                <div className="absolute right-0 mt-2 w-84 max-h-[30rem] overflow-hidden bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 flex flex-col">
+                  {/* Track Tabs with Focus indicator */}
+                  <div className="p-2.5 bg-slate-50 border-b border-slate-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+                        Mục lục bài học
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        🎯 Đóng chủ đề khác
+                      </span>
                     </div>
-                  ))}
+
+                    <div className="grid grid-cols-3 gap-1 bg-slate-200/70 p-1 rounded-xl text-xs font-bold">
+                      <button
+                        onClick={() => setSelectorTrack('javascript')}
+                        className={`py-1.5 px-1 rounded-lg text-center transition-all ${
+                          selectorTrack === 'javascript'
+                            ? 'bg-white text-amber-900 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        JS (17 Mod)
+                      </button>
+                      <button
+                        onClick={() => setSelectorTrack('html')}
+                        className={`py-1.5 px-1 rounded-lg text-center transition-all ${
+                          selectorTrack === 'html'
+                            ? 'bg-white text-orange-900 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        HTML (12)
+                      </button>
+                      <button
+                        onClick={() => setSelectorTrack('css')}
+                        className={`py-1.5 px-1 rounded-lg text-center transition-all ${
+                          selectorTrack === 'css'
+                            ? 'bg-white text-blue-900 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        CSS (8)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Modules of the active track (other tracks are collapsed) */}
+                  <div className="overflow-y-auto p-2 space-y-2 flex-1 max-h-80">
+                    {(selectorTrack === 'javascript' ? JS_MODULES : selectorTrack === 'html' ? HTML_MODULES : CSS_MODULES).map(mod => (
+                      <div key={mod.id} className="space-y-1">
+                        <div className="text-[11px] font-black text-slate-700 px-2 pt-1 border-t border-slate-100 flex items-center justify-between">
+                          <span className="truncate">
+                            {selectorTrack === 'html' ? `H${mod.number}. ` : selectorTrack === 'css' ? `C${mod.number}. ` : `M${mod.number}. `}
+                            {mod.title}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-normal">
+                            {mod.lessons.length} bài
+                          </span>
+                        </div>
+                        {mod.lessons.map(l => (
+                          <button
+                            key={l.id}
+                            onClick={() => {
+                              setShowLessonSelector(false);
+                              onSelectLesson(l.id);
+                            }}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors ${
+                              l.id === lesson.id
+                                ? 'bg-indigo-50 font-bold text-indigo-700'
+                                : 'text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span className="truncate pr-2">{l.title}</span>
+                            <span className="text-xs text-slate-400 shrink-0">{l.durationMinutes}p</span>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

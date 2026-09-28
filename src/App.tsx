@@ -275,6 +275,10 @@ function AppInner() {
               {studentSubView === 'curriculum' && (
                 <CurriculumView
                   onSelectLesson={handleStartLesson}
+                  initialTrack={
+                    currentLessonId.startsWith('les-html') ? 'html' :
+                    currentLessonId.startsWith('les-css') || currentLessonId.startsWith('topic-') ? 'css' : 'javascript'
+                  }
                 />
               )}
 
