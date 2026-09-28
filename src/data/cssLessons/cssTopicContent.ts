@@ -521,14 +521,13 @@ export function buildCssLessonForTopic(topicNumber: number): Lesson {
     durationMinutes: topic.durationMinutes,
     difficulty: topicNumber > 22 ? 'Nâng cao' : (topicNumber > 10 ? 'Trung bình' : 'Cơ bản'),
     prerequisites: [
-      topicNumber === 1 ? 'Đã hoàn thành các bài học HTML cơ bản' : `Đã nắm vững kiến thức bài CSS ${topicNumber - 1}`,
-      'Biết cách mở Developer Tools (F12) để kiểm tra phần tử DOM và CSS Rules'
+      topicNumber === 1 ? 'Nắm cấu trúc HTML cơ bản' : `Đã học bài CSS ${topicNumber - 1}`
     ],
     learningObjectives: [
       {
         id: `LO-CSS-${topicNumber}.1`,
         code: `LO-CSS-${topicNumber}.1`,
-        title: `Làm chủ kiến thức cốt lõi: ${topic.title}`,
+        title: `Hiểu rõ cú pháp & bản chất: ${topic.title}`,
         description: topic.summary,
         bloomLevel: 'Understand',
         masteryPercentage: 90
@@ -536,18 +535,10 @@ export function buildCssLessonForTopic(topicNumber: number): Lesson {
       {
         id: `LO-CSS-${topicNumber}.2`,
         code: `LO-CSS-${topicNumber}.2`,
-        title: 'Áp dụng cú pháp thực tế vào xây dựng giao diện',
-        description: `Thực hành áp dụng các thuộc tính ${topic.tags.join(', ')} trong dự án web thực chiến.`,
+        title: `Vận dụng thực chiến: ${topic.tags.slice(0, 3).join(', ')}`,
+        description: `Áp dụng định kiểu giao diện web chuẩn responsive.`,
         bloomLevel: 'Apply',
         masteryPercentage: 85
-      },
-      {
-        id: `LO-CSS-${topicNumber}.3`,
-        code: `LO-CSS-${topicNumber}.3`,
-        title: 'Tránh các lỗi kinh điển và tối ưu hóa trải nghiệm người dùng',
-        description: 'Nhận biết các bẫy hiển thị, vấn đề tương thích trình duyệt và tiêu chuẩn Web Accessibility.',
-        bloomLevel: 'Analyze',
-        masteryPercentage: 80
       }
     ],
     sections: [
@@ -556,22 +547,21 @@ export function buildCssLessonForTopic(topicNumber: number): Lesson {
         lessonId,
         order: 1,
         conceptName: topic.title,
-        title: `1. Tổng quan & Bản chất của ${topic.title}`,
-        explanation: `${topic.summary}\n\nTrong kiến trúc Frontend hiện đại, làm chủ ${topic.title} là điều kiện bắt buộc giúp bạn tạo ra giao diện đẹp mắt, chuẩn tỉ lệ, không bị xô lệch trên các kích thước màn hình và mang lại trải nghiệm người dùng mượt mà nhất.`,
+        title: `Trọng tâm: ${topic.title}`,
+        explanation: `${topic.summary}\n\nÝ nghĩa thực tế: Giúp giao diện hiển thị chuẩn xác, nhất quán và trực quan trên mọi kích thước màn hình.`,
         syntax: topicData.syntax,
         codeExample: topicData.codeExample,
         lineByLineExplanation: [
-          { line: 1, text: 'Khai báo selector hoặc quy tắc áp dụng cho phần tử mục tiêu.' },
-          { line: 2, text: 'Thiết lập các thuộc tính kiểu dáng tương ứng.' },
-          { line: 3, text: 'Đóng khối quy tắc và kiểm tra trên trình duyệt.' }
+          { line: 1, text: 'Khai báo selector nhắm tới phần tử mục tiêu.' },
+          { line: 2, text: 'Thiết lập thuộc tính điều khiển hiển thị theo thiết kế.' }
         ],
         commonMistakes: [
-          'Quên dấu chấm phẩy ; ở cuối mỗi khai báo thuộc tính khiến trình duyệt bỏ qua quy tắc tiếp theo.',
-          'Đặt sai selector hoặc không tính toán đủ trọng số Specificity khiến kiểu dáng bị ghi đè không mong muốn.'
+          'Quên dấu chấm phẩy (;) ở cuối khai báo khiến trình duyệt bỏ qua quy tắc tiếp theo.',
+          'Viết sai selector hoặc nhầm lẫn giữa class (.) và id (#).'
         ],
-        whenToUse: `Sử dụng khi cần xử lý ${topic.title} trong giao diện website thương mại điện tử, ứng dụng web hoặc landing page.`,
-        whenNotToUse: 'Tránh lạm dụng !important để ghi đè quy tắc, hãy tổ chức selector và Cascade Layers có kỷ luật.',
-        realWorldUseCase: `Xây dựng component giao diện chuẩn hệ thống Design System cho ${topic.englishTitle}.`
+        whenToUse: `Sử dụng khi cần định kiểu cho ${topic.title}.`,
+        whenNotToUse: 'Tránh lạm dụng !important để ghi đè quy tắc.',
+        realWorldUseCase: `Xây dựng giao diện chuẩn responsive cho ${topic.englishTitle}.`
       }
     ],
     predictOutputs: [

@@ -46,7 +46,7 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
   onBackToCurriculum,
   onSelectLesson
 }) => {
-  type TabType = 'theory' | 'predict' | 'practice' | 'exercises' | 'quiz' | 'self_assess';
+  type TabType = 'theory' | 'predict' | 'practice' | 'exercises';
   const [activeTab, setActiveTab] = useState<TabType>('theory');
   const [showLessonSelector, setShowLessonSelector] = useState(false);
   const currentTrack: CurriculumTrack = lesson.track === 'html' ? 'html' : lesson.track === 'css' ? 'css' : 'javascript';
@@ -74,14 +74,6 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
     challenge: null
   });
   const [isEvaluating, setIsEvaluating] = useState(false);
-
-  // Quiz states
-  const [quizAnswers, setQuizAnswers] = useState<Record<string, string | string[]>>({});
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [quizScore, setQuizScore] = useState<number | null>(null);
-
-  // Self assessment
-  const [selfRating, setSelfRating] = useState<SelfAssessmentLevel | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
 
   // Reset state when lesson changes
@@ -100,10 +92,6 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
       intermediate: null,
       challenge: null
     });
-    setQuizAnswers({});
-    setQuizSubmitted(false);
-    setQuizScore(null);
-    setSelfRating(null);
     setIsCompleted(false);
     setShowLessonSelector(false);
   }, [lesson.id]);
@@ -147,43 +135,6 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
         origin: { y: 0.7 }
       });
     }
-  };
-
-  // Submit Quiz
-  const handleSubmitQuiz = () => {
-    let correctCount = 0;
-    lesson.quiz.questions.forEach(q => {
-      const studentAns = quizAnswers[q.id];
-      if (Array.isArray(q.correctAnswer)) {
-        if (Array.isArray(studentAns) && 
-            studentAns.length === q.correctAnswer.length &&
-            studentAns.every(val => (q.correctAnswer as string[]).includes(val))) {
-          correctCount++;
-        }
-      } else {
-        if (studentAns === q.correctAnswer) {
-          correctCount++;
-        }
-      }
-    });
-
-    const scorePct = Math.round((correctCount / lesson.quiz.questions.length) * 100);
-    setQuizScore(scorePct);
-    setQuizSubmitted(true);
-
-    if (scorePct >= lesson.quiz.passingScore) {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    }
-  };
-
-  const handleSaveSelfAssessment = (level: SelfAssessmentLevel) => {
-    setSelfRating(level);
-    setIsCompleted(true);
-    onCompleteLesson(level);
   };
 
   return (
@@ -376,33 +327,20 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
           </div>
         </div>
 
-        {/* Prerequisites & Measurable Objectives */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-4 text-xs">
-          <div className="md:col-span-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span className="font-bold text-slate-700 uppercase tracking-wider block mb-1">
-              Kiến thức tiên quyết:
-            </span>
-            <ul className="list-disc list-inside text-slate-600 space-y-1">
-              {lesson.prerequisites.map((p, idx) => (
-                <li key={idx} className="leading-snug">{p}</li>
-              ))}
-            </ul>
+        {/* Compact Prerequisites & Measurable Objectives */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 text-xs bg-slate-50/80 p-3 rounded-xl border border-slate-200 mt-2">
+          <div className="flex items-center gap-2 text-slate-700">
+            <span className="font-bold shrink-0 text-slate-900">📌 Tiên quyết:</span>
+            <span className="text-slate-600 truncate max-w-sm">{lesson.prerequisites.slice(0, 2).join(' • ')}</span>
           </div>
-
-          <div className="md:col-span-8 bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
-            <span className="font-bold text-indigo-900 uppercase tracking-wider block mb-1">
-              Chuẩn đầu ra đo lường được (Measurable Learning Objectives):
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
-              {lesson.learningObjectives.map(lo => (
-                <div key={lo.id} className="flex items-start gap-1.5 bg-white p-2 rounded-lg border border-indigo-100 shadow-xs">
-                  <span className="font-mono font-bold text-indigo-700 shrink-0 text-xs px-1.5 py-0.5 bg-indigo-50 rounded">
-                    {lo.code}
-                  </span>
-                  <span className="text-xs leading-normal text-slate-800">{lo.title}</span>
-                </div>
-              ))}
-            </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-bold text-indigo-900 shrink-0 text-[11px]">🎯 Mục tiêu:</span>
+            {lesson.learningObjectives.slice(0, 2).map(lo => (
+              <span key={lo.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-indigo-200 text-indigo-800 text-[11px] font-semibold shadow-2xs">
+                <span className="font-mono font-bold text-indigo-600">{lo.code}</span>
+                <span className="truncate max-w-xs">{lo.title}</span>
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -416,10 +354,8 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
         ] : [
           { key: 'theory', label: '1. Khái niệm & Ví dụ', icon: BookOpen },
           { key: 'predict', label: '2. Dự đoán kết quả', icon: HelpCircle },
-          { key: 'practice', label: '3. Thực hành Console', icon: Terminal },
-          { key: 'exercises', label: '4. Bài tập phân cấp (L1-L3)', icon: Award },
-          { key: 'quiz', label: '5. Bài kiểm tra Quiz (10 câu)', icon: CheckCircle2 },
-          { key: 'self_assess', label: '6. Tự đánh giá năng lực', icon: Star },
+          { key: 'practice', label: '3. Thực hành Live Preview', icon: Terminal },
+          { key: 'exercises', label: '4. Bài tập thực hành', icon: Award },
         ]).map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -495,63 +431,55 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
                 <div>
                   <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                     <span>Ví dụ minh họa & Chạy thử:</span>
-                    <span className="text-slate-500 text-xs font-normal">Bạn có thể sửa code và chạy trực tiếp</span>
+                    <span className="text-slate-500 text-xs font-normal">Sửa code và bấm "Chạy code" để xem Live Preview</span>
                   </div>
                   <CodeSandbox
                     initialCode={section.codeExample}
                     title={`Ví dụ mục ${sIdx + 1}: ${section.conceptName}`}
+                    language={lesson.language || 'html'}
                     onOpenAITutor={(code, err) => onOpenAITutor(section.conceptName, code, err, 'Hãy giải thích ví dụ này cho tôi')}
                   />
                 </div>
               )}
 
               {/* Line-by-line breakdown */}
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-2">
-                  Giải thích từng dòng code:
-                </span>
-                <ul className="space-y-1.5 text-xs text-slate-700">
-                  {section.lineByLineExplanation.map((line, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
-                      <span>{line.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Common mistakes & When to use */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="bg-rose-50/60 p-4 rounded-xl border border-rose-200">
-                  <div className="flex items-center gap-1.5 text-rose-800 font-bold uppercase tracking-wider mb-2">
-                    <AlertTriangle className="w-4 h-4" />
-                    <span>Lỗi thường gặp của sinh viên:</span>
-                  </div>
-                  <ul className="list-disc list-inside text-rose-900 space-y-1">
-                    {section.commonMistakes.map((m, mIdx) => (
-                      <li key={mIdx} className="leading-snug">{m}</li>
+              {section.lineByLineExplanation && section.lineByLineExplanation.length > 0 && (
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-1.5">
+                    Giải thích từng dòng code:
+                  </span>
+                  <ul className="space-y-1 text-xs text-slate-700">
+                    {section.lineByLineExplanation.slice(0, 3).map((line, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
+                        <span>{line.text}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
+              )}
 
-                <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200">
-                  <div className="flex items-center gap-1.5 text-emerald-800 font-bold uppercase tracking-wider mb-2">
-                    <Check className="w-4 h-4" />
-                    <span>Khi nào nên / không nên sử dụng:</span>
+              {/* Compact Key Takeaways & Quick Tips */}
+              {(section.commonMistakes?.length > 0 || section.realWorldUseCase) && (
+                <div className="bg-amber-50/60 p-3.5 rounded-xl border border-amber-200/80 text-xs space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-amber-900 font-bold uppercase tracking-wider text-[11px]">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Lưu ý thực chiến & Mẹo ghi nhớ:</span>
                   </div>
-                  <p className="text-emerald-950 mb-1.5"><strong>Nên dùng:</strong> {section.whenToUse}</p>
-                  <p className="text-emerald-950"><strong>Tránh dùng:</strong> {section.whenNotToUse}</p>
+                  {section.commonMistakes?.length > 0 && (
+                    <ul className="list-disc list-inside text-amber-950 space-y-0.5">
+                      {section.commonMistakes.slice(0, 2).map((m, mIdx) => (
+                        <li key={mIdx} className="leading-snug">{m}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {section.realWorldUseCase && (
+                    <p className="text-amber-900 text-[11px] pt-1 border-t border-amber-200/60">
+                      <strong>Ứng dụng thực tế:</strong> {section.realWorldUseCase}
+                    </p>
+                  )}
                 </div>
-              </div>
-
-              {/* Real-world use case */}
-              <div className="bg-amber-50/50 p-3 rounded-xl border border-amber-200/80 flex items-start gap-2.5 text-xs">
-                <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-amber-900">Ứng dụng thực tế trong dự án Web: </strong>
-                  <span className="text-amber-950">{section.realWorldUseCase}</span>
-                </div>
-              </div>
+              )}
 
             </div>
           ))}
@@ -674,28 +602,30 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
               className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Xem lại lý thuyết</span>
+              <span>← Xem lại lý thuyết</span>
             </button>
             <button
               onClick={() => setActiveTab('practice')}
               className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
             >
-              <span>Tiếp tục: Thực hành Console</span>
+              <span>Tiếp tục: 3. Thực hành Live Preview</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* Tab 2: Examples & Interactive Practice */}
+      {/* Tab 2/3: Examples & Interactive Practice */}
       {activeTab === 'practice' && (
         <div className="space-y-6 animate-in fade-in duration-150">
           {/* Header Banner */}
           <div className="bg-amber-500/10 border border-amber-300 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-950">
             <Terminal className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <strong className="font-bold text-sm block mb-0.5">Phần 2: Ví dụ + Thực hành tương tác</strong>
-              Học qua thực hành: Hãy chạy thử các ví dụ mẫu trên Console Sandbox bên dưới, tự do sửa đổi mã nguồn và hoàn thành bài thực hành tương tác!
+              <strong className="font-bold text-sm block mb-0.5">
+                {isJsLesson ? 'Phần 2: Ví dụ + Thực hành tương tác' : 'Phần 3: Thực hành trực tiếp Live Preview'}
+              </strong>
+              Chạy thử code mẫu và chỉnh sửa trực tiếp để quan sát kết quả tức thì.
             </div>
           </div>
 
@@ -772,17 +702,17 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
 
           <div className="flex justify-between items-center pt-2">
             <button
-              onClick={() => setActiveTab('theory')}
+              onClick={() => setActiveTab(isJsLesson ? 'theory' : 'predict')}
               className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>← Quay lại: 1. Khái niệm</span>
+              <span>{isJsLesson ? '← Quay lại: 1. Khái niệm' : '← Quay lại: 2. Dự đoán'}</span>
             </button>
             <button
               onClick={() => setActiveTab('exercises')}
               className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95"
             >
-              <span>Tiếp tục: 3. Bài tập</span>
+              <span>{isJsLesson ? 'Tiếp tục: 3. Bài tập' : 'Tiếp tục: 4. Bài tập thực hành'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -934,50 +864,40 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
               className="w-full sm:w-auto px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>← Quay lại: 2. Ví dụ + Thực hành</span>
+              <span>{isJsLesson ? '← Quay lại: 2. Ví dụ + Thực hành' : '← Quay lại: 3. Thực hành Live Preview'}</span>
             </button>
 
-            {isJsLesson ? (
-              <div className="w-full sm:w-auto flex items-center gap-2">
-                {!isCompleted ? (
-                  <button
-                    onClick={handleCompleteLesson}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-95"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Hoàn thành bài học (+100 XP)</span>
-                  </button>
-                ) : (
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <span className="px-3 py-2 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl flex items-center gap-1.5 border border-emerald-200">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Đã hoàn thành!
-                    </span>
-                    {onNextLesson && (
-                      <button
-                        onClick={onNextLesson}
-                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95"
-                      >
-                        <span>Bài tiếp theo</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={() => setActiveTab('quiz')}
-                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
-              >
-                <span>Tiếp tục: Bài kiểm tra Quiz (10 câu)</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
+            <div className="w-full sm:w-auto flex items-center gap-2">
+              {!isCompleted ? (
+                <button
+                  onClick={handleCompleteLesson}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-95"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Hoàn thành bài học (+100 XP)</span>
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <span className="px-3 py-2 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl flex items-center gap-1.5 border border-emerald-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    Đã hoàn thành!
+                  </span>
+                  {onNextLesson && (
+                    <button
+                      onClick={onNextLesson}
+                      className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95"
+                    >
+                      <span>Bài tiếp theo</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Success Banner for JS Lessons */}
-          {isJsLesson && isCompleted && (
+          {/* Success Banner */}
+          {isCompleted && (
             <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center justify-between gap-4 mt-4 animate-in zoom-in-95">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shadow-md text-base">
@@ -1008,283 +928,24 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({
               </div>
             </div>
           )}
-        </div>
-      )}
 
-      {/* Tab 5: Lesson Quiz (Hidden for JS lessons) */}
-      {!isJsLesson && activeTab === 'quiz' && (
-        <div className="space-y-6 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
-              <div>
-                <h3 className="font-bold text-slate-900 text-lg">{lesson.quiz.title}</h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  10 câu hỏi đa định dạng • Điểm chuẩn đạt: {lesson.quiz.passingScore}% • Kiểm tra năng lực thực hành
-                </p>
+          {/* Key Takeaways Summary */}
+          {lesson.summary && lesson.summary.length > 0 && (
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 mt-4 text-xs">
+              <div className="flex items-center gap-2 font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+                <Check className="w-4 h-4 text-emerald-600" />
+                <span>Tóm tắt cốt lõi bài học (Key Takeaways):</span>
               </div>
-
-              {quizScore !== null && (
-                <div className={`px-4 py-2 rounded-xl text-sm font-bold border flex items-center gap-2 ${
-                  quizScore >= lesson.quiz.passingScore
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                    : 'bg-rose-50 border-rose-300 text-rose-800'
-                }`}>
-                  <span>Kết quả: {quizScore}/100</span>
-                  <span>({quizScore >= lesson.quiz.passingScore ? 'ĐẠT CHUẨN' : 'CHƯA ĐẠT'})</span>
-                </div>
-              )}
-            </div>
-
-            {/* Questions List */}
-            <div className="space-y-6 pt-6">
-              {lesson.quiz.questions.map((q, idx) => {
-                const isChecked = quizSubmitted;
-                const studentAns = quizAnswers[q.id];
-                const isCorrect = Array.isArray(q.correctAnswer)
-                  ? (Array.isArray(studentAns) && studentAns.length === q.correctAnswer.length && studentAns.every(v => (q.correctAnswer as string[]).includes(v)))
-                  : (studentAns === q.correctAnswer);
-
-                return (
-                  <div key={q.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/40 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-md bg-slate-900 text-white font-mono text-xs flex items-center justify-center font-bold">
-                          {idx + 1}
-                        </span>
-                        <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
-                          {q.learningObjectiveId}
-                        </span>
-                        <span className="text-[11px] text-slate-600 uppercase font-medium">
-                          {q.type.replace('_', ' ')}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => onOpenBookmark(`Quiz #${idx + 1}: ${q.prompt}`, 'question', q.prompt)}
-                        className="text-xs text-slate-600 hover:text-amber-700 flex items-center gap-1"
-                      >
-                        <BookmarkIcon className="w-3.5 h-3.5" />
-                        <span>Bookmark câu này</span>
-                      </button>
-                    </div>
-
-                    <p className="text-sm font-semibold text-slate-900 leading-relaxed">
-                      {q.prompt}
-                    </p>
-
-                    {q.codeSnippet && (
-                      <div className="bg-slate-900 text-slate-100 p-3 rounded-xl font-mono text-xs border border-slate-800">
-                        <pre className="whitespace-pre-wrap">{q.codeSnippet}</pre>
-                      </div>
-                    )}
-
-                    {/* Options list */}
-                    {q.options && (
-                      <div className="space-y-2 pt-1">
-                        {q.options.map(opt => {
-                          const isSelected = q.type === 'multiple_answer'
-                            ? Array.isArray(studentAns) && studentAns.includes(opt.id)
-                            : studentAns === opt.id;
-
-                          return (
-                            <button
-                              key={opt.id}
-                              disabled={isChecked}
-                              onClick={() => {
-                                if (q.type === 'multiple_answer') {
-                                  const current = Array.isArray(studentAns) ? [...studentAns] : [];
-                                  const next = current.includes(opt.id)
-                                    ? current.filter(x => x !== opt.id)
-                                    : [...current, opt.id];
-                                  setQuizAnswers(prev => ({ ...prev, [q.id]: next }));
-                                } else {
-                                  setQuizAnswers(prev => ({ ...prev, [q.id]: opt.id }));
-                                }
-                              }}
-                              className={`w-full p-3 rounded-xl border text-xs text-left flex items-start gap-2.5 transition-all ${
-                                isSelected
-                                  ? 'border-indigo-600 bg-indigo-50/80 font-bold text-indigo-950 ring-2 ring-indigo-600/20'
-                                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800'
-                              }`}
-                            >
-                              <div className={`w-4 h-4 rounded-full border shrink-0 mt-0.5 flex items-center justify-center ${
-                                isSelected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'
-                              }`}>
-                                {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />}
-                              </div>
-                              <span className="flex-1">{opt.text}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Feedback when submitted */}
-                    {isChecked && (
-                      <div className={`p-4 rounded-xl border text-xs leading-relaxed space-y-1 ${
-                        isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-950' : 'bg-rose-50 border-rose-200 text-rose-950'
-                      }`}>
-                        <div className="flex items-center gap-1.5 font-bold">
-                          {isCorrect ? (
-                            <>
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                              <span className="text-emerald-800">Đáp án chính xác!</span>
-                            </>
-                          ) : (
-                            <>
-                              <AlertTriangle className="w-4 h-4 text-rose-600" />
-                              <span className="text-rose-800">Chưa đúng!</span>
-                            </>
-                          )}
-                        </div>
-                        <p><strong>Giải thích sư phạm:</strong> {q.explanation}</p>
-                        {q.errorAnalysis && !isCorrect && (
-                          <p className="text-rose-800 text-[11px] pt-1">
-                            ⚠️ <strong>Phân tích lỗi tư duy:</strong> {q.errorAnalysis}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Submit Bar */}
-            <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
-              <span className="text-xs text-slate-500">
-                Đã trả lời: {Object.keys(quizAnswers).length}/{lesson.quiz.questions.length} câu
-              </span>
-              <div className="flex items-center gap-3">
-                {quizSubmitted ? (
-                  <button
-                    onClick={() => {
-                      setQuizSubmitted(false);
-                      setQuizScore(null);
-                      setQuizAnswers({});
-                    }}
-                    className="px-4 py-2 border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Làm lại bài kiểm tra</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmitQuiz}
-                    disabled={Object.keys(quizAnswers).length === 0}
-                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95"
-                  >
-                    Nộp bài & Xem phản hồi ngay
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center pt-2">
-            <button
-              onClick={() => setActiveTab('exercises')}
-              className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Bài tập phân cấp</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('self_assess')}
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
-            >
-              <span>Tiếp tục: Tự đánh giá năng lực</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 6: Self-Assessment & Completion (Hidden for JS lessons) */}
-      {!isJsLesson && activeTab === 'self_assess' && (
-        <div className="space-y-6 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
-            <div className="pb-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-lg">Tự đánh giá năng lực cá nhân (Self-Assessment)</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Theo chuẩn sư phạm đánh giá quá trình: Đánh giá trung thực mức độ tự tin của bạn để hệ thống tối ưu danh sách ôn tập thông minh (Spaced Review).
-              </p>
-            </div>
-
-            {/* 5 Levels of Self-Assessment */}
-            <div className="space-y-3">
-              {[
-                { level: 1 as SelfAssessmentLevel, label: 'Tôi chưa hiểu', desc: 'Cần giảng viên hoặc AI Tutor giải thích lại toàn bộ khái niệm', color: 'border-rose-200 bg-rose-50 text-rose-800' },
-                { level: 2 as SelfAssessmentLevel, label: 'Tôi hiểu một phần', desc: 'Hiểu được cú pháp cơ bản nhưng chưa tự tin khi áp dụng viết code', color: 'border-amber-200 bg-amber-50 text-amber-800' },
-                { level: 3 as SelfAssessmentLevel, label: 'Tôi có thể làm bài cơ bản', desc: 'Tự giải quyết được bài tập Level 1 và trả lời câu hỏi lý thuyết', color: 'border-blue-200 bg-blue-50 text-blue-800' },
-                { level: 4 as SelfAssessmentLevel, label: 'Tôi có thể tự giải quyết bài toán', desc: 'Vượt qua bài tập Challenge Level 3 và hiểu sâu các lỗi thường gặp', color: 'border-indigo-200 bg-indigo-50 text-indigo-800' },
-                { level: 5 as SelfAssessmentLevel, label: 'Tôi có thể giải thích lại cho người khác', desc: 'Đã hoàn toàn làm chủ kiến thức và có thể hỗ trợ các bạn cùng lớp', color: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
-              ].map(item => {
-                const isSelected = selfRating === item.level;
-                return (
-                  <button
-                    key={item.level}
-                    onClick={() => handleSaveSelfAssessment(item.level)}
-                    className={`w-full p-4 rounded-xl border text-left flex items-start gap-4 transition-all ${
-                      isSelected
-                        ? 'border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20 shadow-md'
-                        : 'border-slate-200 bg-white hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex gap-1 text-amber-400 mt-0.5">
-                      {[...Array(item.level)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-400" />
-                      ))}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-slate-900">{item.label}</div>
-                      <div className="text-xs text-slate-600 mt-0.5">{item.desc}</div>
-                    </div>
-                    {isSelected && (
-                      <CheckCircle2 className="w-5 h-5 text-indigo-600 shrink-0" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Summary & Key Takeaways */}
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                Tổng kết bài học (Summary & Key Takeaways):
-              </span>
-              <ul className="space-y-1.5 text-xs text-slate-700">
+              <ul className="space-y-1 text-slate-700">
                 {lesson.summary.map((sum, sIdx) => (
                   <li key={sIdx} className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span className="leading-snug">{sum}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
+                    <span>{sum}</span>
                   </li>
                 ))}
               </ul>
             </div>
-
-            {/* Completion Banner */}
-            {isCompleted && (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between animate-in zoom-in-95">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shadow-md">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-emerald-900 text-sm">Đã ghi nhận kết quả bài học vào Hồ sơ sinh viên!</h4>
-                    <p className="text-xs text-emerald-700">Trạng thái: Hoàn thành • Năng lực đã cập nhật</p>
-                  </div>
-                </div>
-                {onNextLesson && (
-                  <button
-                    onClick={onNextLesson}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
-                  >
-                    Chuyển sang bài tiếp theo →
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       )}
 

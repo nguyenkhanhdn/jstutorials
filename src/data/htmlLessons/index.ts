@@ -3,7 +3,7 @@ import { LESSON_HTML_1, LESSON_HTML_2, LESSON_HTML_3, LESSON_HTML_4 } from './ht
 import { LESSON_HTML_5, LESSON_HTML_6, LESSON_HTML_7, LESSON_HTML_8 } from './html5to8';
 import { LESSON_HTML_9, LESSON_HTML_10, LESSON_HTML_11, LESSON_HTML_12 } from './html9to12';
 
-export const ALL_HTML_LESSONS: Lesson[] = [
+const RAW_HTML_LESSONS: Lesson[] = [
   LESSON_HTML_1,
   LESSON_HTML_2,
   LESSON_HTML_3,
@@ -17,6 +17,22 @@ export const ALL_HTML_LESSONS: Lesson[] = [
   LESSON_HTML_11,
   LESSON_HTML_12
 ];
+
+// Ensure concise, focused content without long-winded paragraphs
+export const ALL_HTML_LESSONS: Lesson[] = RAW_HTML_LESSONS.map(l => ({
+  ...l,
+  prerequisites: l.prerequisites.slice(0, 2),
+  learningObjectives: l.learningObjectives.slice(0, 2).map(lo => ({
+    ...lo,
+    description: lo.description.length > 95 ? lo.description.slice(0, 92) + '...' : lo.description
+  })),
+  sections: l.sections.map(sec => ({
+    ...sec,
+    explanation: sec.explanation.split('\n\n')[0] || sec.explanation,
+    lineByLineExplanation: (sec.lineByLineExplanation || []).slice(0, 2),
+    commonMistakes: (sec.commonMistakes || []).slice(0, 2)
+  }))
+}));
 
 export const HTML_MODULES: Module[] = [
   {
